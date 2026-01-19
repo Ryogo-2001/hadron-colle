@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赤尾 亮伍 | Hadron Colle</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== ハドこれ 2.0 豪華版スタイル ===== */
+        :root {
+            --hc-dark: #1a1c23;
+            --hc-panel: rgba(30, 35, 50, 0.85); /* 半透明パネル */
+            --hc-orange: #f39c12;
+            --hc-blue: #3498db;
+            --hc-glow: #00f3ff;
+        }
+
+        /* 背景：サイバーなグリッド空間 */
+        .hc-container {
+            background-color: var(--hc-dark);
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, rgba(20, 30, 60, 0), #000);
+            background-size: 40px 40px, 40px 40px, 100% 100%;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            min-height: 700px;
+            position: relative;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            border: 1px solid #333;
+        }
+
+        /* ヘッダー演出 */
+        h1.game-title {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--hc-glow), 0 0 20px var(--hc-glow);
+            letter-spacing: 2px;
+        }
+        p.game-subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* 資源パネル：近未来的ダッシュボード */
+        .resource-panel {
+            display: flex;
+            justify-content: space-around;
+            background: var(--hc-panel);
+            backdrop-filter: blur(5px);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .res-item { text-align: center; position: relative; width: 22%; }
+        .res-item::after { /* 区切り線 */
+            content: ""; position: absolute; right: -10%; top: 10%; height: 80%; width: 1px; background: #444;
+        }
+        .res-item:last-child::after { display: none; }
+        .res-label { font-size: 0.75rem; color: #88a; text-transform: uppercase; letter-spacing: 1px; }
+        .res-val { font-size: 1.1rem; color: var(--hc-glow); font-family: 'Orbitron', sans-serif; }
+
+        /* メイン操作エリア（横並び） */
+        .dock-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        /* 建造ドック（円） */
+        .dock-circle {
+            width: 200px; height: 200px;
+            border: 4px solid var(--hc-orange);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            position: relative; cursor: pointer;
+            background: radial-gradient(circle, #333 0%, #111 100%);
+            box-shadow: 0 0 30px rgba(243, 156, 18, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .dock-circle::before { /* 回転するリング装飾 */
+            content: ""; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px;
+            border: 2px dashed rgba(243, 156, 18, 0.5); border-radius: 50%;
+            animation: spin 10s linear infinite;
+        }
+        .dock-circle:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(243, 156, 18, 0.6); }
+        .dock-circle:active { transform: scale(0.95); }
+
+        .dock-text { text-align: center; z-index: 2; }
+        .dock-label-main { font-size: 1.6rem; font-weight: bold; color: #fff; text-shadow: 0 0 5px black; }
+        .dock-label-sub { font-size: 0.8rem; color: var(--hc-orange); margin-top: 5px; }
+
+        /* ボタン群 */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-gacha {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border: 1px solid #5dade2;
+            color: white; font-size: 1rem; padding: 12px 30px;
+            border-radius: 4px; cursor: pointer; font-weight: bold;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.2s;
+            position: relative; overflow: hidden;
+        }
+        .btn-gacha:hover { transform: translateX(5px); box-shadow: 0 0 15px rgba(52, 152, 219, 0.6); }
+
+        /* 出撃ボタン（特別仕様） */
+        .btn-battle {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            border: 1px solid #ec7063;
+            color: white; font-size: 1.2rem; padding: 15px 40px;
+            border-radius: 4px; cursor: pointer; font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.4);
+            animation: pulse-red 2s infinite;
+            text-decoration: none; display: inline-block; text-align: center;
+        }
+        .btn-battle:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(231, 76, 60, 0.8); }
+
+        /* コレクションリスト */
+        .collection-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #333;
+        }
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .mini-card {
+            background: #2a2d35;
+            border: 1px solid #444;
+            border-radius: 6px;
+            height: 90px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.2s;
+        }
+        .mini-card:hover { transform: translateY(-3px); border-color: #aaa; }
+        .mini-card.got { opacity: 1; border-color: var(--hc-orange); background: linear-gradient(135deg, #3a3d45, #2a2d35); }
+        .mini-card:not(.got) { opacity: 0.4; filter: grayscale(100%); }
+        
+        /* 取得済みマーク */
+        .mini-card.got::after {
+            content: "GET"; position: absolute; bottom: 2px; right: 2px;
+            font-size: 0.6rem; color: var(--hc-orange); font-weight: bold;
+            font-family: sans-serif;
+        }
+        
+        .mini-symbol { font-size: 1.8rem; font-weight: bold; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .mini-rarity { font-size: 0.8rem; position: absolute; top: 2px; left: 5px; color: #ffd700; }
+
+        /* アニメーション定義 */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+
+        /* （既存のカード表示・パスワード系のスタイルはそのまま維持または調整） */
+        #password-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white; }
+        .card-display { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .particle-card { width: 100%; max-width: 320px; min-height: 450px; background: white; border-radius: 15px; position: relative; border: 8px solid #ccc; display: none; flex-direction: column; color: #333; animation: popIn 0.4s ease-out; }
+        /* ... 他のカードスタイルは前回のCSSを流用 ... */
+        .rarity-common { border-color: #888; }
+        .rarity-rare { border-color: #3498db; box-shadow: 0 0 30px #3498db; }
+        .rarity-holo { border-color: #f1c40f; box-shadow: 0 0 50px #f1c40f; }
+        .card-image-container img { width: 100%; height: 220px; object-fit: cover; }
+        .card-body { padding: 15px; flex: 1; }
+        .close-btn { margin-top: 20px; padding: 10px 40px; background: var(--hc-orange); border: none; color: white; font-size: 1.2rem; border-radius: 30px; cursor: pointer; }
+
+        /* 10連結果用 */
+        .result-10-container { display: none; width: 100%; max-width: 600px; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; }
+        .result-10-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .small-result-card { background: white; padding: 5px; border-radius: 5px; text-align: center; color: #333; font-size: 0.8rem; }
+        .small-result-card img { width: 100%; height: 60px; object-fit: cover; }
+        
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 80% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+    
+    <div id="password-overlay">
+        <div style="text-align:center;">
+            <h2 style="font-family:'Orbitron'; color:var(--hc-glow); margin-bottom:20px;">SECURITY CHECK</h2>
+            <input type="password" id="pass-input" placeholder="Password" style="padding:10px; font-size:1.2rem; text-align:center; border-radius:5px; border:none;">
+            <div style="margin-top:10px;">
+                <button onclick="checkPass()" style="padding:10px 30px; background:var(--hc-orange); border:none; color:white; font-weight:bold; cursor:pointer;">UNLOCK</button>
+            </div>
+            <div id="pass-error" style="color:red; display:none; margin-top:10px;">Access Denied</div>
+        </div>
+    </div>
+
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+    <div class="site-container">
+        <aside class="sidebar" id="sidebar"></aside>
+
+        <main class="main-content">
+            <section id="hadron-colle">
+                <h1 class="game-title">HADRON COLLECTION</h1>
+                <p class="game-subtitle">Advanced Particle Collider Simulation</p>
+
+                <div class="hc-container">
+                    <div class="resource-panel">
+                        <div class="res-item">
+                            <div class="res-label">Beam</div>
+                            <div class="res-val">MAX</div>
+                        </div>
+                        <div class="res-item">
+                            <div class="res-label">Storage</div>
+                            <div class="res-val">80%</div>
+                        </div>
+                        <div class="res-item">
+                            <div class="res-label">Budget</div>
+                            <div class="res-val">¥0</div>
+                        </div>
+                        <div class="res-item">
+                            <div class="res-label">Sanity</div>
+                            <div class="res-val">Green</div>
+                        </div>
+                    </div>
+
+                    <div class="dock-container">
+                        <div class="dock-circle" onclick="startGacha(1)">
+                            <div class="dock-text">
+                                <div class="dock-label-main">BUILD</div>
+                                <div class="dock-label-sub">Single (1x)</div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn-gacha" onclick="startGacha(10)">
+                                10x Multi Build <br><span style="font-size:0.7rem;">(10連建造)</span>
+                            </button>
+                            
+                            <a href="battle.html" class="btn-battle">
+                                BATTLE SORTIE <br><span style="font-size:0.8rem;">(出撃)</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <p id="status-msg" style="text-align:center; color:#888; margin-bottom:20px;">System Ready. Waiting for beam injection.</p>
+
+                    <div class="collection-section">
+                        <h3 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:5px;">Particle Archive</h3>
+                        <div class="collection-grid" id="collection-list"></div>
+                    </div>
+                </div>
+
+                <div class="card-display" id="result-overlay">
+                    <div class="particle-card" id="single-result">
+                        <div class="card-image-container">
+                            <img id="card-img" src="" alt="Particle">
+                        </div>
+                        <div class="card-body">
+                            <h2 id="card-name" style="margin:0; color:#333;">Name</h2>
+                            <p id="card-class" style="color:#666; margin:0 0 10px 0;">Class</p>
+                            <div id="card-desc" style="background:#f0f0f0; padding:10px; border-radius:5px; font-size:0.9rem; margin-bottom:10px;"></div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#555;">
+                                <span>Mass: <b id="card-mass"></b></span>
+                                <span>Quark: <b id="card-quark"></b></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-10-container" id="multi-result">
+                        <h2 style="text-align:center; margin-top:0;">Build Results</h2>
+                        <div class="result-10-grid" id="result-grid"></div>
+                    </div>
+
+                    <button class="close-btn" onclick="closeResult()">CONFIRM</button>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        // パスワード認証 (lambda)
+        function checkPass() {
+            const input = document.getElementById('pass-input').value;
+            if (input === "lambda") document.getElementById('password-overlay').style.display = "none";
+            else document.getElementById('pass-error').style.display = "block";
+        }
+
+        const placeholderImg = "image";
+
+        const particleDB = [
+            { id: 1, name: "Proton", symbol: "p", type: "Baryon", rarity: "common", mass: "938 MeV", s: "0", quark: "uud", 
+              image: placeholderImg + "/proton.png", // 例: "images/proton_chan.png" に書き換える
+              desc: "「陽子です。物質の基礎ですから、どこにでもいますよ。寿命？ 10^34年以上は生きるつもりですが？安定志向なんです。」" },
+            { id: 2, name: "Neutron", symbol: "n", type: "Baryon", rarity: "common", mass: "939 MeV", s: "0", quark: "udd", 
+              image: placeholderImg + "/neutron.png",
+              desc: "「中性子です。単体だと15分くらいで崩壊しちゃうんですよね…。原子核の中にいさせてください。誰かと一緒じゃないと不安で…。」" },
+            { id: 3, name: "Pion (+)", symbol: "π⁺", type: "Meson", rarity: "common", mass: "140 MeV", s: "0", quark: "ud̅", 
+              image: placeholderImg + "/pion.png", // 例: "images/pion.png"
+              desc: "「パイ中間子だよ！湯川博士に予言された由緒正しい粒子なんだからね！すぐミューオンになっちゃうけど、核力媒介は任せて！」" },
+            { id: 4, name: "Kaon (+)", symbol: "K⁺", type: "Meson", rarity: "rare", mass: "493 MeV", s: "+1", quark: "us̅", 
+              image: placeholderImg + "/kaon.png",
+              desc: "「K中間子ですわ。ストレンジネスを持っているので、生成にはちょっとエネルギーがいりますの。核物理界のアイドルとお呼びになって？」" },
+            { id: 5, name: "Lambda", symbol: "Λ", type: "Baryon", rarity: "rare", mass: "1115 MeV", s: "-1", quark: "uds", 
+              image: placeholderImg + "/lambda.png",
+              desc: "「ラムダです。陽子さんや中性子さんと一緒にハイパー核を作るのが趣味です。J-PARC E86実験の主役…かもしれません。ちょっと恥ずかしいです。」" },
+            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", type: "Baryon", rarity: "rare", mass: "1197 MeV", s: "-1", quark: "dds", 
+              image: placeholderImg + "/sigma.png",
+              desc: "「シグマです。中性子過剰な環境で見つかりやすい…かしら？アイソスピン1の仲間（Σ⁰, Σ⁺）がいます。私達三姉妹をよろしくね。」" },
+            { id: 7, name: "Ξ (-)", symbol: "Ξ⁻", type: "Baryon", rarity: "holo", mass: "1321 MeV", s: "-2", quark: "dss", 
+              image: placeholderImg + "/xi.png",
+              desc: "「グザイ（Ξ）粒子だ。ストレンジクォークを2つも持っているぞ。簡単には拝めない存在だ。崇めよ。…あ、あんまり見つめないでくれ。」" },
+            { id: 8, name: "H-Dibaryon", symbol: "H", type: "Exotic", rarity: "holo", mass: "???? MeV", s: "-2", quark: "uuddss", 
+              image: placeholderImg + "/h_dibaryon.png",
+              desc: "「Hダイバリオン…幻の粒子と呼ばれている。6つのクォークが集合したエキゾチックな存在だ。本当に存在するのか？それは君の実験次第だ…フフフ。」" },
+
+              // --- 新規追加キャラクター (New!) ---
+            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", type: "Resonance", rarity: "common", mass: "1232 MeV", s: "0", quark: "uuu", 
+              image: placeholderImg + "/delta.png", 
+              desc: "「デルタだよっ！陽子お姉ちゃんの元気な姿（励起状態）って言われてるんだ！エネルギー有り余ってすぐ崩壊しちゃうけど、加速器の中なら任せて！」" },
+            
+            { id: 10, name: "Omega (-)", symbol: "Ω⁻", type: "Baryon", rarity: "holo", mass: "1672 MeV", s: "-3", quark: "sss", 
+              image: placeholderImg + "/omega.png",
+              desc: "「我はオメガ。ストレンジクォークのみで構成されし、究極の奇妙さを纏う者。ゲルマン=マンによって予言され、発見された王者の風格を感じぬか？」" },
+            
+            { id: 11, name: "D Meson (0)", symbol: "D⁰", type: "Meson", rarity: "rare", mass: "1865 MeV", s: "0", quark: "cu̅", 
+              image: placeholderImg + "/d-meson.png", 
+              desc: "「はじめまして、Dメソンです♪ 私には『チャーム（魅惑）』クォークが入ってるの。重いけど、キラキラした物理を見せてあげるね！」" },
+            
+            { id: 12, name: "J/psi", symbol: "J/ψ", type: "Meson", rarity: "holo", mass: "3097 MeV", s: "0", quark: "cc̅", 
+              image: placeholderImg + "/j-psi.png", 
+              desc: "「私はJ/ψ（ジェイ・プサイ）。1974年、私の発見は『11月革命』と呼ばれ、標準模型を確立させたの。隠されたチャームの力、見せてあげるわ。」" }
+        
+        ];
+
+        // ★ データ保存・読み込み (localStorage)
+        let collection = new Set();
+        const savedData = localStorage.getItem('hadron_collection');
+        if(savedData) {
+            JSON.parse(savedData).forEach(id => collection.add(id));
+        }
+
+        function saveCollection() {
+            localStorage.setItem('hadron_collection', JSON.stringify([...collection]));
+        }
+
+        window.onload = function() { renderCollection(); };
+
+        function renderCollection() {
+            const list = document.getElementById('collection-list');
+            list.innerHTML = '';
+            particleDB.forEach(p => {
+                const div = document.createElement('div');
+                const isGot = collection.has(p.id);
+                div.className = `mini-card ${isGot ? 'got' : ''}`;
+                div.onclick = () => { if(isGot) showSingleCard(p); };
+                div.innerHTML = `
+                    <div class="mini-symbol">${isGot ? p.symbol : '?'}</div>
+                    <div class="mini-rarity">${p.rarity==='holo'?'★':''}</div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function startGacha(times) {
+            const status = document.getElementById('status-msg');
+            status.innerText = "BEAM INJECTION START...";
+            
+            setTimeout(() => {
+                const results = [];
+                for(let i=0; i<times; i++) {
+                    const rand = Math.random();
+                    let rarity = 'common';
+                    if(rand > 0.95) rarity = 'holo';
+                    else if(rand > 0.70) rarity = 'rare';
+
+                    const candidates = particleDB.filter(p => p.rarity === rarity);
+                    const p = candidates[Math.floor(Math.random() * candidates.length)];
+                    
+                    const isNew = !collection.has(p.id);
+                    if(isNew) { collection.add(p.id); }
+                    results.push({...p, isNew});
+                }
+                
+                saveCollection(); // 保存
+                renderCollection();
+                status.innerText = "COLLISION COMPLETE.";
+
+                if(times===1) showSingleCard(results[0]);
+                else showMultiResult(results);
+            }, 800);
+        }
+
+        function showSingleCard(p) {
+            document.getElementById('result-overlay').style.display = 'flex';
+            document.getElementById('single-result').style.display = 'flex';
+            document.getElementById('multi-result').style.display = 'none';
+
+            const card = document.getElementById('single-result');
+            card.className = `particle-card rarity-${p.rarity}`;
+            
+            document.getElementById('card-name').innerText = p.name;
+            document.getElementById('card-img').src = p.image || placeholderImg;
+            document.getElementById('card-class').innerText = p.rarity.toUpperCase();
+            document.getElementById('card-desc').innerText = p.desc;
+            document.getElementById('card-mass').innerText = p.mass + " MeV";
+            document.getElementById('card-quark').innerText = p.quark;
+        }
+
+        function showMultiResult(results) {
+            document.getElementById('result-overlay').style.display = 'flex';
+            document.getElementById('single-result').style.display = 'none';
+            document.getElementById('multi-result').style.display = 'block';
+
+            const grid = document.getElementById('result-grid');
+            grid.innerHTML = '';
+            results.forEach(p => {
+                const d = document.createElement('div');
+                d.className = `small-result-card rarity-${p.rarity}`;
+                d.style.border = "2px solid #ccc";
+                if(p.rarity==='rare') d.style.borderColor = "#3498db";
+                if(p.rarity==='holo') d.style.borderColor = "#f1c40f";
+                
+                d.innerHTML = `
+                    ${p.isNew ? '<span style="color:red;font-weight:bold;">NEW!</span><br>' : ''}
+                    <img src="${p.image || placeholderImg}">
+                    <div>${p.name}</div>
+                `;
+                grid.appendChild(d);
+            });
+        }
+
+        function closeResult() {
+            document.getElementById('result-overlay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

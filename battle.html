@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>赤尾 亮伍 | Particle Battle</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #000; color: white; }
+        
+        .battle-screen {
+            max-width: 800px; margin: 0 auto;
+            border: 2px solid #444; border-radius: 10px;
+            background: #111; overflow: hidden; position: relative;
+            height: 600px; display: flex; flex-direction: column;
+        }
+
+        /* 敵エリア */
+        .enemy-area {
+            flex: 2; position: relative;
+            background: radial-gradient(circle at center, #222 0%, #000 100%);
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column;
+        }
+        .enemy-sprite {
+            width: 150px; height: 150px;
+            background: radial-gradient(circle, #ffd700, #b8860b);
+            border-radius: 50%;
+            box-shadow: 0 0 30px #ffd700;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+        .enemy-sprite::after { content: "Au"; font-family:'Orbitron'; font-size:3rem; color:#5a4a00; position:absolute; top:35px; left:45px; font-weight:bold;}
+
+        /* 味方エリア */
+        .player-area {
+            flex: 1.5; background: #222;
+            padding: 10px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            border-top: 2px solid #444;
+        }
+        .party-card {
+            width: 90px; height: 120px;
+            background: #333; border: 2px solid #555; border-radius: 5px;
+            text-align: center; font-size: 0.8rem; position: relative;
+            cursor: pointer; transition: transform 0.1s;
+        }
+        .party-card:active { transform: scale(0.95); }
+        .party-card.selected { border-color: #00f3ff; box-shadow: 0 0 10px #00f3ff; }
+        .party-card img { width: 80%; height: 60px; object-fit: cover; margin-top: 5px; }
+
+        /* ステータスバー */
+        .hp-bar-container { width: 300px; height: 20px; background: #555; border-radius: 10px; margin: 10px; overflow: hidden; border:1px solid #fff; }
+        .hp-bar { height: 100%; width: 100%; transition: width 0.5s; }
+        .hp-enemy { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .hp-player { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+        
+        .damage-text {
+            position: absolute; font-family: 'Orbitron'; font-size: 2rem; 
+            color: #ff3333; font-weight: bold; text-shadow: 2px 2px 0 #fff;
+            animation: popUp 0.5s forwards; pointer-events: none;
+        }
+
+        /* コントロール */
+        .control-panel {
+            padding: 15px; background: #1a1a1a; text-align: center;
+            border-top: 1px solid #333;
+        }
+        .btn-attack {
+            padding: 10px 40px; font-size: 1.2rem; font-family: 'Orbitron';
+            background: #e74c3c; color: white; border: none; border-radius: 5px;
+            cursor: pointer; box-shadow: 0 4px 0 #c0392b;
+        }
+        .btn-attack:active { transform: translateY(4px); box-shadow: none; }
+        .btn-attack:disabled { background: #555; cursor: not-allowed; box-shadow: none; }
+
+        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+        @keyframes shake { 0%{transform:translate(0,0);} 25%{transform:translate(5px,0);} 75%{transform:translate(-5px,0);} 100%{transform:translate(0,0);} }
+        @keyframes popUp { 0%{opacity:1; transform:translateY(0) scale(1);} 100%{opacity:0; transform:translateY(-50px) scale(1.5);} }
+        .shaking { animation: shake 0.3s; }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="site-container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <h1 style="font-family:'Orbitron'; text-align:center;">COLLIDER BATTLE</h1>
+            
+            <div class="battle-screen" id="battle-screen">
+                <div class="enemy-area" id="enemy-area">
+                    <div style="text-align:center; width:100%;">
+                        <div style="font-size:1.2rem; font-weight:bold;">TARGET: Gold Nucleus (Au)</div>
+                        <div class="hp-bar-container"><div class="hp-bar hp-enemy" id="enemy-hp-bar"></div></div>
+                        <div id="enemy-hp-text">HP: 5000 / 5000</div>
+                    </div>
+                    <div class="enemy-sprite" id="enemy-sprite"></div>
+                </div>
+
+                <div id="battle-log" style="position:absolute; top:40%; width:100%; text-align:center; text-shadow:0 0 5px black; font-weight:bold; font-size:1.2rem;">
+                    Battle Start!
+                </div>
+
+                <div class="player-area" id="party-container">
+                    </div>
+
+                <div class="control-panel">
+                    <button class="btn-attack" id="atk-btn" onclick="playerAttack()">BEAM ATTACK</button>
+                </div>
+            </div>
+            
+            <div style="text-align:center; margin-top:20px;">
+                <a href="hadron.html" style="color:#3498db; text-decoration:underline;">Return to Base</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // データ読み込み
+        const savedData = localStorage.getItem('hadron_collection');
+        let myParticles = [];
+        
+        // 全カードデータ（hadron.htmlと同じもの）
+        const particleDB = [
+            { id: 1, name: "Proton", mass: 938, rarity: "common", image: "images/proton.png" },
+            { id: 2, name: "Neutron", mass: 939, rarity: "common", image: "images/neutron.png" },
+            { id: 3, name: "Pion", mass: 140, rarity: "common", image: "images/pion.png" },
+            { id: 4, name: "Kaon", mass: 493, rarity: "rare", image: "images/kaon.png" },
+            { id: 5, name: "Lambda", mass: 1115, rarity: "rare", image: "images/lambda.png" },
+            { id: 6, name: "Sigma", mass: 1197, rarity: "rare", image: "images/sigma.png" },
+            { id: 7, name: "Xi", mass: 1321, rarity: "holo", image: "images/xi.png" },
+            { id: 8, name: "H-Dibaryon", mass: 2200, rarity: "holo", image: "images/h-dibaryon.png" },
+            { id: 9, name: "Delta", mass: 1232, rarity: "common", image: "images/delta.png" },
+            { id: 10, name: "Omega", mass: 1672, rarity: "holo", image: "images/omega.png" },
+            { id: 11, name: "D Meson", mass: 1865, rarity: "rare", image: "images/d-meson.png" },
+            { id: 12, name: "J/psi", mass: 3097, rarity: "holo", image: "images/j-psi.png" }
+        ];
+
+        // 所持カードを抽出してパーティ結成（攻撃力の高い順に最大5体）
+        if (savedData) {
+            const ids = JSON.parse(savedData);
+            myParticles = particleDB.filter(p => ids.includes(p.id));
+            // 質量（攻撃力）順にソート
+            myParticles.sort((a, b) => b.mass - a.mass); 
+            if(myParticles.length > 5) myParticles = myParticles.slice(0, 5);
+        }
+
+        // 戦闘変数
+        let enemyMaxHp = 5000;
+        let enemyHp = 5000;
+        const log = document.getElementById('battle-log');
+        const enemySprite = document.getElementById('enemy-sprite');
+
+        window.onload = function() {
+            renderParty();
+            if(myParticles.length === 0) {
+                log.innerText = "No Particles! Go back to Gacha.";
+                document.getElementById('atk-btn').disabled = true;
+            }
+        };
+
+        function renderParty() {
+            const container = document.getElementById('party-container');
+            myParticles.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'party-card';
+                // レアリティごとの枠色
+                let border = "#ccc";
+                if(p.rarity==='rare') border = "#3498db";
+                if(p.rarity==='holo') border = "#f1c40f";
+                div.style.borderColor = border;
+
+                div.innerHTML = `
+                    <div style="color:${border}; font-weight:bold;">${p.name}</div>
+                    <img src="${p.image || 'https://placehold.co/50'}">
+                    <div>Atk:${Math.floor(p.mass/10)}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function playerAttack() {
+            // 総攻撃力計算（質量 / 10）
+            let damage = 0;
+            myParticles.forEach(p => damage += Math.floor(p.mass / 10));
+            // クリティカル
+            if(Math.random() > 0.8) {
+                damage *= 1.5;
+                log.innerText = "CRITICAL HIT!!";
+                log.style.color = "yellow";
+            } else {
+                log.innerText = "Beam Injection!";
+                log.style.color = "white";
+            }
+            damage = Math.floor(damage);
+
+            // ダメージ演出
+            showDamage(damage);
+            enemySprite.classList.add('shaking');
+            setTimeout(()=>enemySprite.classList.remove('shaking'), 300);
+
+            // HP減算
+            enemyHp -= damage;
+            if(enemyHp < 0) enemyHp = 0;
+            updateHpBar();
+
+            if(enemyHp <= 0) {
+                log.innerText = "TARGET DESTROYED! YOU WIN!";
+                log.style.color = "#00f3ff";
+                document.getElementById('atk-btn').disabled = true;
+                enemySprite.style.opacity = 0;
+            } else {
+                // 敵の反撃（簡易）
+                setTimeout(() => {
+                    log.innerText = "Enemy Reaction...";
+                    setTimeout(() => {
+                        log.innerText = "System Stable. Ready.";
+                    }, 1000);
+                }, 1000);
+            }
+        }
+
+        function showDamage(dmg) {
+            const el = document.createElement('div');
+            el.className = 'damage-text';
+            el.innerText = dmg;
+            el.style.left = "50%";
+            el.style.top = "30%";
+            document.getElementById('enemy-area').appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        function updateHpBar() {
+            const pct = (enemyHp / enemyMaxHp) * 100;
+            document.getElementById('enemy-hp-bar').style.width = pct + "%";
+            document.getElementById('enemy-hp-text').innerText = `HP: ${enemyHp} / ${enemyMaxHp}`;
+        }
+    </script>
+</body>
+</html>
