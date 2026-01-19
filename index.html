@@ -8,14 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== ハドこれ 3.0 科研費システム版 ===== */
+        /* ===== ハドこれ 3.1 安定版 ===== */
         :root {
             --hc-dark: #1a1c23;
             --hc-panel: rgba(30, 35, 50, 0.9);
             --hc-orange: #f39c12;
             --hc-blue: #3498db;
             --hc-glow: #00f3ff;
-            --hc-ultra: #e74c3c; /* Ultra Rare Color */
+            --hc-ultra: #e74c3c;
         }
 
         .hc-container {
@@ -167,7 +167,7 @@
 
     <script src="script.js"></script>
     <script>
-        // ★★★ 3.0 データ定義 ★★★
+        // ★★★ 3.1 修正版データ定義 ★★★
         const particleDB = [
             { id: 1, name: "Proton", symbol: "p", rarity: "common", mass: "938", image: "images/proton.png", desc: "物質の基礎。安定志向。" },
             { id: 2, name: "Neutron", symbol: "n", rarity: "common", mass: "939", image: "images/neutron.png", desc: "中性子。単体だと不安定。" },
@@ -181,7 +181,7 @@
             { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", mass: "1672", image: "images/omega.png", desc: "ストレンジネス-3の王者。" },
             { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", mass: "1865", image: "images/d-meson.png", desc: "チャームクォークを持つ。" },
             { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", mass: "3097", image: "images/j-psi.png", desc: "物理学の革命児。" },
-            // 新規追加 (Ultra)
+            // 新規追加 (Ultra) - ここが重要です！
             { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", mass: "172760", image: "images/top-quark.png", desc: "最も重い素粒子。真理(Truth)の名を持つ。" },
             { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", mass: "125100", image: "images/higgs.png", desc: "神の粒子。質量を与える起源。" }
         ];
@@ -191,8 +191,8 @@
 
         // ★ ゲーム状態管理
         let collection = new Set();
-        let budget = 1000; // 初期予算
-        let accLevel = 1;  // 1: 30GeV, 2: J-PARC, 3: LHC
+        let budget = 1000;
+        let accLevel = 1;
 
         // 加速器データ
         const accelerators = {
@@ -229,7 +229,8 @@
         function updateUI() {
             document.getElementById('res-budget').innerText = budget;
             
-            const acc = accelerators[accLevel];
+            // 安全策：accLevelが異常値の場合のガード
+            const acc = accelerators[accLevel] || accelerators[1];
             document.getElementById('acc-name').innerText = acc.name;
 
             const btn = document.getElementById('btn-upgrade');
@@ -258,17 +259,22 @@
             }
         }
 
-        // ★ ガチャ実行 (コスト制)
+        // ★ ガチャ実行 (安全装置付き)
         function tryGacha(times) {
-            const cost = 300 * times;
-            if (budget < cost) {
-                alert("予算不足です！バトルに出撃して論文を書きましょう！");
-                return;
-            }
+            try {
+                const cost = 300 * times;
+                if (budget < cost) {
+                    alert("予算不足です！バトルに出撃して論文を書きましょう！");
+                    return;
+                }
 
-            budget -= cost;
-            updateUI();
-            startGacha(times);
+                budget -= cost;
+                updateUI();
+                startGacha(times);
+            } catch (e) {
+                console.error(e);
+                alert("エラーが発生しました: " + e.message);
+            }
         }
 
         function startGacha(times) {
@@ -276,16 +282,22 @@
             status.innerText = "COLLISION EXPERIMENT STARTED...";
             
             setTimeout(() => {
-                const result = getGachaResult(); // 1回分だけ実行（複数回は省略）
-                collection.add(result.id);
-                saveGame();
-                renderCollection();
-                status.innerText = "PARTICLE OBSERVED.";
-                showResult(result);
+                try {
+                    const result = getGachaResult();
+                    collection.add(result.id);
+                    saveGame();
+                    renderCollection();
+                    status.innerText = "PARTICLE OBSERVED.";
+                    showResult(result);
+                } catch (e) {
+                    console.error(e);
+                    alert("ガチャ処理中にエラーが発生しました。\nレアリティデータを確認してください。\n" + e.message);
+                    status.innerText = "ERROR DETECTED.";
+                }
             }, 800);
         }
 
-        // ★ 確率計算 (加速器レベル依存)
+        // ★ 確率計算 & エラー回避
         function getGachaResult() {
             const rand = Math.random();
             let rarity = 'common';
@@ -293,7 +305,7 @@
             // レベルごとの確率設定
             if (accLevel === 1) { // 30GeV
                 if (rand > 0.85) rarity = 'rare';
-                else rarity = 'common'; // Holoは出ない
+                else rarity = 'common';
             } else if (accLevel === 2) { // J-PARC
                 if (rand > 0.95) rarity = 'holo';
                 else if (rand > 0.75) rarity = 'rare';
@@ -305,10 +317,18 @@
                 else rarity = 'common';
             }
 
-            const candidates = particleDB.filter(p => p.rarity === rarity);
-            // 候補がない場合（Lv1でHoloなど）はCommonへ
-            if(candidates.length === 0) return particleDB[0]; 
+            // 指定されたレアリティの粒子リストを取得
+            let candidates = particleDB.filter(p => p.rarity === rarity);
             
+            // ★ 安全装置：もし候補が0人なら（Ultraが未実装など）、強制的にCommonから選ぶ
+            if(candidates.length === 0) {
+                console.warn(`Rarity ${rarity} has no particles! Fallback to common.`);
+                candidates = particleDB.filter(p => p.rarity === 'common');
+            }
+            
+            // それでも0なら（データ全消滅など）、プロトンを返す
+            if(candidates.length === 0) return particleDB[0];
+
             return candidates[Math.floor(Math.random() * candidates.length)];
         }
 
