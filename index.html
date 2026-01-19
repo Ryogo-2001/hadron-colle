@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hoge | Hadron Colle</title>
+    <title>hoge| Hadron Colle</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== ハドこれ 3.1 安定版 ===== */
+        /* ===== ハドこれ 3.2 修正完了版 ===== */
         :root {
             --hc-dark: #1a1c23;
             --hc-panel: rgba(30, 35, 50, 0.9);
@@ -167,7 +167,7 @@
 
     <script src="script.js"></script>
     <script>
-        // ★★★ 3.1 修正版データ定義 ★★★
+        // ★★★ データ修正ポイント：ID 13, 14 が必ずあることを確認！ ★★★
         const particleDB = [
             { id: 1, name: "Proton", symbol: "p", rarity: "common", mass: "938", image: "images/proton.png", desc: "物質の基礎。安定志向。" },
             { id: 2, name: "Neutron", symbol: "n", rarity: "common", mass: "939", image: "images/neutron.png", desc: "中性子。単体だと不安定。" },
@@ -181,7 +181,7 @@
             { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", mass: "1672", image: "images/omega.png", desc: "ストレンジネス-3の王者。" },
             { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", mass: "1865", image: "images/d-meson.png", desc: "チャームクォークを持つ。" },
             { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", mass: "3097", image: "images/j-psi.png", desc: "物理学の革命児。" },
-            // 新規追加 (Ultra) - ここが重要です！
+            // ★ ここがないとLHCでフリーズします！
             { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", mass: "172760", image: "images/top-quark.png", desc: "最も重い素粒子。真理(Truth)の名を持つ。" },
             { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", mass: "125100", image: "images/higgs.png", desc: "神の粒子。質量を与える起源。" }
         ];
@@ -321,6 +321,7 @@
             let candidates = particleDB.filter(p => p.rarity === rarity);
             
             // ★ 安全装置：もし候補が0人なら（Ultraが未実装など）、強制的にCommonから選ぶ
+            // これでお金だけ減る現象を防ぎます！
             if(candidates.length === 0) {
                 console.warn(`Rarity ${rarity} has no particles! Fallback to common.`);
                 candidates = particleDB.filter(p => p.rarity === 'common');
