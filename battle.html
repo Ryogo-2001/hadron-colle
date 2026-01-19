@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>赤尾 亮伍 | Collider Battle</title>
+    <title>hoge | Collider Battle</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -27,67 +27,45 @@
             background: radial-gradient(circle, #ffd700, #b8860b);
             border-radius: 50%;
             box-shadow: 0 0 30px #ffd700;
-            position: relative;
-            animation: float 3s ease-in-out infinite;
-            z-index: 10;
+            position: relative; animation: float 3s ease-in-out infinite; z-index: 10;
         }
         .enemy-sprite::after { content: "Au"; font-family:'Orbitron'; font-size:3rem; color:#5a4a00; position:absolute; top:35px; left:45px; font-weight:bold;}
 
         /* 味方エリア */
         .player-area {
-            flex: 1.5; background: #222;
-            padding: 10px;
+            flex: 1.5; background: #222; padding: 10px;
             display: flex; justify-content: center; align-items: center; gap: 10px;
             border-top: 2px solid #444;
         }
         .party-card {
-            width: 90px; height: 120px;
-            background: #333; border: 2px solid #555; border-radius: 5px;
-            text-align: center; font-size: 0.8rem; position: relative;
-            cursor: pointer; transition: transform 0.1s;
+            width: 90px; height: 120px; background: #333; border: 2px solid #555; border-radius: 5px;
+            text-align: center; font-size: 0.8rem; position: relative; cursor: pointer;
         }
         .party-card img { width: 80%; height: 50px; object-fit: cover; margin-top: 5px; }
-        .party-card.decaying { animation: decayFlash 1s forwards; }
 
-        /* ステータスバー */
+        /* ステータスバー & ログ */
         .hp-bar-container { width: 300px; height: 20px; background: #555; border-radius: 10px; margin: 10px; overflow: hidden; border:1px solid #fff; position: relative; z-index: 20;}
-        .hp-bar { height: 100%; width: 100%; transition: width 0.5s; }
-        .hp-enemy { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .hp-bar { height: 100%; width: 100%; transition: width 0.5s; background: linear-gradient(90deg, #e74c3c, #c0392b); }
         
-        /* ログ & エフェクト */
-        .battle-log {
-            position: absolute; top: 45%; width: 100%; text-align: center;
-            text-shadow: 0 0 5px black; font-weight: bold; font-size: 1.2rem;
-            z-index: 100; pointer-events: none;
-        }
-        .damage-text {
-            position: absolute; font-family: 'Orbitron'; font-size: 2rem; 
-            color: #ff3333; font-weight: bold; text-shadow: 2px 2px 0 #fff;
-            animation: popUp 0.8s forwards; pointer-events: none; z-index: 100;
-        }
-        .synergy-effect {
-            position: absolute; top: 10%; width: 100%; text-align: center;
-            color: #00f3ff; font-family: 'Orbitron'; font-size: 1.5rem;
-            animation: glowPulse 2s infinite; display: none;
+        .battle-log { position: absolute; top: 45%; width: 100%; text-align: center; text-shadow: 0 0 5px black; font-weight: bold; font-size: 1.2rem; z-index: 100; pointer-events: none; }
+        .damage-text { position: absolute; font-family: 'Orbitron'; font-size: 2rem; color: #ff3333; font-weight: bold; text-shadow: 2px 2px 0 #fff; animation: popUp 0.8s forwards; pointer-events: none; z-index: 100; }
+        
+        /* 勝利時の予算獲得ポップアップ */
+        .reward-popup {
+            display: none; position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9); border: 2px solid #f39c12; padding: 20px;
+            text-align: center; border-radius: 10px; z-index: 200; width: 80%;
+            animation: popIn 0.5s;
         }
 
-        /* コントロール */
-        .control-panel {
-            padding: 15px; background: #1a1a1a; text-align: center;
-            border-top: 1px solid #333;
-        }
-        .btn-attack {
-            padding: 10px 40px; font-size: 1.2rem; font-family: 'Orbitron';
-            background: #e74c3c; color: white; border: none; border-radius: 5px;
-            cursor: pointer; box-shadow: 0 4px 0 #c0392b;
-        }
-        .btn-attack:disabled { background: #555; cursor: not-allowed; box-shadow: none; }
+        .control-panel { padding: 15px; background: #1a1a1a; text-align: center; border-top: 1px solid #333; }
+        .btn-attack { padding: 10px 40px; font-size: 1.2rem; font-family: 'Orbitron'; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-attack:disabled { background: #555; cursor: not-allowed; }
 
         @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
         @keyframes shake { 0%{transform:translate(0,0);} 25%{transform:translate(5px,0);} 75%{transform:translate(-5px,0);} 100%{transform:translate(0,0);} }
         @keyframes popUp { 0%{opacity:1; transform:translateY(0) scale(1);} 100%{opacity:0; transform:translateY(-80px) scale(1.5);} }
-        @keyframes decayFlash { 0%{filter:brightness(1);} 50%{filter:brightness(5); transform:scale(1.2);} 100%{filter:brightness(1); transform:scale(1);} }
-        @keyframes glowPulse { 0%{text-shadow:0 0 10px #00f3ff;} 50%{text-shadow:0 0 30px #00f3ff, 0 0 50px white;} 100%{text-shadow:0 0 10px #00f3ff;} }
+        @keyframes popIn { 0%{transform:translate(-50%, -50%) scale(0);} 80%{transform:translate(-50%, -50%) scale(1.1);} 100%{transform:translate(-50%, -50%) scale(1);} }
     </style>
 </head>
 <body>
@@ -98,8 +76,11 @@
             <h1 style="font-family:'Orbitron'; text-align:center;">COLLIDER BATTLE</h1>
             
             <div class="battle-screen" id="battle-screen">
-                <div class="synergy-effect" id="hypernucleus-msg">
-                    HYPERNUCLEUS FORMED!<br><span style="font-size:1rem;">Binding Energy: UP</span>
+                <div class="reward-popup" id="reward-popup">
+                    <h2 style="color:#f39c12; margin:0;">PAPER ACCEPTED!</h2>
+                    <p style="color:#aaa;">Research grant acquired.</p>
+                    <div style="font-size:2rem; font-family:'Orbitron'; color:white; margin:10px 0;">+ ¥ <span id="reward-val">0</span></div>
+                    <a href="index.html" style="display:inline-block; margin-top:10px; padding:10px 30px; background:#3498db; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">Return to Lab</a>
                 </div>
 
                 <div class="enemy-area" id="enemy-area">
@@ -112,7 +93,6 @@
                 </div>
 
                 <div class="battle-log" id="battle-log">Initializing Physics Engine...</div>
-
                 <div class="player-area" id="party-container"></div>
 
                 <div class="control-panel">
@@ -128,25 +108,27 @@
 
     <script src="script.js"></script>
     <script>
-        const savedData = localStorage.getItem('hadron_collection');
-        let myParticles = [];
-        
-        // ★ 物理属性(symbol, type)を追加
+        // データ読み込み（Top/Higgs対応版）
         const particleDB = [
-            { id: 1, name: "Proton", symbol: "p", type: "Baryon", mass: 938, rarity: "common", image: "images/proton.png" },
-            { id: 2, name: "Neutron", symbol: "n", type: "Baryon", mass: 939, rarity: "common", image: "images/neutron.png" },
-            { id: 3, name: "Pion (+)", symbol: "π⁺", type: "Meson", mass: 140, rarity: "common", image: "images/pion.png" },
-            { id: 4, name: "Kaon (+)", symbol: "K⁺", type: "Meson", mass: 493, rarity: "rare", image: "images/kaon.png" },
-            { id: 5, name: "Lambda", symbol: "Λ", type: "Baryon", mass: 1115, rarity: "rare", image: "images/lambda.png" },
-            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", type: "Baryon", mass: 1197, rarity: "rare", image: "images/sigma.png" },
-            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", type: "Baryon", mass: 1321, rarity: "holo", image: "images/xi.png" },
-            { id: 8, name: "H-Dibaryon", symbol: "H", type: "Exotic", mass: 2200, rarity: "holo", image: "images/h_dibaryon.png" },
-            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", type: "Resonance", mass: 1232, rarity: "common", image: "images/delta.png" },
-            { id: 10, name: "Omega (-)", symbol: "Ω⁻", type: "Baryon", mass: 1672, rarity: "holo", image: "images/omega.png" },
-            { id: 11, name: "D Meson", symbol: "D⁰", type: "Meson", mass: 1865, rarity: "rare", image: "images/d-meson.png" },
-            { id: 12, name: "J/psi", symbol: "J/ψ", type: "Meson", mass: 3097, rarity: "holo", image: "images/j-psi.png" }
+            { id: 1, name: "Proton", symbol: "p", mass: 938, rarity: "common", image: "images/proton.png" },
+            { id: 2, name: "Neutron", symbol: "n", mass: 939, rarity: "common", image: "images/neutron.png" },
+            { id: 3, name: "Pion (+)", symbol: "π⁺", mass: 140, rarity: "common", image: "images/pion.png" },
+            { id: 4, name: "Kaon (+)", symbol: "K⁺", mass: 493, rarity: "rare", image: "images/kaon.png" },
+            { id: 5, name: "Lambda", symbol: "Λ", mass: 1115, rarity: "rare", image: "images/lambda.png" },
+            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", mass: 1197, rarity: "rare", image: "images/sigma.png" },
+            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", mass: 1321, rarity: "holo", image: "images/xi.png" },
+            { id: 8, name: "H-Dibaryon", symbol: "H", mass: 2200, rarity: "holo", image: "images/h_dibaryon.png" },
+            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", mass: 1232, rarity: "common", image: "images/delta.png" },
+            { id: 10, name: "Omega (-)", symbol: "Ω⁻", mass: 1672, rarity: "holo", image: "images/omega.png" },
+            { id: 11, name: "D Meson", symbol: "D⁰", mass: 1865, rarity: "rare", image: "images/d-meson.png" },
+            { id: 12, name: "J/psi", symbol: "J/ψ", mass: 3097, rarity: "holo", image: "images/j-psi.png" },
+            { id: 13, name: "Top Quark", symbol: "t", mass: 172760, rarity: "ultra", image: "images/top-quark.png" },
+            { id: 14, name: "Higgs Boson", symbol: "H⁰", mass: 125100, rarity: "ultra", image: "images/higgs.png" }
         ];
 
+        // セーブデータ取得
+        const savedData = localStorage.getItem('hadron_collection');
+        let myParticles = [];
         if (savedData) {
             const ids = JSON.parse(savedData);
             myParticles = particleDB.filter(p => ids.includes(p.id));
@@ -156,9 +138,6 @@
 
         let enemyMaxHp = 10000;
         let enemyHp = 10000;
-        let turnCount = 0;
-        let damageMultiplier = 1.0; // ハイパー核補正
-
         const log = document.getElementById('battle-log');
         const enemySprite = document.getElementById('enemy-sprite');
 
@@ -169,68 +148,47 @@
                 return;
             }
             renderParty();
-            checkHyperNuclei(); // ★ 開幕でハイパー核チェック
         };
 
-        // ★ パーティ描画
         function renderParty() {
             const container = document.getElementById('party-container');
             container.innerHTML = "";
             myParticles.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'party-card';
-                // レアリティ色
                 let border = "#ccc";
                 if(p.rarity==='rare') border = "#3498db";
                 if(p.rarity==='holo') border = "#f1c40f";
+                if(p.rarity==='ultra') border = "#e74c3c"; // Ultraは赤枠
                 div.style.borderColor = border;
 
                 div.innerHTML = `
                     <div style="color:${border}; font-weight:bold;">${p.symbol}</div>
                     <img src="${p.image || 'https://placehold.co/50'}">
-                    <div style="font-size:0.7rem;">${p.mass} MeV</div>
+                    <div style="font-size:0.7rem;">${Math.floor(p.mass/1000)} GeV</div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        // ★ ギミック1: ハイパー核合成チェック
-        function checkHyperNuclei() {
-            const symbols = myParticles.map(p => p.symbol);
-            // 陽子(p) + 中性子(n) + ラムダ(Λ) がいるか？
-            if (symbols.includes("p") && symbols.includes("n") && symbols.includes("Λ")) {
-                damageMultiplier = 2.0; // 攻撃力2倍
-                document.getElementById('hypernucleus-msg').style.display = "block";
-                log.innerText = "Hypertriton Combined! Power UP!";
-                log.style.color = "#00f3ff";
-            } else {
-                log.innerText = "Target Locked. Ready.";
-            }
-        }
-
-        // ★ ターン進行
         function turnProcess() {
-            turnCount++;
             playerAttack();
-            
-            // 攻撃後に少し遅れて崩壊判定
-            setTimeout(() => {
-                checkDecay();
-            }, 1000);
         }
 
         function playerAttack() {
             let totalDmg = 0;
-            myParticles.forEach(p => totalDmg += Math.floor(p.mass / 5)); // 攻撃力計算
-            
-            // 補正適用
-            totalDmg = Math.floor(totalDmg * damageMultiplier);
+            // 質量ベースの攻撃力計算 (Topクォークが強すぎるので調整)
+            myParticles.forEach(p => {
+                let dmg = Math.floor(p.mass / 5);
+                if(p.rarity === 'ultra') dmg = 3000; // Ultraは固定で超強い
+                totalDmg += dmg;
+            });
 
-            // クリティカル判定
+            // 演出
             let isCrit = Math.random() > 0.8;
             if(isCrit) {
                 totalDmg = Math.floor(totalDmg * 1.5);
-                log.innerText = "CRITICAL RESONANCE!!";
+                log.innerText = "CRITICAL DATA!!";
                 log.style.color = "yellow";
             } else {
                 log.innerText = "Beam Injection...";
@@ -246,64 +204,37 @@
             updateHpBar();
 
             if(enemyHp <= 0) {
-                log.innerText = "TARGET DESTROYED!!";
-                log.style.color = "#00f3ff";
-                document.getElementById('atk-btn').disabled = true;
-                enemySprite.style.opacity = 0;
+                winBattle();
             }
         }
 
-        // ★ ギミック2: 粒子の崩壊
-        function checkDecay() {
-            if(enemyHp <= 0) return;
+        // ★ 勝利処理（予算獲得）
+        function winBattle() {
+            log.innerText = "TARGET DESTROYED!!";
+            log.style.color = "#00f3ff";
+            document.getElementById('atk-btn').disabled = true;
+            enemySprite.style.opacity = 0;
 
-            // デルタ粒子(Δ++)を持っているか？
-            const deltaIndex = myParticles.findIndex(p => p.symbol === "Δ⁺⁺");
+            // 報酬計算 (500〜1000の間)
+            const reward = Math.floor(Math.random() * 500) + 500;
             
-            // 30%の確率で崩壊
-            if (deltaIndex !== -1 && Math.random() < 0.3) {
-                log.innerText = "WARNING: Delta(++) Decaying!";
-                log.style.color = "#e74c3c";
+            // 予算を保存
+            let currentBudget = parseInt(localStorage.getItem('hadron_budget') || 0);
+            currentBudget += reward;
+            localStorage.setItem('hadron_budget', currentBudget);
 
-                const cards = document.querySelectorAll('.party-card');
-                if(cards[deltaIndex]) cards[deltaIndex].classList.add('decaying');
-
-                setTimeout(() => {
-                    // デルタ(1232) -> 陽子(938) + パイ(140) に分裂
-                    // ゲーム的には：デルタを消して、陽子とパイを追加（枠があれば）
-                    
-                    // 1. デルタを削除
-                    myParticles.splice(deltaIndex, 1);
-                    
-                    // 2. 陽子とパイを追加
-                    const proton = particleDB.find(p => p.symbol === "p");
-                    const pion = particleDB.find(p => p.symbol === "π⁺");
-                    
-                    // 演出用ログ
-                    log.innerText = "Δ++ decayed into p + π+";
-
-                    // 最大5体までなので、空きがあれば追加
-                    if(myParticles.length < 5) myParticles.push(proton);
-                    if(myParticles.length < 5) myParticles.push(pion);
-
-                    renderParty(); // 再描画
-                    
-                    // 崩壊による追加ダメージ（質量欠損エネルギー的な）
-                    let decayDmg = 500;
-                    enemyHp -= decayDmg;
-                    showDamage(decayDmg);
-                    updateHpBar();
-
-                }, 1000);
-            }
+            // ポップアップ表示
+            setTimeout(() => {
+                document.getElementById('reward-popup').style.display = "block";
+                document.getElementById('reward-val').innerText = reward;
+            }, 1000);
         }
 
         function showDamage(dmg) {
             const el = document.createElement('div');
             el.className = 'damage-text';
             el.innerText = dmg;
-            el.style.left = "50%";
-            el.style.top = "20%";
+            el.style.left = "50%"; el.style.top = "20%";
             document.getElementById('enemy-area').appendChild(el);
             setTimeout(() => el.remove(), 1000);
         }
