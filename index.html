@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hoge| Hadron Colle</title>
+    <title>赤尾 亮伍 | Hadron Colle</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== ハドこれ 3.2 修正完了版 ===== */
+        /* ===== ハドこれ 3.3 最終修正版 ===== */
         :root {
             --hc-dark: #1a1c23;
             --hc-panel: rgba(30, 35, 50, 0.9);
@@ -167,7 +167,6 @@
 
     <script src="script.js"></script>
     <script>
-        // ★★★ データ修正ポイント：ID 13, 14 が必ずあることを確認！ ★★★
         const particleDB = [
             { id: 1, name: "Proton", symbol: "p", rarity: "common", mass: "938", image: "images/proton.png", desc: "物質の基礎。安定志向。" },
             { id: 2, name: "Neutron", symbol: "n", rarity: "common", mass: "939", image: "images/neutron.png", desc: "中性子。単体だと不安定。" },
@@ -181,20 +180,16 @@
             { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", mass: "1672", image: "images/omega.png", desc: "ストレンジネス-3の王者。" },
             { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", mass: "1865", image: "images/d-meson.png", desc: "チャームクォークを持つ。" },
             { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", mass: "3097", image: "images/j-psi.png", desc: "物理学の革命児。" },
-            // ★ ここがないとLHCでフリーズします！
             { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", mass: "172760", image: "images/top-quark.png", desc: "最も重い素粒子。真理(Truth)の名を持つ。" },
             { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", mass: "125100", image: "images/higgs.png", desc: "神の粒子。質量を与える起源。" }
         ];
 
-        // プレースホルダー画像
         const placeholderImg = "https://placehold.co/300x200/333/FFF?text=Particle";
 
-        // ★ ゲーム状態管理
         let collection = new Set();
         let budget = 1000;
         let accLevel = 1;
 
-        // 加速器データ
         const accelerators = {
             1: { name: "30 GeV Synchrotron", nextCost: 3000, nextName: "J-PARC" },
             2: { name: "J-PARC (50 GeV)", nextCost: 10000, nextName: "LHC (14 TeV)" },
@@ -207,7 +202,6 @@
             renderCollection();
         };
 
-        // セーブ・ロード
         function saveGame() {
             localStorage.setItem('hadron_collection', JSON.stringify([...collection]));
             localStorage.setItem('hadron_budget', budget);
@@ -225,28 +219,26 @@
             if(savedLvl) accLevel = parseInt(savedLvl);
         }
 
-        // UI更新
+        // ★★★ 修正ポイント：ここを大幅に直しました ★★★
         function updateUI() {
             document.getElementById('res-budget').innerText = budget;
             
-            // 安全策：accLevelが異常値の場合のガード
             const acc = accelerators[accLevel] || accelerators[1];
             document.getElementById('acc-name').innerText = acc.name;
 
             const btn = document.getElementById('btn-upgrade');
-            const costLabel = document.getElementById('upgrade-cost');
             
             if (accLevel >= 3) {
                 btn.disabled = true;
-                btn.innerText = "MAX LEVEL";
-                costLabel.innerText = "";
+                // ここで書き換えるだけで、消えたIDを探しにいかないようにした
+                btn.innerHTML = "MAX LEVEL"; 
             } else {
                 btn.disabled = (budget < acc.nextCost);
-                btn.innerHTML = `UPGRADE<br><span style="font-size:0.7rem;">Cost: ¥${acc.nextCost}</span>`;
+                // ID付きの要素を毎回作り直す
+                btn.innerHTML = `UPGRADE<br><span style="font-size:0.7rem;" id="upgrade-cost">Cost: ¥${acc.nextCost}</span>`;
             }
         }
 
-        // ★ アップグレード実行
         function upgradeAccelerator() {
             const acc = accelerators[accLevel];
             if (budget >= acc.nextCost && accLevel < 3) {
@@ -259,7 +251,6 @@
             }
         }
 
-        // ★ ガチャ実行 (安全装置付き)
         function tryGacha(times) {
             try {
                 const cost = 300 * times;
@@ -297,37 +288,29 @@
             }, 800);
         }
 
-        // ★ 確率計算 & エラー回避
         function getGachaResult() {
             const rand = Math.random();
             let rarity = 'common';
 
-            // レベルごとの確率設定
-            if (accLevel === 1) { // 30GeV
+            if (accLevel === 1) { 
                 if (rand > 0.85) rarity = 'rare';
                 else rarity = 'common';
-            } else if (accLevel === 2) { // J-PARC
+            } else if (accLevel === 2) {
                 if (rand > 0.95) rarity = 'holo';
                 else if (rand > 0.75) rarity = 'rare';
                 else rarity = 'common';
-            } else { // LHC (Max)
-                if (rand > 0.97) rarity = 'ultra'; // 3%
+            } else {
+                if (rand > 0.97) rarity = 'ultra';
                 else if (rand > 0.85) rarity = 'holo';
                 else if (rand > 0.60) rarity = 'rare';
                 else rarity = 'common';
             }
 
-            // 指定されたレアリティの粒子リストを取得
             let candidates = particleDB.filter(p => p.rarity === rarity);
-            
-            // ★ 安全装置：もし候補が0人なら（Ultraが未実装など）、強制的にCommonから選ぶ
-            // これでお金だけ減る現象を防ぎます！
             if(candidates.length === 0) {
                 console.warn(`Rarity ${rarity} has no particles! Fallback to common.`);
                 candidates = particleDB.filter(p => p.rarity === 'common');
             }
-            
-            // それでも0なら（データ全消滅など）、プロトンを返す
             if(candidates.length === 0) return particleDB[0];
 
             return candidates[Math.floor(Math.random() * candidates.length)];
@@ -358,7 +341,6 @@
             const overlay = document.getElementById('result-overlay');
             const card = document.getElementById('single-result');
             
-            // クラスリセット
             card.className = "particle-card"; 
             if(p.rarity === 'ultra') card.classList.add('rarity-ultra');
             else if(p.rarity === 'holo') card.style.borderColor = "#f1c40f";
