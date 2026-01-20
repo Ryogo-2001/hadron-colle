@@ -93,6 +93,13 @@
             display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 999;
         }
 
+        /* GENESIS用スタイル */
+        .rarity-genesis {
+            background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            background-size: 400%; -webkit-background-clip: text; color: transparent; animation: rainbow 3s linear infinite;
+        }
+        @keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+
         @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
         @keyframes shake { 0%{transform:translate(0,0)} 25%{transform:translate(-5px,5px)} 50%{transform:translate(5px,-5px)} 75%{transform:translate(-5px,-5px)} 100%{transform:translate(0,0)} }
         @keyframes popUp { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-50px);opacity:0} }
@@ -170,7 +177,7 @@
     </div>
 
     <script>
-        // === ★DATA (全19種) ===
+        // === ★UPDATED DATA (全24種) ===
         const particles = [
             { id: 1, name: "Proton", rarity: "common", image: "images/proton.png", skill:"Proton Beam", type:"atk" },
             { id: 2, name: "Neutron", rarity: "common", image: "images/neutron.png", skill:"Neutron Shield", type:"def" },
@@ -186,11 +193,18 @@
             { id: 12, name: "J/psi", rarity: "holo", image: "images/j-psi.png", skill:"Charmonium", type:"atk" },
             { id: 13, name: "Top Quark", rarity: "ultra", image: "images/top-quark.png", skill:"Truth Smasher", type:"ult" },
             { id: 14, name: "Higgs Boson", rarity: "ultra", image: "images/higgs.png", skill:"God Field", type:"ult" },
+            // New ID 15-19
             { id: 15, name: "Photon", rarity: "common", image: "images/Photon.png", skill:"Optical Flash", type:"spd" },
             { id: 16, name: "Gluon", rarity: "rare", image: "images/Gluon.png", skill:"Strong Bond", type:"def" },
             { id: 17, name: "Charm Quark", rarity: "holo", image: "images/Charm_Quark.png", skill:"Lovely Charm", type:"atk" },
             { id: 18, name: "Neutrino", rarity: "rare", image: "images/Neutrino.png", skill:"Ghost Pass", type:"spd" },
-            { id: 19, name: "Anti-Proton", rarity: "ultra", image: "images/Anti-Proton.png", skill:"Annihilation", type:"ult" }
+            { id: 19, name: "Anti-Proton", rarity: "ultra", image: "images/Anti-Proton.png", skill:"Annihilation", type:"ult" },
+            // New ID 20-24 (GENESIS included)
+            { id: 20, name: "Positron", rarity: "rare", image: "images/Positron.png", skill:"Mirror Dash", type:"spd" },
+            { id: 21, name: "W Boson", rarity: "holo", image: "images/W_Boson.png", skill:"Beta Decay", type:"atk" },
+            { id: 22, name: "Z Boson", rarity: "holo", image: "images/Z_Boson.png", skill:"Neutral Heavy", type:"def" },
+            { id: 23, name: "Tachyon", rarity: "ultra", image: "images/Tachyon.png", skill:"Time Travel", type:"spd" },
+            { id: 24, name: "Graviton", rarity: "genesis", image: "images/Graviton.png", skill:"Event Horizon", type:"ult" }
         ];
 
         const lootTable = ['m1','m2','m3','m4','m5','m6'];
@@ -240,18 +254,21 @@
                 if(member.rarity=="rare") rVal=2;
                 if(member.rarity=="holo") rVal=4;
                 if(member.rarity=="ultra") rVal=8;
+                if(member.rarity=="genesis") rVal=20; // ★GENESIS BONUS
 
                 stats.maxHp += 500 + rVal * 200;
                 stats.atk += 100 + rVal * 150;
             });
 
-            // === ★ Apply Buffs (シナジー計算) ===
+            // === Apply Buffs (シナジー計算) ===
             applyFleetBuffs();
 
             // Enemy Scaling
             enemy.maxHp = stats.atk * 10;
             enemy.hp = enemy.maxHp;
             enemy.atk = stats.maxHp / 8;
+            
+            // ★HP設定（0にならないように）
             stats.hp = stats.maxHp;
 
             updateUI();
@@ -259,47 +276,22 @@
         };
 
         function applyFleetBuffs() {
-            // Count Types
             let types = { atk:0, def:0, spd:0, ult:0 };
             let ids = deckMembers.map(m => m.id);
             deckMembers.forEach(m => { if(types[m.type] !== undefined) types[m.type]++; });
 
-            // 1. Type Bonus
-            if(types.atk >= 3) {
-                stats.atk *= 1.2;
-                addBuff("⚔️ ASSAULT LINE (Atk+20%)");
-            }
-            if(types.def >= 3) {
-                stats.maxHp *= 1.2;
-                addBuff("🛡 FORTRESS LINE (HP+20%)");
-            }
-            if(types.spd >= 3) {
-                stats.ep += 30;
-                addBuff("⚡ RAPID LINE (Start TP+30)");
-            }
+            // Type Bonus
+            if(types.atk >= 3) { stats.atk *= 1.2; addBuff("⚔️ ASSAULT LINE (Atk+20%)"); }
+            if(types.def >= 3) { stats.maxHp *= 1.2; addBuff("🛡 FORTRESS LINE (HP+20%)"); }
+            if(types.spd >= 3) { stats.ep += 30; addBuff("⚡ RAPID LINE (Start TP+30)"); }
 
-            // 2. Specific Combo
-            // Proton(1) + Neutron(2)
-            if(ids.includes(1) && ids.includes(2)) {
-                stats.maxHp *= 1.15;
-                addBuff("⚛️ Nucleus Force (HP+15%)");
-            }
-            // Top(13) + Higgs(14)
-            if(ids.includes(13) && ids.includes(14)) {
-                stats.atk *= 1.30;
-                addBuff("⚖️ God Particle (Atk+30%)");
-            }
-            // Charm(17) + J/psi(12)
-            if(ids.includes(17) && ids.includes(12)) {
-                stats.atk *= 1.15;
-                addBuff("💖 Charm Love (Atk+15%)");
-            }
-            // Anti-Proton(19) exists
-            if(ids.includes(19)) {
-                stats.atk *= 1.25;
-                stats.maxHp *= 0.9;
-                addBuff("⚫ Antimatter (Atk+25%/HP-10%)");
-            }
+            // Combo Bonus
+            if(ids.includes(1) && ids.includes(2)) { stats.maxHp *= 1.15; addBuff("⚛️ Nucleus Force (HP+15%)"); }
+            if(ids.includes(13) && ids.includes(14)) { stats.atk *= 1.30; addBuff("⚖️ God Particle (Atk+30%)"); }
+            if(ids.includes(17) && ids.includes(12)) { stats.atk *= 1.15; addBuff("💖 Charm Love (Atk+15%)"); }
+            if(ids.includes(19)) { stats.atk *= 1.25; stats.maxHp *= 0.9; addBuff("⚫ Antimatter (Atk+25%/HP-10%)"); }
+            // New Genesis Bonus (Graviton)
+            if(ids.includes(24)) { stats.atk *= 1.5; addBuff("🌌 Event Horizon (Atk+50%)"); }
         }
 
         function addBuff(name) {
@@ -313,7 +305,7 @@
         }
 
         function updateUI() {
-            if(stats.hp <= 0 && stats.maxHp > 0 && isPlayerTurn && enemy.hp == enemy.maxHp) stats.hp = stats.maxHp; // Safety
+            if(stats.hp <= 0 && stats.maxHp > 0 && isPlayerTurn && enemy.hp == enemy.maxHp) stats.hp = stats.maxHp; 
 
             document.getElementById('p-hp-val').innerText = Math.floor(stats.hp);
             document.getElementById('p-hp-bar').style.width = (stats.hp/stats.maxHp*100) + "%";
@@ -370,6 +362,7 @@
                 
                 let multiplier = 2.5;
                 if(flagShip.rarity === 'ultra') multiplier = 4.0;
+                if(flagShip.rarity === 'genesis') multiplier = 10.0; // ★GENESIS SKILL
                 const dmg = stats.atk * multiplier;
                 
                 log(`<span style="color:gold">FLAGSHIP SKILL FIRE!</span>`);
