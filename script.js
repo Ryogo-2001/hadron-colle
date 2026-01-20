@@ -7,7 +7,7 @@ const missionData = {
     'm5': { name: "Event Horizon", enemy: "Singularity", symbol:"⚫", hpMult: 10, atkMult: 5, color: "#fff", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } }
 };
 
-// === Skill Data (研究ツリー) ===
+// === Skill Data ===
 const skills = [
     { id: 's1', name: 'Efficient Funding', icon: '💰', cost: 100, desc: '売却時の獲得資金 +10%', type: 'sell_bonus', val: 0.1, req: null },
     { id: 's2', name: 'Beam Tuning', icon: '⚡', cost: 200, desc: '実験(ガチャ)コスト -10%', type: 'cost_cut', val: 0.1, req: 's1' },
@@ -44,10 +44,7 @@ const particles = [
     { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。", skill:"Beta Decay", type:"atk" },
     { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。", skill:"Neutral Heavy", type:"def" },
     { id: 23, name: "Tachyon", symbol: "T", rarity: "ultra", image: "images/Tachyon.png", desc: "タキオン。", skill:"Time Travel", type:"spd" },
-    { 
-        id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill:"Event Horizon", type:"ult",
-        skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ]
-    }
+    { id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill:"Event Horizon", type:"ult", skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ] }
 ];
 
 const materials = [
@@ -95,7 +92,6 @@ window.onload = function() {
     catch(e) { console.error("Init Error:", e); }
 };
 
-// ★ Helper: スキル効果取得
 function getSkillBonus(type) {
     let bonus = 0;
     if(!user.skills) return 0;
@@ -106,7 +102,6 @@ function getSkillBonus(type) {
     return bonus;
 }
 
-// Helper: Fame
 function getFameParams(rarity) {
     switch(rarity) {
         case 'genesis': return { req: 5, bonus: 0.10 };
@@ -116,6 +111,7 @@ function getFameParams(rarity) {
         default:        return { req: 1000, bonus: 0.05 };
     }
 }
+
 function getFameInfo(pid) {
     const p = particles.find(x => x.id === pid);
     if(!p) return { lv: 0, bonus: 0, next: 0, req: 0 };
@@ -124,6 +120,7 @@ function getFameInfo(pid) {
     const lv = Math.floor(count / params.req);
     return { lv: lv, bonus: lv * params.bonus, next: params.req - (count % params.req), req: params.req, bonusPerLv: params.bonus };
 }
+
 function getImgSrc(p) {
     if(user.equippedSkins && user.equippedSkins[p.id] && p.skins) {
         const s = p.skins.find(sk => sk.id === user.equippedSkins[p.id]);
@@ -132,13 +129,13 @@ function getImgSrc(p) {
     return p.image;
 }
 
-// --- View Logic (★修正: ミッション画面を開いた時にリストを描画) ---
+// --- View Logic ---
 function showHome() { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
 function showView(id) { 
     document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); 
     document.getElementById(id).classList.add('active'); 
     if(id === 'view-lab') renderLab(); 
-    if(id === 'view-mission') renderMissionList(); // ★これが足りなかった！
+    if(id === 'view-mission') renderMissionList(); 
 }
 function refreshUI() {
     document.getElementById('disp-money').innerText = user.money.toLocaleString();
@@ -396,3 +393,15 @@ function loadGame(){
     if(!user.skills) user.skills = [];
 }
 function saveGame(){ localStorage.setItem('hadron_v8',JSON.stringify(user)); }
+
+// ★ Global winGame for Battle use
+function winGame() {
+    // Battle側のwinGameは、この関数を呼ぶようになっているが、報酬ロジックはここにあるべき
+    // ただし、battle.htmlから呼ばれる場合、currentMission変数がscript.jsスコープにはない(battle.htmlスコープにある)
+    // したがって、script.jsのwinGameは、汎用的なものではなく、battle.html内にロジックを持つべきか？
+    // あるいは、script.jsにcurrentMission変数を定義しておくか。
+    // 現状の構成では、battle.htmlでwinGameを再定義していないため、script.jsのwinGameが呼ばれるが、currentMissionがnullになる可能性がある。
+    // ★修正: script.jsのwinGameは削除し、battle.html側で実装する形に変更済み。
+    // 念のため、空関数かエラー回避用のダミーとして残す。
+    console.log("Global winGame called.");
+}
