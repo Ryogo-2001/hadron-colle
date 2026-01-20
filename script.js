@@ -1,3 +1,9 @@
+// ==========================================
+//  Hadron Lab Core Script (Ver 22.3)
+// ==========================================
+
+console.log("Hadron Lab Script Loading..."); // 動作確認用ログ
+
 // === Mission Data ===
 const missionData = {
     'm1': { name: "Basic Training", enemy: "Nucleus", symbol:"N", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 2000, matChance: 0.3 } },
@@ -82,6 +88,7 @@ let user = { money: 10000, rp: 0, invMat: {}, invDet: [], invPart: {1:1}, deck: 
 let currentMission = null;
 let currentSlotIndex = 0;
 
+// === Initialization ===
 window.onload = function() {
     try { 
         loadGame(); 
@@ -91,11 +98,12 @@ window.onload = function() {
         initProposalForm(); 
         renderMissionList(); 
         renderLab(); 
+        console.log("Initialization Complete");
     }
     catch(e) { console.error("Init Error:", e); }
 };
 
-// ★ Helper Functions
+// === Helper Functions ===
 function getSkillBonus(type) {
     let bonus = 0;
     if(!user.skills) return 0;
@@ -133,23 +141,50 @@ function getImgSrc(p) {
     return p.image;
 }
 
-// --- View Logic ---
-function showHome() { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
+// === View Switching Logic (修正版: サイドバー連動) ===
+function showHome() { 
+    showView('view-home');
+}
+
 function showView(id) { 
-    document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); 
-    document.getElementById(id).classList.add('active'); 
+    // 1. 全ビューを非表示
+    document.querySelectorAll('.main-view').forEach(el => el.classList.remove('active')); 
+    
+    // 2. 指定IDのビューを表示
+    const target = document.getElementById(id);
+    if(target) target.classList.add('active');
+    
+    // 3. サイドバーのハイライト切り替え
+    document.querySelectorAll('.sidebar .menu-item').forEach(el => {
+        el.classList.remove('active');
+        // onclick属性の内容を見て、対象のIDが含まれていればactiveにする
+        const onclickVal = el.getAttribute('onclick');
+        if (onclickVal) {
+            if (id === 'view-home' && onclickVal.includes('showHome')) {
+                el.classList.add('active');
+            } else if (onclickVal.includes(id)) {
+                el.classList.add('active');
+            }
+        }
+    });
+
+    // 4. コンテンツの更新が必要な場合
     if(id === 'view-lab') renderLab(); 
     if(id === 'view-mission') renderMissionList(); 
 }
+
 function refreshUI() {
     document.getElementById('disp-money').innerText = user.money.toLocaleString();
     const rpEl = document.getElementById('disp-rp');
     if(rpEl) rpEl.innerText = (user.rp || 0).toLocaleString();
     renderShop(); renderCraft(); renderOffice();
 }
-function startBattle(missionId) { location.href = `battle.html?mission=${missionId}`; }
 
-// --- Deck & Gacha ---
+function startBattle(missionId) { 
+    location.href = `battle.html?mission=${missionId}`; 
+}
+
+// === Deck & Gacha ===
 function renderDeckHome() {
     const el = document.getElementById('home-deck-display'); if(!el) return; el.innerHTML = '';
     user.deck.forEach((pid, index) => {
@@ -336,7 +371,6 @@ function sell(pid,pr){
     } 
 }
 
-// --- Mission Rendering ---
 function renderMissionList() {
     const el = document.getElementById('mission-list-container');
     if(!el) return;
@@ -356,7 +390,6 @@ function renderMissionList() {
     });
 }
 
-// --- Lab Rendering ---
 function renderLab() {
     const el = document.getElementById('skill-tree-container'); if(!el) return; el.innerHTML = '';
     skills.forEach(s => {
@@ -398,7 +431,4 @@ function loadGame(){
 }
 function saveGame(){ localStorage.setItem('hadron_v8',JSON.stringify(user)); }
 
-// Global winGame for Battle use (This is used as fallback, battle.html has its own but we keep it safe)
-function winGame() {
-    console.log("Global winGame called.");
-}
+function winGame() { console.log("Global winGame fallback"); }
