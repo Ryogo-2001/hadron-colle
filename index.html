@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hadron Lab Ver 14.0</title>
+    <title> Hadron Lab Ver 15.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 14.0 Style ===== */
+        /* ===== Hadron Lab 15.0 Style ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -125,17 +125,9 @@
         .rarity-rare { color: #3498db; }
         .rarity-holo { color: #f1c40f; text-shadow: 0 0 5px #f1c40f; }
         .rarity-ultra { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; font-weight: bold; }
-        
-        /* ★GENESIS (虹色) */
         .rarity-genesis {
             background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
-            background-size: 400%;
-            -webkit-background-clip: text;
-            color: transparent;
-            animation: rainbow 3s linear infinite;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
-            font-size: 1.1em;
+            background-size: 400%; -webkit-background-clip: text; color: transparent; animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1em;
         }
         @keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
 
@@ -149,6 +141,11 @@
         .detail-info { width: 60%; }
         .detail-type { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.8rem; background: #444; margin-bottom: 10px; }
         .detail-skill-box { margin-top: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-left: 4px solid var(--hc-orange); }
+
+        /* ガチャ結果グリッド (10連用) */
+        .gacha-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .gacha-item { background: #111; padding: 5px; border-radius: 5px; border: 1px solid #444; }
+        .gacha-item img { width: 100%; height: auto; }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -241,8 +238,18 @@
                     <label style="font-weight:bold; display:block;">3. DETECTOR</label>
                     <select id="sel-detector" style="width:100%; padding:10px; margin-bottom:10px;" onchange="calcProposalCost()"></select>
                 </div>
-                <div style="text-align:right; font-weight:bold; margin-top:20px;">COST: ¥<span id="prop-cost">0</span></div>
-                <button onclick="runExperiment()" style="width:100%; background:var(--hc-blue); color:white; padding:15px; border:none; font-size:1.2rem; margin-top:10px; cursor:pointer;">SUBMIT</button>
+                <div style="text-align:right; font-weight:bold; margin-top:20px;">
+                    COST (x1): ¥<span id="prop-cost">0</span>
+                </div>
+                
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button onclick="runExperiment(1)" style="flex:1; background:var(--hc-blue); color:white; padding:15px; border:none; font-size:1.2rem; cursor:pointer;">
+                        SUBMIT (x1)
+                    </button>
+                    <button onclick="runExperiment(10)" style="flex:1; background:var(--hc-purple); color:white; padding:15px; border:none; font-size:1.2rem; cursor:pointer;">
+                        SUBMIT (x10)
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -260,8 +267,7 @@
 
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-content" style="max-width:600px;">
-            <div id="detail-content" class="detail-layout">
-                </div>
+            <div id="detail-content" class="detail-layout"></div>
             <div style="text-align:center; margin-top:20px;">
                 <button onclick="closeModal('detail-modal')" style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button>
             </div>
@@ -278,7 +284,7 @@
 
     <script src="script.js"></script>
     <script>
-        // === ★UPDATED DATA (全24種) ===
+        // === DATA (全24種) ===
         const particles = [
             { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。ラボの主人公。前向きな性格。", skill:"Proton Beam", type:"atk" },
             { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。冷静沈着で中立的な立場。", skill:"Neutron Shield", type:"def" },
@@ -299,7 +305,6 @@
             { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/Charm_Quark.png", desc: "チャームクォーク。可愛さ全振りの小悪魔。", skill:"Lovely Charm", type:"atk" },
             { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/Neutrino.png", desc: "ニュートリノ。壁もすり抜ける幽霊少女。", skill:"Ghost Pass", type:"spd" },
             { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。触れると危険なツンデレ双子。", skill:"Annihilation", type:"ult" },
-            // ID 20-24 (New! GENESIS)
             { id: 20, name: "Positron", symbol: "e⁺", rarity: "rare", image: "images/Positron.png", desc: "陽電子。電子と対になる反粒子。", skill:"Mirror Dash", type:"spd" },
             { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。変化を司る厳格な管理者。", skill:"Beta Decay", type:"atk" },
             { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。重厚な守りの中立者。", skill:"Neutral Heavy", type:"def" },
@@ -442,7 +447,7 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function saveDeck() { saveGame(); alert("編成を保存しました！"); }
 
-        // --- Other Logic (Updated for Genesis) ---
+        // --- Other Logic (Gacha Logic Updated) ---
         function initProposalForm() {
             const b = document.getElementById('sel-beam');
             const t = document.getElementById('sel-target');
@@ -460,38 +465,58 @@
             const t = targets.find(x=>x.id==document.getElementById('sel-target').value);
             document.getElementById('prop-cost').innerText = ((b?b.cost:0)+(t?t.cost:0)).toLocaleString();
         }
-        function runExperiment(){
+        
+        // ★ガチャ実行関数 (回数指定対応)
+        function runExperiment(times = 1){
             const bVal=document.getElementById('sel-beam').value, tVal=document.getElementById('sel-target').value, dVal=document.getElementById('sel-detector').value;
             if(!dVal){alert("検出器が必要です");return;}
+            
             const b=beams.find(x=>x.id==bVal), t=targets.find(x=>x.id==tVal);
-            if(user.money<b.cost+t.cost){alert("資金不足");return;}
-            user.money-=(b.cost+t.cost);
-            
-            // パワー計算 (簡易)
-            const power = b.power * t.power * ((user.invDet.length||1));
-            const rand=Math.random()*100; 
-            let tr="common";
-            
-            // ★GENESIS対応ガチャ確率
-            if(power > 50) {
-                if(rand < 1) tr="genesis";      // 1%
-                else if(rand < 6) tr="ultra";
-                else if(rand < 20) tr="holo";
-                else if(rand < 50) tr="rare";
-            } else if(power > 10) {
-                if(rand < 0.5) tr="genesis";    // 0.5%
-                else if(rand < 3) tr="ultra";
-                else if(rand < 15) tr="holo";
-                else if(rand < 40) tr="rare";
-            }
+            const costPerRun = b.cost + t.cost;
+            const totalCost = costPerRun * times;
 
-            let c=particles.filter(p=>p.rarity===tr); if(c.length===0)c=particles.filter(p=>p.rarity==="common");
-            const p=c[Math.floor(Math.random()*c.length)];
+            if(user.money < totalCost){alert("資金不足");return;}
+            user.money -= totalCost;
+
+            // 抽選パワー
+            const power = b.power * t.power * ((user.invDet.length||1));
             
-            user.invPart[p.id]=(user.invPart[p.id]||0)+1; saveGame(); refreshUI();
-            document.getElementById('exp-result-content').innerHTML=`<img src="${p.image}" style="width:100px"><br><h3 class="rarity-${p.rarity}">GET: ${p.name}</h3><p>${p.desc}</p>`;
+            let results = [];
+            for(let i=0; i<times; i++) {
+                const rand=Math.random()*100; 
+                let tr="common";
+                if(power > 50) {
+                    if(rand < 1) tr="genesis"; else if(rand < 6) tr="ultra"; else if(rand < 20) tr="holo"; else if(rand < 50) tr="rare";
+                } else if(power > 10) {
+                    if(rand < 0.5) tr="genesis"; else if(rand < 3) tr="ultra"; else if(rand < 15) tr="holo"; else if(rand < 40) tr="rare";
+                }
+                
+                let c=particles.filter(p=>p.rarity===tr); 
+                if(c.length===0) c=particles.filter(p=>p.rarity==="common");
+                
+                const p = c[Math.floor(Math.random()*c.length)];
+                user.invPart[p.id] = (user.invPart[p.id]||0)+1;
+                results.push(p);
+            }
+            
+            saveGame(); refreshUI();
+            
+            // 結果表示
+            const resEl = document.getElementById('exp-result-content');
+            if(times === 1) {
+                const p = results[0];
+                resEl.innerHTML = `<img src="${p.image}" style="width:100px"><br><h3 class="rarity-${p.rarity}">GET: ${p.name}</h3><p>${p.desc}</p>`;
+            } else {
+                let html = '<div class="gacha-grid">';
+                results.forEach(p => {
+                    html += `<div class="gacha-item"><img src="${p.image}"><div class="rarity-${p.rarity}" style="font-size:0.7rem;">${p.name}</div></div>`;
+                });
+                html += '</div>';
+                resEl.innerHTML = html;
+            }
             document.getElementById('result-modal').style.display='block';
         }
+
         function renderShop(){
             const el=document.getElementById('shop-list'); if(!el)return; el.innerHTML='';
             materials.forEach(m=>{ el.innerHTML+=`<div class="item-card" onclick="buy('${m.id}')"><div>${m.name}</div><div style="color:var(--hc-green)">¥${m.cost}</div><div style="font-size:0.8rem">持: ${user.invMat?user.invMat[m.id]||0:0}</div></div>`; });
@@ -515,7 +540,7 @@
                         if(p.rarity=="rare")pr=3000; 
                         if(p.rarity=="holo")pr=10000; 
                         if(p.rarity=="ultra")pr=50000;
-                        if(p.rarity=="genesis")pr=1000000; // 100万！
+                        if(p.rarity=="genesis")pr=1000000; 
                         el.innerHTML+=`<div class="item-card" onclick="sell(${pid},${pr})"><span class="rarity-${p.rarity}">${p.name}</span> x${user.invPart[pid]}<br>PUBLISH (¥${pr})</div>`;
                     }
                 }
