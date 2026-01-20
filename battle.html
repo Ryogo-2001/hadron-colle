@@ -22,18 +22,13 @@
             width: 50%; height: 100%; position: relative;
             display: flex; align-items: center; 
         }
-        .fleet-container {
-            position: relative; width: 100%; height: 300px;
-        }
+        .fleet-container { position: relative; width: 100%; height: 300px; }
         .fleet-member {
-            position: absolute;
-            height: 200px; width: auto; object-fit: contain;
+            position: absolute; height: 200px; width: auto; object-fit: contain;
             filter: drop-shadow(0 0 10px rgba(0,243,255,0.3));
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .fleet-member.flagship {
-            height: 280px; z-index: 50 !important; filter: drop-shadow(0 0 20px rgba(255,215,0,0.6));
-        }
+        .fleet-member.flagship { height: 280px; z-index: 50 !important; filter: drop-shadow(0 0 20px rgba(255,215,0,0.6)); }
         .fleet-member.attack { transform: translateX(100px) !important; filter: brightness(1.5); }
         .fleet-member.damage { animation: shake 0.4s; filter: sepia(1) hue-rotate(-50deg) saturate(3); }
 
@@ -45,13 +40,16 @@
         .bar-container { width: 100%; height: 8px; background: #333; margin: 3px 0; border-radius: 4px; overflow: hidden; }
         .hp-bar { height: 100%; background: #2ecc71; width: 100%; transition: 0.3s; }
         .ep-bar { height: 100%; background: #f1c40f; width: 0%; transition: 0.3s; }
+        
+        /* バフ表示エリア */
+        .buff-list { font-size: 0.7rem; color: #aaa; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .buff-tag { background: rgba(52, 152, 219, 0.3); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(52, 152, 219, 0.5); color: #81ecec; }
 
-        /* エネミーサイド */
+        /* エネミー */
         .enemy-side { width: 40%; text-align: center; }
         .enemy-core {
             width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, #e74c3c, #8e44ad);
-            box-shadow: 0 0 60px #c0392b; border: 6px solid #fff; 
-            margin: 0 auto;
+            box-shadow: 0 0 60px #c0392b; border: 6px solid #fff; margin: 0 auto;
             display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: bold;
             text-shadow: 2px 2px 0 #000; animation: pulse 3s infinite; position: relative;
         }
@@ -119,6 +117,8 @@
                 <div class="bar-container"><div id="p-hp-bar" class="hp-bar"></div></div>
                 <div class="bar-container" style="height:4px; background:#444;"><div id="p-ep-bar" class="ep-bar"></div></div>
                 <div style="text-align:right; font-size:0.7rem; color:#f1c40f;">TP (Tactical Point)</div>
+                <div id="buff-container" class="buff-list">
+                    </div>
             </div>
             
             <div id="fleet-container" class="fleet-container"></div>
@@ -138,7 +138,6 @@
     <div class="command-panel">
         <div class="log-window" id="log">
             > Fleet formation complete.<br>
-            > Particles ready for collision.<br>
             > Awaiting orders...
         </div>
         
@@ -152,7 +151,7 @@
                 <div style="font-size:0.7rem; color:#aaa;">TP +40</div>
             </button>
             <button id="btn-skill" class="cmd-btn" style="--color:#f1c40f; grid-column: span 2;" onclick="playerAction('skill')" disabled>
-                ★ <span id="skill-name">FLAGSHIP SKILL</span>
+                ★ <span id="skill-name">SKILL</span>
                 <div style="font-size:0.7rem; color:#aaa;">Cost: 100 TP</div>
             </button>
         </div>
@@ -171,7 +170,7 @@
     </div>
 
     <script>
-        // === ★UPDATED DATA (全19種) ===
+        // === ★DATA (全19種) ===
         const particles = [
             { id: 1, name: "Proton", rarity: "common", image: "images/proton.png", skill:"Proton Beam", type:"atk" },
             { id: 2, name: "Neutron", rarity: "common", image: "images/neutron.png", skill:"Neutron Shield", type:"def" },
@@ -187,7 +186,6 @@
             { id: 12, name: "J/psi", rarity: "holo", image: "images/j-psi.png", skill:"Charmonium", type:"atk" },
             { id: 13, name: "Top Quark", rarity: "ultra", image: "images/top-quark.png", skill:"Truth Smasher", type:"ult" },
             { id: 14, name: "Higgs Boson", rarity: "ultra", image: "images/higgs.png", skill:"God Field", type:"ult" },
-            // ID 15-19 (New!)
             { id: 15, name: "Photon", rarity: "common", image: "images/Photon.png", skill:"Optical Flash", type:"spd" },
             { id: 16, name: "Gluon", rarity: "rare", image: "images/Gluon.png", skill:"Strong Bond", type:"def" },
             { id: 17, name: "Charm Quark", rarity: "holo", image: "images/Charm_Quark.png", skill:"Lovely Charm", type:"atk" },
@@ -198,13 +196,13 @@
         const lootTable = ['m1','m2','m3','m4','m5','m6'];
         const matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC" };
 
-        // === State ===
         let user = {};
-        let deckMembers = []; 
+        let deckMembers = [];
         let flagShip = null;
         let stats = { hp: 0, maxHp: 0, ep: 0, atk: 0 };
         let enemy = { hp: 5000, maxHp: 5000, atk: 100 };
         let isPlayerTurn = true;
+        let activeBuffs = [];
 
         window.onload = function() {
             // Load User Data
@@ -215,26 +213,22 @@
             const deckIds = user.deck || [1, null, null, null, null];
             const container = document.getElementById('fleet-container');
             
-            // 安全にデッキ構築
             deckIds.forEach((pid, index) => {
                 if(pid) {
                     const p = particles.find(x => x.id === pid) || particles[0]; 
                     deckMembers.push({ ...p, index: index });
                 }
             });
-            // デッキが空ならプロトン単騎
             if(deckMembers.length === 0) deckMembers.push({ ...particles[0], index: 0 });
 
             flagShip = deckMembers[0]; 
             document.getElementById('skill-name').innerText = flagShip.skill;
 
-            // Render & Stats Calc
+            // Render & Base Stats Calc
             deckMembers.forEach((member, i) => {
                 const img = document.createElement('img');
                 img.src = member.image;
                 img.className = 'fleet-member';
-                img.id = `member-${i}`;
-                
                 const offset = i * 60;
                 img.style.left = `${offset}px`;
                 img.style.top = `${-offset * 0.3}px`;
@@ -242,7 +236,6 @@
                 if(i === 0) img.classList.add('flagship');
                 container.appendChild(img);
                 
-                // Stats Add
                 let rVal = 1;
                 if(member.rarity=="rare") rVal=2;
                 if(member.rarity=="holo") rVal=4;
@@ -252,24 +245,75 @@
                 stats.atk += 100 + rVal * 150;
             });
 
+            // === ★ Apply Buffs (シナジー計算) ===
+            applyFleetBuffs();
+
             // Enemy Scaling
             enemy.maxHp = stats.atk * 10;
             enemy.hp = enemy.maxHp;
             enemy.atk = stats.maxHp / 8;
-            
-            // ★最重要修正: HPを最大値にセット
             stats.hp = stats.maxHp;
 
             updateUI();
-            log(`Fleet Formed. Members: ${deckMembers.length}`);
-            log(`Combined Power: ${stats.atk}`);
+            log(`Fleet Power: ${Math.floor(stats.atk)} (Buffed)`);
         };
 
-        function updateUI() {
-            // ★安全装置: 万が一HPが0で最大HPがあるなら回復させる
-            if(stats.hp <= 0 && stats.maxHp > 0 && isPlayerTurn && enemy.hp == enemy.maxHp) {
-                stats.hp = stats.maxHp; 
+        function applyFleetBuffs() {
+            // Count Types
+            let types = { atk:0, def:0, spd:0, ult:0 };
+            let ids = deckMembers.map(m => m.id);
+            deckMembers.forEach(m => { if(types[m.type] !== undefined) types[m.type]++; });
+
+            // 1. Type Bonus
+            if(types.atk >= 3) {
+                stats.atk *= 1.2;
+                addBuff("⚔️ ASSAULT LINE (Atk+20%)");
             }
+            if(types.def >= 3) {
+                stats.maxHp *= 1.2;
+                addBuff("🛡 FORTRESS LINE (HP+20%)");
+            }
+            if(types.spd >= 3) {
+                stats.ep += 30;
+                addBuff("⚡ RAPID LINE (Start TP+30)");
+            }
+
+            // 2. Specific Combo
+            // Proton(1) + Neutron(2)
+            if(ids.includes(1) && ids.includes(2)) {
+                stats.maxHp *= 1.15;
+                addBuff("⚛️ Nucleus Force (HP+15%)");
+            }
+            // Top(13) + Higgs(14)
+            if(ids.includes(13) && ids.includes(14)) {
+                stats.atk *= 1.30;
+                addBuff("⚖️ God Particle (Atk+30%)");
+            }
+            // Charm(17) + J/psi(12)
+            if(ids.includes(17) && ids.includes(12)) {
+                stats.atk *= 1.15;
+                addBuff("💖 Charm Love (Atk+15%)");
+            }
+            // Anti-Proton(19) exists
+            if(ids.includes(19)) {
+                stats.atk *= 1.25;
+                stats.maxHp *= 0.9;
+                addBuff("⚫ Antimatter (Atk+25%/HP-10%)");
+            }
+        }
+
+        function addBuff(name) {
+            activeBuffs.push(name);
+            const el = document.getElementById('buff-container');
+            const tag = document.createElement('div');
+            tag.className = 'buff-tag';
+            tag.innerText = name;
+            el.appendChild(tag);
+            log("Buff: " + name);
+        }
+
+        function updateUI() {
+            if(stats.hp <= 0 && stats.maxHp > 0 && isPlayerTurn && enemy.hp == enemy.maxHp) stats.hp = stats.maxHp; // Safety
 
             document.getElementById('p-hp-val').innerText = Math.floor(stats.hp);
             document.getElementById('p-hp-bar').style.width = (stats.hp/stats.maxHp*100) + "%";
@@ -296,7 +340,7 @@
 
             if(type === 'attack') {
                 log("Fleet All-Out Attack!");
-                animFleetAttack(); 
+                animFleetAttack();
                 setTimeout(() => {
                     const dmg = stats.atk * (0.9 + Math.random()*0.2);
                     dealDamageToEnemy(Math.floor(dmg));
@@ -316,14 +360,13 @@
 
         function useSkill() {
             stats.ep = 0; updateUI();
-            
             const overlay = document.getElementById('skill-overlay');
             overlay.innerText = flagShip.skill + "!!";
             overlay.classList.add('active');
             
             setTimeout(() => {
                 overlay.classList.remove('active');
-                animFleetAttack(); 
+                animFleetAttack();
                 
                 let multiplier = 2.5;
                 if(flagShip.rarity === 'ultra') multiplier = 4.0;
@@ -355,7 +398,6 @@
             }, 500);
         }
 
-        // === Effects ===
         function animFleetAttack() {
             const mems = document.querySelectorAll('.fleet-member');
             mems.forEach((img, i) => {
@@ -378,14 +420,12 @@
         function dealDamageToPlayer(amount) {
             stats.hp -= amount; if(stats.hp < 0) stats.hp = 0;
             updateUI();
-            
             const mems = document.querySelectorAll('.fleet-member');
             mems.forEach(img => {
                 img.classList.add('damage');
                 setTimeout(()=>img.classList.remove('damage'), 400);
             });
             showDamage(amount, 'fleet-container', false);
-
             if(stats.hp <= 0) { log("<span style='color:red'>FLEET CRITICAL...</span>"); setTimeout(loseGame, 1000); }
         }
 
