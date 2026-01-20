@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hadron Lab Ver 18.0</title>
+    <title>Hadron Lab Ver 19.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 18.0 Style ===== */
+        /* ===== Hadron Lab 19.0 Style ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -99,9 +99,10 @@
             box-shadow: 5px 5px 15px rgba(0,0,0,0.8); transition: 0.3s; pointer-events: auto; cursor: pointer;
             transform-origin: bottom center; border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5);
         }
+        .deck-member:hover { transform: translateY(-30px) scale(1.1); z-index: 100; margin-right: -20px; box-shadow: 0 0 30px rgba(255,255,255,0.4); border-color: white; }
         .deck-member.flagship { width: 260px; z-index: 20; border: 2px solid var(--hc-orange); }
 
-        /* 編成画面 */
+        /* 編成・ミッション選択 */
         .deck-slots { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 30px; }
         .slot-card {
             width: 18%; background: #222; border: 2px dashed #555; height: 250px;
@@ -114,21 +115,30 @@
         .slot-label { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); text-align: center; padding: 5px 0; font-weight: bold; color: var(--hc-orange); pointer-events: none; }
         .slot-remove { position: absolute; top: 5px; right: 5px; background: red; width: 25px; height: 25px; border-radius: 50%; text-align: center; line-height: 25px; font-weight:bold; cursor: pointer; z-index: 10; border:2px solid white; }
 
+        /* ミッションカード */
+        .mission-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .mission-card { 
+            background: linear-gradient(135deg, #222, #111); border: 2px solid #444; border-radius: 10px; padding: 20px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .mission-card:hover { transform: translateY(-5px); border-color: var(--hc-blue); box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); }
+        .mission-card h3 { margin: 0 0 10px 0; font-family: 'Orbitron'; color: var(--hc-blue); }
+        .mission-card p { font-size: 0.8rem; color: #aaa; }
+        .mission-tag { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 8px; border-radius: 3px; background: #333; }
+        .tag-money { color: #f1c40f; border: 1px solid #f1c40f; }
+        .tag-mat { color: #2ecc71; border: 1px solid #2ecc71; }
+        .tag-boss { color: #e74c3c; border: 1px solid #e74c3c; font-weight: bold; }
+
         /* 共通 */
         .shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
         .item-card { background: var(--hc-panel); border: 1px solid #444; padding: 10px; text-align: center; cursor: pointer; border-radius: 5px; }
         .item-card:hover { background: #333; border-color: #888; }
         
-        .rarity-genesis {
-            background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
-            background-size: 400%; -webkit-background-clip: text; color: transparent; animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1em;
-        }
+        .rarity-genesis { background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); background-size: 400%; -webkit-background-clip: text; color: transparent; animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1em; }
         @keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #222; padding: 20px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; border-radius: 10px; border: 1px solid var(--hc-blue); }
 
-        /* 詳細 & 着せ替え */
         .detail-layout { display: flex; gap: 20px; align-items: flex-start; text-align: left; }
         .detail-img-box { width: 40%; text-align: center; background: radial-gradient(circle, #333, #000); padding: 20px; border-radius: 10px; border: 1px solid #555; }
         .detail-img-box img { max-width: 100%; max-height: 300px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
@@ -139,7 +149,6 @@
         .skin-btn { padding: 5px 10px; background: #444; border: 1px solid #666; color: white; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
         .skin-btn:hover, .skin-btn.active { background: var(--hc-blue); border-color: #fff; }
 
-        /* クラフト画面調整 */
         .craft-card { background: #1a1a1a; padding: 15px; border: 1px solid #444; text-align: left; position: relative; border-radius: 5px; }
         .craft-card.owned { border-color: #2ecc71; background: #0f2215; }
         .craft-req { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
@@ -187,6 +196,9 @@
             <div class="menu-item" onclick="showView('view-office')">
                 <div class="menu-icon">🎓</div> <span>ARCHIVE</span>
             </div>
+            <div class="menu-item" onclick="showView('view-mission')">
+                <div class="menu-icon">⚔️</div> <span>MISSION</span>
+            </div>
         </div>
         
         <div class="deck-display-area" id="home-deck-display"></div>
@@ -208,7 +220,7 @@
                 <div class="gear-btn btn-office" onclick="showView('view-office')">
                     <div style="font-size:1.5rem;">📂</div><div>DATA</div>
                 </div>
-                <div class="gear-btn btn-battle" onclick="location.href='battle.html'">
+                <div class="gear-btn btn-battle" onclick="showView('view-mission')">
                     <div style="font-size:1.5rem;">⚔️</div><div>BATTLE</div>
                 </div>
             </div>
@@ -252,67 +264,99 @@
         </div>
         
         <div id="view-office" class="main-view"><h2 style="font-family:'Orbitron'">OFFICE</h2><div id="particle-stock-list" class="shop-grid"></div></div>
-    </div>
 
-    <div id="select-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>SELECT PARTICLE</h3>
-            <div id="select-list" class="particle-list"></div>
-            <button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button>
-        </div>
-    </div>
+        <div id="view-mission" class="main-view">
+            <h2 style="font-family:'Orbitron'; color:var(--hc-red);">MISSION SELECT</h2>
+            <div class="mission-grid">
+                <div class="mission-card" onclick="startBattle('m1')">
+                    <h3>Basic Training</h3>
+                    <div class="mission-tag">Normal</div>
+                    <p>基礎訓練用コース。バランスの良い報酬。</p>
+                    <div style="margin-top:10px; font-size:0.9rem; color:#fff;">Target: Standard Nucleus</div>
+                </div>
 
-    <div id="detail-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width:600px;">
-            <div id="detail-content" class="detail-layout"></div>
-            <div style="text-align:center; margin-top:20px;">
-                <button onclick="closeModal('detail-modal')" style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button>
+                <div class="mission-card" onclick="startBattle('m2')">
+                    <h3>Gold Rush</h3>
+                    <div class="mission-tag tag-money">Money</div>
+                    <p>資金稼ぎ特化。敵は弱いが、素材は落ちない。</p>
+                    <div style="margin-top:10px; font-size:0.9rem; color:#f1c40f;">Target: Gold Chunk</div>
+                </div>
+
+                <div class="mission-card" onclick="startBattle('m3')">
+                    <h3>Material Depot</h3>
+                    <div class="mission-tag tag-mat">Material</div>
+                    <p>素材回収特化。多くの素材がドロップする。</p>
+                    <div style="margin-top:10px; font-size:0.9rem; color:#2ecc71;">Target: Carbon Pile</div>
+                </div>
+
+                <div class="mission-card" onclick="startBattle('m4')">
+                    <h3>Antimatter Zone</h3>
+                    <div class="mission-tag tag-boss">Hard</div>
+                    <p>危険地帯。レア素材と高額報酬のチャンス。</p>
+                    <div style="margin-top:10px; font-size:0.9rem; color:#9b59b6;">Target: Anti-H</div>
+                </div>
+
+                <div class="mission-card" onclick="startBattle('m5')">
+                    <h3>Event Horizon</h3>
+                    <div class="mission-tag tag-boss">EX-Hard</div>
+                    <p>事象の地平線。生還率極小。伝説の報酬。</p>
+                    <div style="margin-top:10px; font-size:0.9rem; color:#e74c3c;">Target: Singularity</div>
+                </div>
             </div>
         </div>
+
     </div>
 
-    <div id="result-modal" class="modal-overlay">
-        <div class="modal-content" style="text-align:center;">
-            <h2 style="color:var(--hc-green);">Experiment Result</h2>
-            <div id="exp-result-content"></div>
-            <button onclick="closeModal('result-modal')" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button>
-        </div>
-    </div>
+    <div id="select-modal" class="modal-overlay"><div class="modal-content"><h3>SELECT PARTICLE</h3><div id="select-list" class="particle-list"></div><button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button></div></div>
+    <div id="detail-modal" class="modal-overlay"><div class="modal-content" style="max-width:600px;"><div id="detail-content" class="detail-layout"></div><div style="text-align:center; margin-top:20px;"><button onclick="closeModal('detail-modal')" style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button></div></div></div>
+    <div id="result-modal" class="modal-overlay"><div class="modal-content" style="text-align:center;"><h2 style="color:var(--hc-green);">Experiment Result</h2><div id="exp-result-content"></div><button onclick="closeModal('result-modal')" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button></div></div>
 
     <script src="script.js"></script>
     <script>
-        // === DATA (全24種) ===
+        // (データ・ロジック部分はVer 18.0を継承しつつ、ミッション遷移用関数を追加)
+        
+        // ... (particles, materials, detectors, beams, targets, user, etc. are same as Ver 18.0)
+        // 省略部分はVer 18.0のコードを使用してください。
+        
+        // === ★NEW: バトル開始処理 ===
+        function startBattle(missionId) {
+            // クエリパラメータでミッションIDを渡す
+            location.href = `battle.html?mission=${missionId}`;
+        }
+        
+        // ... (showHome, showView, refreshUI, etc. same as Ver 18.0)
+        // ... (Deck Logic, Experiment, Shop/Craft Logic same as Ver 18.0)
+        
+        // ここに必要なVer18.0のスクリプト全てを含めます（長くなるので省略せず、Ver18.0の<script>の中身をそのまま使い、startBattleだけ追加してください）
+
+        // ===== 以下、Ver 18.0 のスクリプトの完全版（startBattle入り） =====
         const particles = [
-            { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。ラボの主人公。", skill:"Proton Beam", type:"atk" },
-            { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。冷静沈着。", skill:"Neutron Shield", type:"def" },
-            { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。元気な子。", skill:"Yukawa Force", type:"spd" },
-            { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。ストレンジちゃん。", skill:"Strange Hit", type:"atk" },
-            { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。お姉さん。", skill:"Hyper Guard", type:"def" },
-            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", rarity: "rare", image: "images/sigma.png", desc: "シグマ粒子。攻撃的。", skill:"Isospin Slash", type:"atk" },
-            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", rarity: "holo", image: "images/xi.png", desc: "グザイ粒子。ツンデレ。", skill:"Cascade Fall", type:"atk" },
-            { id: 8, name: "H-Dibaryon", symbol: "H", rarity: "holo", image: "images/h_dibaryon.png", desc: "Hダイバリオン。伝説。", skill:"Hexa-Quark", type:"def" },
-            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。爆発的。", skill:"Resonance", type:"spd" },
-            { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。王者。", skill:"Strangeness 3", type:"ult" },
-            { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。チャーミング。", skill:"Charm Speed", type:"spd" },
-            { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。隠された魅力。", skill:"Charmonium", type:"atk" },
-            { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。最強の女騎士。", skill:"Truth Smasher", type:"ult" },
-            { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。女神。", skill:"God Field", type:"ult" },
-            { id: 15, name: "Photon", symbol: "γ", rarity: "common", image: "images/Photon.png", desc: "光子。アイドル。", skill:"Optical Flash", type:"spd" },
-            { id: 16, name: "Gluon", symbol: "g", rarity: "rare", image: "images/Gluon.png", desc: "グルーオン。妖精。", skill:"Strong Bond", type:"def" },
-            { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/Charm_Quark.png", desc: "チャームクォーク。小悪魔。", skill:"Lovely Charm", type:"atk" },
-            { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/Neutrino.png", desc: "ニュートリノ。幽霊少女。", skill:"Ghost Pass", type:"spd" },
-            { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。危険な双子。", skill:"Annihilation", type:"ult" },
-            { id: 20, name: "Positron", symbol: "e⁺", rarity: "rare", image: "images/Positron.png", desc: "陽電子。反粒子。", skill:"Mirror Dash", type:"spd" },
-            { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。管理者。", skill:"Beta Decay", type:"atk" },
-            { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。守護者。", skill:"Neutral Heavy", type:"def" },
-            { id: 23, name: "Tachyon", symbol: "T", rarity: "ultra", image: "images/Tachyon.png", desc: "タキオン。未来人。", skill:"Time Travel", type:"spd" },
-            { 
-                id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill:"Event Horizon", type:"ult",
-                skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ]
-            }
+            { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。", skill:"Proton Beam", type:"atk" },
+            { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。", skill:"Neutron Shield", type:"def" },
+            { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。", skill:"Yukawa Force", type:"spd" },
+            { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。", skill:"Strange Hit", type:"atk" },
+            { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。", skill:"Hyper Guard", type:"def" },
+            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", rarity: "rare", image: "images/sigma.png", desc: "シグマ粒子。", skill:"Isospin Slash", type:"atk" },
+            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", rarity: "holo", image: "images/xi.png", desc: "グザイ粒子。", skill:"Cascade Fall", type:"atk" },
+            { id: 8, name: "H-Dibaryon", symbol: "H", rarity: "holo", image: "images/h_dibaryon.png", desc: "Hダイバリオン。", skill:"Hexa-Quark", type:"def" },
+            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。", skill:"Resonance", type:"spd" },
+            { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。", skill:"Strangeness 3", type:"ult" },
+            { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。", skill:"Charm Speed", type:"spd" },
+            { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。", skill:"Charmonium", type:"atk" },
+            { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。", skill:"Truth Smasher", type:"ult" },
+            { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。", skill:"God Field", type:"ult" },
+            { id: 15, name: "Photon", symbol: "γ", rarity: "common", image: "images/Photon.png", desc: "光子。", skill:"Optical Flash", type:"spd" },
+            { id: 16, name: "Gluon", symbol: "g", rarity: "rare", image: "images/Gluon.png", desc: "グルーオン。", skill:"Strong Bond", type:"def" },
+            { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/Charm_Quark.png", desc: "チャームクォーク。", skill:"Lovely Charm", type:"atk" },
+            { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/Neutrino.png", desc: "ニュートリノ。", skill:"Ghost Pass", type:"spd" },
+            { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。", skill:"Annihilation", type:"ult" },
+            { id: 20, name: "Positron", symbol: "e⁺", rarity: "rare", image: "images/Positron.png", desc: "陽電子。", skill:"Mirror Dash", type:"spd" },
+            { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。", skill:"Beta Decay", type:"atk" },
+            { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。", skill:"Neutral Heavy", type:"def" },
+            { id: 23, name: "Tachyon", symbol: "T", rarity: "ultra", image: "images/Tachyon.png", desc: "タキオン。", skill:"Time Travel", type:"spd" },
+            { id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill:"Event Horizon", type:"ult", skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ] }
         ];
 
-        // ★素材追加
         const materials = [
             { id: 'm1', name: 'Dry Ice', cost: 500 }, { id: 'm2', name: 'Alcohol', cost: 300 },
             { id: 'm3', name: 'PMT', cost: 5000 }, { id: 'm4', name: 'Scintillator', cost: 3000 },
@@ -320,9 +364,8 @@
             { id: 'm7', name: 'Gold Wire', cost: 4000 }, { id: 'm8', name: 'PCB', cost: 1500 }, { id: 'm9', name: 'Liq. Helium', cost: 12000 }
         ];
 
-        // ★検出器大量追加 & レシピ制
         const detectors = [
-            { id: 'd0', name: 'Geiger Counter', power: 1, req: {} }, // 初期装備（無料）
+            { id: 'd0', name: 'Geiger Counter', power: 1, req: {} },
             { id: 'd1', name: 'Cloud Chamber', power: 2, req: {m1:1, m2:1} },
             { id: 'd2', name: 'Spark Chamber', power: 5, req: {m7:1, m2:1} },
             { id: 'd3', name: 'Scinti Counter', power: 8, req: {m3:1, m4:1} },
@@ -348,7 +391,6 @@
             catch(e) { console.error("Init Error:", e); }
         };
 
-        // --- Helper: Get Skin Image ---
         function getImgSrc(p) {
             if(user.equippedSkins && user.equippedSkins[p.id] && p.skins) {
                 const s = p.skins.find(sk => sk.id === user.equippedSkins[p.id]);
@@ -357,7 +399,6 @@
             return p.image;
         }
 
-        // --- View Logic ---
         function showHome() { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
         function showView(id) { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById(id).classList.add('active'); }
         function refreshUI() {
@@ -482,7 +523,6 @@
             document.getElementById('result-modal').style.display='block';
         }
 
-        // --- Shop & Craft ---
         function renderShop(){
             const el=document.getElementById('shop-list'); if(!el)return; el.innerHTML='';
             materials.forEach(m=>{ el.innerHTML+=`<div class="item-card" onclick="buy('${m.id}')"><div>${m.name}</div><div style="color:var(--hc-green)">¥${m.cost}</div><div style="font-size:0.8rem">持: ${user.invMat?user.invMat[m.id]||0:0}</div></div>`; });
@@ -494,7 +534,6 @@
             const el=document.getElementById('craft-list'); if(!el)return; el.innerHTML='';
             detectors.forEach(d=>{
                 const own=user.invDet.includes(d.id);
-                // レシピ表示
                 let reqHtml = ''; let canCraft = true;
                 if(Object.keys(d.req).length === 0) reqHtml = "FREE (Starter)";
                 else {
@@ -508,19 +547,12 @@
                 }
                 const btnState = (own || !canCraft) ? 'disabled' : '';
                 const btnText = own ? 'OWNED' : 'CRAFT';
-                
-                el.innerHTML += `
-                    <div class="craft-card ${own?'owned':''}">
-                        <div style="font-weight:bold; color:var(--hc-orange)">${d.name} <span style="font-size:0.8rem; color:#aaa;">(Pw:${d.power})</span></div>
-                        <div class="craft-req">${reqHtml}</div>
-                        <button class="craft-btn" ${btnState} onclick="craft('${d.id}')">${btnText}</button>
-                    </div>`;
+                el.innerHTML += `<div class="craft-card ${own?'owned':''}"><div style="font-weight:bold; color:var(--hc-orange)">${d.name} <span style="font-size:0.8rem; color:#aaa;">(Pw:${d.power})</span></div><div class="craft-req">${reqHtml}</div><button class="craft-btn" ${btnState} onclick="craft('${d.id}')">${btnText}</button></div>`;
             });
         }
         function craft(id){
             if(user.invDet.includes(id)) return;
             const d = detectors.find(x=>x.id==id);
-            // 素材消費
             if(Object.keys(d.req).length > 0) {
                 let ok = true;
                 Object.keys(d.req).forEach(mid => { if((user.invMat[mid]||0) < d.req[mid]) ok=false; });
@@ -546,10 +578,8 @@
             const d=localStorage.getItem('hadron_v8'); if(d){ try{user=JSON.parse(d);}catch(e){user={};} }
             if(typeof user.money==='undefined')user.money=10000; 
             if(!user.invMat)user.invMat={}; 
-            // 初期装備: d0 (Geiger Counter)
             if(!user.invDet) user.invDet=['d0']; 
             if(user.invDet.length === 0) user.invDet=['d0'];
-
             if(!user.invPart)user.invPart={1:1}; if(!user.deck)user.deck=[1,null,null,null,null];
             if(!user.equippedSkins) user.equippedSkins = {};
         }
