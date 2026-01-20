@@ -74,23 +74,31 @@
     </div>
 
     <script>
-        // === バトル固有変数 (共通データはscript.jsから使用) ===
+        // === バトル固有変数 ===
+        // script.jsの変数を上書きしないよう、固有のものだけ宣言
         let deckMembers = [];
         let flagShip = null;
         let stats = { hp: 0, maxHp: 0, ep: 0, atk: 0, regen: 0, critRate: 0.1, dmgRed: 0 };
         let enemy = { hp: 0, maxHp: 0, atk: 0 };
         let isPlayerTurn = true;
         let activeBuffs = [];
-        // user, currentMission は script.js のグローバル変数を使用
+        
+        // ※重要: currentMission は宣言せず、script.js のグローバル変数を使います！
 
         window.onload = function() {
-            // データのロード (script.jsの関数)
-            if(typeof loadGame === 'function') loadGame();
-            
-            // ミッションIDの取得
+            // script.jsのロード確認とデータ読み込み
+            if(typeof loadGame === 'function') {
+                loadGame(); 
+            } else {
+                console.error("script.js not loaded.");
+                return;
+            }
+
+            // ミッションIDの取得と設定
             const params = new URLSearchParams(window.location.search);
             const mid = params.get('mission') || 'm1';
-            currentMission = missionData[mid] || missionData['m1']; // script.jsのmissionDataを使用
+            // グローバル変数の currentMission に代入
+            currentMission = missionData[mid] || missionData['m1'];
 
             // UI反映
             document.getElementById('mission-name').innerText = currentMission.name;
@@ -115,7 +123,7 @@
                     deckMembers.push({ ...p, index: index, image: currentImg });
                 }
             });
-            // デッキが空ならプロトンを入れる
+            // デッキが空の場合の安全策
             if(deckMembers.length === 0) {
                 const p = particles[0];
                 deckMembers.push({ ...p, index: 0, image: p.image });
@@ -302,7 +310,6 @@
 
         function addEp(v) { stats.ep = Math.min(100, stats.ep + v); updateUI(); }
 
-        // リザルト表示用 (script.jsがない場合のフォールバック)
         function loseGame() {
             document.getElementById('res-title').innerText = "DEFEAT"; 
             document.getElementById('res-title').style.color = "red"; 
