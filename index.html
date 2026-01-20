@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Hadron Lab Ver 6.0</title>
+    <title>| Hadron Lab Ver 6.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 6.0 Proposal Edition ===== */
+        /* ===== Hadron Lab 6.1 Dashboard Edition ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -64,6 +64,8 @@
         .main-view {
             position: absolute; top: 60px; left: 240px; right: 0; bottom: 0;
             padding: 30px; overflow-y: auto; display: none;
+            /* 背景を少し暗くして文字を読みやすくする */
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);
         }
         .main-view.active { display: block; animation: fadeIn 0.3s; }
 
@@ -119,9 +121,34 @@
             border-radius: 10px; max-width: 500px; text-align: center;
             box-shadow: 0 0 50px rgba(52, 152, 219, 0.3);
         }
+        
+        /* 秘書表示 */
+        .secretary-area {
+            position: absolute; right: 0; bottom: 0; height: 90vh; width: 55vw;
+            pointer-events: none; display: flex; align-items: flex-end; justify-content: flex-end;
+            z-index: 1; /* メニューの下、背景の上 */
+        }
+        .secretary-img {
+            max-height: 95%; max-width: 95%; object-fit: contain;
+            filter: drop-shadow(0 0 30px rgba(0,0,0,0.8));
+            pointer-events: auto; cursor: help; transition: transform 0.1s;
+        }
+        /* 吹き出し */
+        .bubble {
+            position: absolute; right: 300px; top: 20%;
+            background: white; color: #333; padding: 20px; border-radius: 20px;
+            max-width: 300px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            display: none; animation: popIn 0.3s; z-index: 15;
+        }
+        .bubble::after {
+            content: ''; position: absolute; right: -10px; top: 50%;
+            border-width: 10px; border-style: solid;
+            border-color: transparent transparent transparent white;
+        }
 
         /* アニメーション */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
     </style>
 </head>
@@ -144,16 +171,20 @@
         </div>
 
         <div class="sidebar">
-            <div class="menu-item active" onclick="showView('view-shop')">
+            <div id="menu-home" class="menu-item active" onclick="showHome()">
+                <span>🏠 DASHBOARD</span>
+            </div>
+            
+            <div id="menu-shop" class="menu-item" onclick="showView('view-shop', 'menu-shop')">
                 <span>🛒 MATERIAL SHOP</span>
             </div>
-            <div class="menu-item" onclick="showView('view-craft')">
+            <div id="menu-craft" class="menu-item" onclick="showView('view-craft', 'menu-craft')">
                 <span>🛠 WORKSHOP</span>
             </div>
-            <div class="menu-item" onclick="showView('view-proposal')">
+            <div id="menu-prop" class="menu-item" onclick="showView('view-proposal', 'menu-prop')">
                 <span>📝 PROPOSAL</span>
             </div>
-            <div class="menu-item" onclick="showView('view-office')">
+            <div id="menu-office" class="menu-item" onclick="showView('view-office', 'menu-office')">
                 <span>🎓 ACADEMIC OFFICE</span>
             </div>
             <div style="flex-grow:1;"></div>
@@ -161,8 +192,13 @@
                 <span>⚔️ SORTIE (BATTLE)</span>
             </div>
         </div>
+        
+        <div class="bubble" id="secretary-bubble">ようこそ、実験室へ。</div>
+        <div class="secretary-area">
+            <img id="secretary-img" class="secretary-img" src="" onclick="talkSecretary()">
+        </div>
 
-        <div id="view-shop" class="main-view active">
+        <div id="view-shop" class="main-view">
             <h2 style="font-family:'Orbitron'">MATERIAL SUPPLY</h2>
             <div id="shop-list" class="shop-grid"></div>
         </div>
@@ -257,13 +293,20 @@
             { id: 6, name: "J/psi", rarity: 4 },
             { id: 7, name: "Higgs", rarity: 5 }
         ];
+        
+        // 秘書用データ (Ver 4.0から流用)
+        const secretaryDB = [
+             { id: 1, name: "Proton", image: "images/proton.png" },
+             // 簡易的に粒子リストとリンクさせてもOK
+        ];
 
         // === USER STATE ===
         let user = {
             money: 10000, // 初期資金
             invMat: {},   // 所持素材 {m1: 5, ...}
             invDet: [],   // 所持検出器 ['d1']
-            invPart: {}   // 所持粒子 {1: 0, ...} (未解析データ数)
+            invPart: {},  // 所持粒子
+            secretary: 1  // 秘書ID
         };
 
         // === SYSTEM ===
@@ -271,15 +314,25 @@
             loadGame();
             refreshUI();
             initProposalForm();
+            setSecretaryDisplay();
+            // 初期状態はホーム（全ウィンドウ閉じ）
+            showHome();
         };
 
-        function showView(viewId) {
+        // ホーム画面（全ウィンドウを閉じる）
+        function showHome() {
             document.querySelectorAll('.main-view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+            document.getElementById('menu-home').classList.add('active');
+        }
+
+        // 各ビューの表示
+        function showView(viewId, menuId) {
+            document.querySelectorAll('.main-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
             
-            // メニューのハイライト更新（簡易）
-            // 実際はID対応などが必要ですが省略
+            document.getElementById(viewId).classList.add('active');
+            if(menuId) document.getElementById(menuId).classList.add('active');
         }
 
         function refreshUI() {
@@ -287,6 +340,17 @@
             renderShop();
             renderCraft();
             renderOffice();
+        }
+
+        // 秘書表示
+        function setSecretaryDisplay() {
+            // ここでは簡易的にProtonを表示（本来はユーザーデータから参照）
+            document.getElementById('secretary-img').src = "images/proton.png"; 
+        }
+        function talkSecretary() {
+            const bub = document.getElementById('secretary-bubble');
+            bub.style.display = 'block';
+            setTimeout(()=>bub.style.display='none', 3000);
         }
 
         // 1. Shop Logic
@@ -419,7 +483,6 @@
             user.money -= totalCost;
 
             // 実験結果計算
-            // パワーが高いほどレアが出やすい
             const totalPower = beam.power * target.power * det.power;
             
             // 粒子抽選 (簡易ロジック)
@@ -432,7 +495,7 @@
             else if(rand < 40) foundParticle = particles[3]; // Pion
             else if(rand < 60) foundParticle = particles[2]; // Proton
             
-            // データ獲得 (粒子そのものではなく、解析用データを得るイメージ)
+            // データ獲得
             user.invPart[foundParticle.id] = (user.invPart[foundParticle.id] || 0) + 1;
 
             saveGame();
@@ -479,11 +542,10 @@
 
         function publishPaper(pid) {
             if(!user.invPart[pid] || user.invPart[pid] <= 0) return;
-            
             const p = particles.find(x => x.id === pid);
             const reward = p.rarity * 1000 * 2;
 
-            user.invPart[pid]--; // データ消費
+            user.invPart[pid]--; 
             user.money += reward;
             
             alert(`論文を発表しました！\n研究費 ¥${reward.toLocaleString()} を獲得しました。`);
