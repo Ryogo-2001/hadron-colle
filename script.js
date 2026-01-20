@@ -1,8 +1,8 @@
 // ==========================================
-//  Hadron Lab Core Script (Ver 22.3)
+//  Hadron Lab Core Script (Ver 22.6 Fixed)
 // ==========================================
 
-console.log("Hadron Lab Script Loading..."); // 動作確認用ログ
+console.log("Hadron Lab Script Loading...");
 
 // === Mission Data ===
 const missionData = {
@@ -88,7 +88,6 @@ let user = { money: 10000, rp: 0, invMat: {}, invDet: [], invPart: {1:1}, deck: 
 let currentMission = null;
 let currentSlotIndex = 0;
 
-// === Initialization ===
 window.onload = function() {
     try { 
         loadGame(); 
@@ -98,7 +97,6 @@ window.onload = function() {
         initProposalForm(); 
         renderMissionList(); 
         renderLab(); 
-        console.log("Initialization Complete");
     }
     catch(e) { console.error("Init Error:", e); }
 };
@@ -141,23 +139,18 @@ function getImgSrc(p) {
     return p.image;
 }
 
-// === View Switching Logic (修正版: サイドバー連動) ===
+// === View Logic ===
 function showHome() { 
     showView('view-home');
 }
 
 function showView(id) { 
-    // 1. 全ビューを非表示
     document.querySelectorAll('.main-view').forEach(el => el.classList.remove('active')); 
-    
-    // 2. 指定IDのビューを表示
     const target = document.getElementById(id);
     if(target) target.classList.add('active');
     
-    // 3. サイドバーのハイライト切り替え
     document.querySelectorAll('.sidebar .menu-item').forEach(el => {
         el.classList.remove('active');
-        // onclick属性の内容を見て、対象のIDが含まれていればactiveにする
         const onclickVal = el.getAttribute('onclick');
         if (onclickVal) {
             if (id === 'view-home' && onclickVal.includes('showHome')) {
@@ -168,7 +161,6 @@ function showView(id) {
         }
     });
 
-    // 4. コンテンツの更新が必要な場合
     if(id === 'view-lab') renderLab(); 
     if(id === 'view-mission') renderMissionList(); 
 }
@@ -431,4 +423,39 @@ function loadGame(){
 }
 function saveGame(){ localStorage.setItem('hadron_v8',JSON.stringify(user)); }
 
-function winGame() { console.log("Global winGame fallback"); }
+// ★復活: 勝利時の報酬計算とモーダル表示
+function winGame() {
+    // 1. お金の獲得
+    const missionBonus = getSkillBonus('mission_bonus');
+    const baseMoney = currentMission ? currentMission.drops.money : 1000;
+    const money = Math.floor(baseMoney * (1 + missionBonus));
+    user.money += money;
+    let msg = `💰 ¥${money.toLocaleString()}`;
+
+    // 2. RPの獲得 (資金の10%)
+    const rpGain = Math.floor(money * 0.1);
+    user.rp = (user.rp || 0) + rpGain;
+    msg += `<br>🧪 ${rpGain} RP`;
+
+    // 3. 素材ドロップ
+    if(currentMission && currentMission.drops.matChance > 0) {
+        const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
+        let table = lootTable; 
+        if(!currentMission.drops.rareMat) {
+            table = ['m1','m2','m3','m4','m5','m6'];
+        }
+        
+        for(let i=0; i<count; i++) {
+            if(Math.random() < currentMission.drops.matChance) {
+                const loot = table[Math.floor(Math.random()*table.length)];
+                user.invMat[loot] = (user.invMat[loot]||0) + 1;
+                msg += `<br>📦 ${matNames[loot]}`;
+            }
+        }
+    }
+
+    // 4. セーブして表示
+    localStorage.setItem('hadron_v8', JSON.stringify(user));
+    document.getElementById('loot-display').innerHTML = msg;
+    document.getElementById('result-modal').style.display = 'flex';
+}
