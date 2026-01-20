@@ -148,7 +148,7 @@ body {
 .fame-badge span { font-size: 0.8rem; color: #fff; vertical-align: middle; margin-left: -5px; }
 
 /* ==============================
-   バトル画面用スタイル (ここが抜けていました！)
+   バトル画面用スタイル
    ============================== */
 .header { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.8); border-bottom: 2px solid #444; z-index: 100; position: relative; }
 .btn-back { padding: 10px 20px; background: transparent; border: 2px solid #555; color: white; cursor: pointer; font-family: 'Orbitron'; }
