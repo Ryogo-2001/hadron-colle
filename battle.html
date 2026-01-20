@@ -2,193 +2,84 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battle Sortie | Hadron Lab</title>
+    <title>Fleet Battle | Hadron Lab</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <style>
-        body {
-            margin: 0; background: #050505; color: white;
-            font-family: 'M PLUS Rounded 1c', sans-serif;
-            overflow: hidden;
-            background-image: 
-                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
+        body { margin: 0; background: #050505; color: white; font-family: 'M PLUS Rounded 1c'; overflow: hidden; background-size: 30px 30px; background-image: radial-gradient(#111 20%, transparent 20%), radial-gradient(#111 20%, transparent 20%); background-position: 0 0, 15px 15px; }
+        
+        .header { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.8); border-bottom: 2px solid #444; }
+        .btn-back { padding: 10px 20px; background: transparent; border: 2px solid #555; color: white; cursor: pointer; font-family: 'Orbitron'; }
+        
+        /* 戦闘画面レイアウト */
+        .battle-field { height: 65vh; display: flex; position: relative; }
+        
+        /* 左側：味方艦隊 */
+        .fleet-side {
+            width: 50%; height: 100%; position: relative;
+            display: flex; flex-direction: column-reverse; /* 手前が一番下 */
+            justify-content: center; padding-left: 50px;
         }
+        .fleet-member {
+            width: 150px; height: 150px; object-fit: contain;
+            margin-top: -80px; /* 重ねる */
+            filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.8));
+            transition: 0.2s; position: relative; z-index: 1;
+            animation: float 3s ease-in-out infinite;
+        }
+        .fleet-member:hover { transform: scale(1.1); z-index: 10; }
+        .fleet-member.flagship { width: 220px; height: 220px; z-index: 5; margin-bottom: 20px; }
 
-        /* ヘッダー */
-        .header {
-            padding: 20px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.8); border-bottom: 2px solid #333;
+        /* 右側：敵 */
+        .enemy-side { width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .enemy-core {
+            width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, #f1c40f, #d35400);
+            box-shadow: 0 0 50px #e67e22; border: 5px solid white;
+            display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: bold;
+            text-shadow: 2px 2px 0 #000; animation: pulse 2s infinite;
         }
-        .btn-back {
-            padding: 10px 30px; background: transparent; border: 2px solid #555; color: #aaa;
-            cursor: pointer; font-family: 'Orbitron'; font-size: 1rem; transition: 0.2s;
-        }
-        .btn-back:hover { border-color: white; color: white; }
+        .hp-container { width: 300px; height: 20px; background: #333; margin-top: 20px; border: 1px solid #555; border-radius: 10px; overflow: hidden; }
+        .hp-bar { width: 100%; height: 100%; background: #e74c3c; transition: width 0.2s; }
 
-        /* バトルフィールド */
-        .battle-container {
-            display: flex; justify-content: space-between; align-items: center;
-            height: 60vh; padding: 0 5%; position: relative;
-        }
+        /* コントロール */
+        .panel { height: 25vh; background: #111; border-top: 2px solid #333; display: flex; padding: 20px; gap: 20px; }
+        .log { flex: 2; background: #000; border: 1px solid #333; padding: 10px; overflow-y: auto; font-family: monospace; color: #2ecc71; }
+        .actions { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .btn-fire { width: 100%; padding: 20px; background: #c0392b; color: white; font-family: 'Orbitron'; font-size: 1.5rem; border: none; cursor: pointer; }
+        .btn-fire:disabled { background: #333; cursor: not-allowed; }
 
-        /* プレイヤー側（娘＋加速器） */
-        .player-side { 
-            text-align: center; width: 40%; 
-            display: flex; flex-direction: column; align-items: center;
-            position: relative;
-        }
-        /* 娘の画像 */
-        .daughter-img {
-            height: 350px; object-fit: contain;
-            filter: drop-shadow(0 0 20px rgba(52, 152, 219, 0.6));
-            animation: breathe 3s ease-in-out infinite;
-            z-index: 2;
-        }
-        .cannon-base {
-            margin-top: -50px; font-size: 1.5rem; color: #aaa; z-index: 1;
-        }
-
-        /* 敵側（原子核） */
-        .enemy-side { text-align: center; width: 40%; position: relative; }
-        .enemy-img {
-            width: 200px; height: 200px; border-radius: 50%; margin: 0 auto;
-            background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b);
-            box-shadow: 0 0 50px #b8860b;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 3rem; font-weight: bold; text-shadow: 2px 2px 5px black;
-            position: relative; animation: float 3s ease-in-out infinite;
-            border: 4px solid #fff;
-        }
-        .enemy-hp-bar {
-            width: 300px; height: 15px; background: #333; margin: 20px auto;
-            border-radius: 10px; overflow: hidden; border: 1px solid #555;
-        }
-        .enemy-hp-fill {
-            width: 100%; height: 100%; background: linear-gradient(90deg, #e74c3c, #c0392b);
-            transition: width 0.2s;
-        }
-
-        /* ビームエフェクト */
-        .beam-effect {
-            position: absolute; top: 45%; left: 300px; width: 0%; height: 20px;
-            background: linear-gradient(90deg, #fff, #3498db, #fff);
-            box-shadow: 0 0 30px #3498db;
-            border-radius: 10px; opacity: 0; pointer-events: none;
-        }
-        .damage-pop {
-            position: absolute; color: #ff3333; font-family: 'Orbitron'; font-size: 3rem; font-weight: bold;
-            animation: popUp 0.8s forwards; text-shadow: 0 0 10px black;
-        }
-
-        /* コントロールパネル */
-        .control-panel {
-            height: 25vh; background: #111; border-top: 2px solid #333;
-            display: flex; padding: 20px; box-sizing: border-box; gap: 20px;
-        }
-        .log-window {
-            flex: 2; background: #000; border: 1px solid #444; padding: 15px;
-            overflow-y: auto; font-family: monospace; color: #2ecc71; font-size: 1rem; line-height: 1.5;
-        }
-        .action-area {
-            flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center;
-        }
-        .btn-fire {
-            width: 100%; padding: 20px; font-size: 1.5rem; font-family: 'Orbitron';
-            background: linear-gradient(45deg, #c0392b, #8e44ad); border: none; color: white;
-            cursor: pointer; border-radius: 5px; box-shadow: 0 0 15px rgba(192, 57, 43, 0.5);
-            transition: 0.2s;
-        }
-        .btn-fire:active { transform: scale(0.95); }
-        .btn-fire:disabled { background: #333; cursor: not-allowed; box-shadow: none; filter: grayscale(100%); }
-
-        /* 結果モーダル */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none;
-            justify-content: center; align-items: center; flex-direction: column; z-index: 100;
-        }
-        .loot-box {
-            background: #222; border: 2px solid #ffd700; padding: 40px; border-radius: 10px;
-            text-align: center; animation: popIn 0.5s; min-width: 400px;
-        }
-
-        @keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        @keyframes popUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-80px); opacity: 0; } }
-        @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes beamShoot { 
-            0% { width: 0%; opacity: 1; left: 350px; } 
-            50% { width: 60%; opacity: 1; left: 350px; } 
-            100% { width: 0%; opacity: 0; left: 900px; } 
-        }
-
+        /* エフェクト */
+        .beam { position: absolute; height: 10px; background: #00f3ff; box-shadow: 0 0 20px #00f3ff; opacity: 0; }
+        
+        @keyframes float { 0%,100%{transform:translateX(0)} 50%{transform:translateX(10px)} }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
     </style>
 </head>
 <body>
-
     <div class="header">
-        <div style="font-family:'Orbitron'; font-size:1.5rem;">
-            MISSION: <span style="color:#e74c3c;">Target Destruction</span>
-        </div>
+        <div>FLEET POWER: <span id="total-atk" style="color:#3498db">0</span> GeV</div>
         <button class="btn-back" onclick="location.href='index.html'">RETREAT</button>
     </div>
 
-    <div class="battle-container">
-        <div id="beam" class="beam-effect"></div>
-
-        <div class="player-side">
-            <img id="daughter-img" class="daughter-img" src="images/proton.png">
-            <div class="cannon-base">
-                <div style="font-size:1.2rem; font-weight:bold; color:#3498db;" id="daughter-name">Proton</div>
-                <div style="font-size:0.9rem;">Power: <span id="atk-pow">100</span> GeV</div>
+    <div class="battle-field">
+        <div class="fleet-side" id="fleet-container">
             </div>
-        </div>
-
         <div class="enemy-side">
-            <div class="enemy-hp-bar"><div id="hp-bar" class="enemy-hp-fill"></div></div>
-            <div id="enemy" class="enemy-img">Au</div>
-            <div id="damage-area"></div>
+            <div class="enemy-core" id="enemy">Au</div>
+            <div class="hp-container"><div class="hp-bar" id="hp-bar"></div></div>
         </div>
     </div>
 
-    <div class="control-panel">
-        <div class="log-window" id="log">
-            > System Online.<br>
-            > Partner particle connected.<br>
-            > Ready for collision.
-        </div>
-        <div class="action-area">
-            <button id="btn-fire" class="btn-fire" onclick="fireBeam()">COLLIDE (FIRE)</button>
-        </div>
-    </div>
-
-    <div id="result-modal" class="modal">
-        <div class="loot-box">
-            <h2 style="color:#ffd700; margin-top:0;">VICTORY!</h2>
-            <div style="margin:20px 0; font-size:1.2rem;">
-                <div style="color:#aaa;">Target analysis complete.</div>
-                <div style="margin-top:20px; border:1px solid #444; padding:15px; border-radius:5px; background:#111;">
-                    <div style="color:#2ecc71; font-size:0.9rem;">REWARD</div>
-                    <div id="loot-item" style="font-size:2rem; margin-top:10px;">📦 ???</div>
-                </div>
-            </div>
-            <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
-                <button class="btn-back" onclick="location.href='index.html'" style="background:#333; color:white; border:none;">RETURN</button>
-                <button class="btn-back" onclick="location.reload()" style="background:#e67e22; color:white; border:none;">NEXT BATTLE</button>
-            </div>
+    <div class="panel">
+        <div class="log" id="log">Initializing Battle System...</div>
+        <div class="actions">
+            <button class="btn-fire" id="btn-fire" onclick="attack()">ALL OUT ATTACK</button>
         </div>
     </div>
 
     <script>
-        // === Ver 6.0 共通データ ===
-        let user = { money: 0, invMat: {}, invDet: [], invPart: {}, secretary: 1 };
-        
-        // 粒子データ (index.htmlと同期)
         const particles = [
-            { id: 1, name: "Muon", rarity: 1, image: "images/proton.png" }, // 仮
-            { id: 2, name: "Electron", rarity: 1, image: "images/proton.png" }, // 仮
+            { id: 1, name: "Muon", rarity: 1, image: "images/proton.png" },
+            { id: 2, name: "Electron", rarity: 1, image: "images/proton.png" },
             { id: 3, name: "Proton", rarity: 1, image: "images/proton.png" },
             { id: 4, name: "Pion", rarity: 2, image: "images/pion.png" },
             { id: 5, name: "Kaon", rarity: 3, image: "images/kaon.png" },
@@ -196,133 +87,85 @@
             { id: 7, name: "Higgs", rarity: 5, image: "images/higgs.png" },
             { id: 8, name: "Top Quark", rarity: 5, image: "images/top-quark.png" }
         ];
-        
-        // 素材名
-        const matNames = {
-            m1: "Dry Ice", m2: "Alcohol", m3: "PMT", 
-            m4: "Scintillator", m5: "Optical Fiber", m6: "MPPC"
-        };
-        const lootTable = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'];
 
-        // バトル変数
-        let enemyMaxHp = 1000;
-        let enemyHp = 1000;
-        let playerAtk = 100;
-        let currentPartner = null;
+        let user = {};
+        let totalAtk = 0;
+        let enemyHp = 2000;
+        const maxHp = 2000;
 
         window.onload = function() {
-            loadGame();
-            initBattle();
-        };
-
-        function loadGame() {
-            const d = localStorage.getItem('hadron_v6');
+            const d = localStorage.getItem('hadron_v8');
             if(d) user = JSON.parse(d);
             
-            // 秘書粒子（娘）のロード
-            // 未設定なら初期キャラ(Top Quark or Proton)
-            const secId = user.secretary || 8; 
-            currentPartner = particles.find(p => p.id === secId) || particles[7];
-
-            // 画面反映
-            document.getElementById('daughter-img').src = currentPartner.image;
-            document.getElementById('daughter-name').innerText = currentPartner.name;
+            // デッキ描画 & 攻撃力計算
+            const container = document.getElementById('fleet-container');
+            const deck = user.deck || [3,null,null,null,null]; // fallback
             
-            // 攻撃力計算式: (検出器数 * 100) + (娘のレア度 * 200)
-            const detCount = (user.invDet || []).length;
-            playerAtk = (detCount * 100) + (currentPartner.rarity * 200);
+            let memberCount = 0;
+            deck.forEach((pid, idx) => {
+                if(pid) {
+                    memberCount++;
+                    const p = particles.find(x => x.id === pid) || particles[2];
+                    const img = document.createElement('img');
+                    img.src = p.image;
+                    img.className = 'fleet-member';
+                    if(idx === 0) img.classList.add('flagship'); // 1番目は旗艦（大きい）
+                    
+                    // 攻撃力加算 (レア度 * 100)
+                    totalAtk += (p.rarity * 150);
+                    container.appendChild(img);
+                }
+            });
 
-            document.getElementById('atk-pow').innerText = playerAtk;
+            // 検出器ボーナス
+            totalAtk += (user.invDet || []).length * 50;
             
-            // ログ
-            addLog(`Partner: <b>${currentPartner.name}</b> (Rarity ${currentPartner.rarity}) engaged.`);
+            if(memberCount === 0) {
+                log("No fleet deployed! Default Proton launched.");
+                const img = document.createElement('img'); img.src="images/proton.png"; img.className='fleet-member flagship';
+                container.appendChild(img);
+                totalAtk = 100;
+            }
+
+            document.getElementById('total-atk').innerText = totalAtk;
+            log(`Fleet deployed. Total Power: ${totalAtk}`);
+        };
+
+        function log(msg) {
+            const div = document.getElementById('log');
+            div.innerHTML += `> ${msg}<br>`;
+            div.scrollTop = div.scrollHeight;
         }
 
-        function initBattle() {
-            enemyMaxHp = 1000 + (playerAtk * 3); // 自分の強さに合わせて敵も強くなる
-            enemyHp = enemyMaxHp;
-            updateHp();
-        }
-
-        function updateHp() {
-            const pct = (enemyHp / enemyMaxHp) * 100;
-            document.getElementById('hp-bar').style.width = `${pct}%`;
-        }
-
-        function addLog(msg) {
-            const log = document.getElementById('log');
-            log.innerHTML += `> ${msg}<br>`;
-            log.scrollTop = log.scrollHeight;
-        }
-
-        function fireBeam() {
+        function attack() {
             const btn = document.getElementById('btn-fire');
             btn.disabled = true;
-
+            
             // アニメーション
-            const beam = document.getElementById('beam');
-            beam.style.animation = 'none';
-            beam.offsetHeight; 
-            beam.style.animation = 'beamShoot 0.4s linear';
+            const fleet = document.querySelectorAll('.fleet-member');
+            fleet.forEach(img => {
+                img.style.transform = 'translateX(50px)';
+                setTimeout(()=>img.style.transform='translateX(0)', 200);
+            });
 
-            // 娘の応援メッセージ（簡易ランダム）
-            const quotes = ["いけーっ！", "照準固定、発射！", "データ取得開始！", "逃しません！"];
-            const q = quotes[Math.floor(Math.random() * quotes.length)];
-            addLog(`<span style="color:#3498db">${currentPartner.name}:</span> 「${q}」`);
-
-            setTimeout(() => {
-                // ダメージ計算
-                let dmg = Math.floor(playerAtk * (0.9 + Math.random() * 0.2));
-                let isCrit = Math.random() > 0.8;
-                if(isCrit) { dmg *= 1.5; addLog(`<span style="color:orange">CRITICAL HIT!</span>`); }
-
-                enemyHp -= dmg;
-                if(enemyHp < 0) enemyHp = 0;
-                updateHp();
-                
-                showDamage(Math.floor(dmg), isCrit);
-                addLog(`Target takes ${Math.floor(dmg)} damage.`);
-
-                if(enemyHp <= 0) {
-                    setTimeout(winBattle, 800);
-                } else {
-                    setTimeout(() => { btn.disabled = false; }, 600);
-                }
-            }, 300);
-        }
-
-        function showDamage(val, isCrit) {
-            const area = document.getElementById('damage-area');
-            const div = document.createElement('div');
-            div.className = 'damage-pop';
-            div.innerText = val;
-            div.style.left = '50%'; div.style.top = '0';
-            div.style.transform = 'translate(-50%, 0)';
-            if(isCrit) { div.style.color = '#ffd700'; div.style.fontSize = '4rem'; }
-            area.appendChild(div);
-            setTimeout(() => div.remove(), 800);
-        }
-
-        function winBattle() {
-            addLog("Target destroyed. Collecting debris...");
+            // ダメージ計算
+            const dmg = Math.floor(totalAtk * (0.9 + Math.random()*0.2));
+            enemyHp -= dmg;
+            if(enemyHp < 0) enemyHp = 0;
             
-            // 報酬抽選
-            const lootId = lootTable[Math.floor(Math.random() * lootTable.length)];
-            let finalLoot = lootId;
-            // レア素材補正（レアな娘がいるとMPPCが出やすい、とかも可）
-            if(lootId === 'm6' && Math.random() > 0.3) finalLoot = 'm1'; 
-
-            user.invMat[finalLoot] = (user.invMat[finalLoot] || 0) + 1;
-            saveGame();
-
-            const lootName = matNames[finalLoot];
-            const lootIcon = (finalLoot==='m6'?'🤏': (finalLoot==='m3'?'💡':'📦'));
+            const pct = (enemyHp / maxHp) * 100;
+            document.getElementById('hp-bar').style.width = pct + "%";
             
-            document.getElementById('loot-item').innerText = `${lootIcon} ${lootName} x1`;
-            document.getElementById('result-modal').style.display = 'flex';
-        }
+            log(`Volley fired! Target damage: ${dmg}`);
 
-        function saveGame() { localStorage.setItem('hadron_v6', JSON.stringify(user)); }
+            if(enemyHp <= 0) {
+                log("Target Destroyed!");
+                document.getElementById('enemy').style.transform = 'scale(0)';
+                setTimeout(() => { alert("VICTORY! Material Gained."); location.href='index.html'; }, 1000);
+            } else {
+                setTimeout(() => btn.disabled = false, 800);
+            }
+        }
     </script>
 </body>
 </html>
