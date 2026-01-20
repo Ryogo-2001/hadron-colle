@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hadron Lab Ver 17.0</title>
+    <title>Hadron Lab Ver 18.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 17.0 Style ===== */
+        /* ===== Hadron Lab 18.0 Style ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -99,7 +99,6 @@
             box-shadow: 5px 5px 15px rgba(0,0,0,0.8); transition: 0.3s; pointer-events: auto; cursor: pointer;
             transform-origin: bottom center; border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5);
         }
-        .deck-member:hover { transform: translateY(-30px) scale(1.1); z-index: 100; margin-right: -20px; box-shadow: 0 0 30px rgba(255,255,255,0.4); border-color: white; }
         .deck-member.flagship { width: 260px; z-index: 20; border: 2px solid var(--hc-orange); }
 
         /* 編成画面 */
@@ -120,10 +119,6 @@
         .item-card { background: var(--hc-panel); border: 1px solid #444; padding: 10px; text-align: center; cursor: pointer; border-radius: 5px; }
         .item-card:hover { background: #333; border-color: #888; }
         
-        .rarity-common { color: #fff; }
-        .rarity-rare { color: #3498db; }
-        .rarity-holo { color: #f1c40f; text-shadow: 0 0 5px #f1c40f; }
-        .rarity-ultra { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; font-weight: bold; }
         .rarity-genesis {
             background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
             background-size: 400%; -webkit-background-clip: text; color: transparent; animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1em;
@@ -133,18 +128,23 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #222; padding: 20px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; border-radius: 10px; border: 1px solid var(--hc-blue); }
 
-        /* 詳細モーダル */
+        /* 詳細 & 着せ替え */
         .detail-layout { display: flex; gap: 20px; align-items: flex-start; text-align: left; }
         .detail-img-box { width: 40%; text-align: center; background: radial-gradient(circle, #333, #000); padding: 20px; border-radius: 10px; border: 1px solid #555; }
         .detail-img-box img { max-width: 100%; max-height: 300px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
         .detail-info { width: 60%; }
         .detail-type { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.8rem; background: #444; margin-bottom: 10px; }
         .detail-skill-box { margin-top: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-left: 4px solid var(--hc-orange); }
-
-        /* 着せ替えボタン */
         .skin-btn-container { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .skin-btn { padding: 5px 10px; background: #444; border: 1px solid #666; color: white; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
         .skin-btn:hover, .skin-btn.active { background: var(--hc-blue); border-color: #fff; }
+
+        /* クラフト画面調整 */
+        .craft-card { background: #1a1a1a; padding: 15px; border: 1px solid #444; text-align: left; position: relative; border-radius: 5px; }
+        .craft-card.owned { border-color: #2ecc71; background: #0f2215; }
+        .craft-req { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
+        .craft-btn { position: absolute; top: 10px; right: 10px; background: var(--hc-blue); border: none; color: white; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-size: 0.8rem; }
+        .craft-btn:disabled { background: #444; cursor: not-allowed; }
 
         .gacha-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         .gacha-item { background: #111; padding: 5px; border-radius: 5px; border: 1px solid #444; }
@@ -252,7 +252,6 @@
         </div>
         
         <div id="view-office" class="main-view"><h2 style="font-family:'Orbitron'">OFFICE</h2><div id="particle-stock-list" class="shop-grid"></div></div>
-
     </div>
 
     <div id="select-modal" class="modal-overlay">
@@ -282,52 +281,62 @@
 
     <script src="script.js"></script>
     <script>
-        // === DATA (全24種 + Gravitonスキン追加) ===
+        // === DATA (全24種) ===
         const particles = [
-            { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。ラボの主人公。前向きな性格。", skill:"Proton Beam", type:"atk" },
-            { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。冷静沈着で中立的な立場。", skill:"Neutron Shield", type:"def" },
-            { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。核力を媒介する元気な子。", skill:"Yukawa Force", type:"spd" },
-            { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。ちょっと不思議なストレンジちゃん。", skill:"Strange Hit", type:"atk" },
-            { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。お姉さん的存在。", skill:"Hyper Guard", type:"def" },
-            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", rarity: "rare", image: "images/sigma.png", desc: "シグマ粒子。攻撃的な性格。", skill:"Isospin Slash", type:"atk" },
-            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", rarity: "holo", image: "images/xi.png", desc: "グザイ粒子。滅多にデレない。", skill:"Cascade Fall", type:"atk" },
-            { id: 8, name: "H-Dibaryon", symbol: "H", rarity: "holo", image: "images/h_dibaryon.png", desc: "Hダイバリオン。伝説の6クォーク娘。", skill:"Hexa-Quark", type:"def" },
-            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。怒るとすぐ爆発する。", skill:"Resonance", type:"spd" },
-            { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。王者の風格を持つ。", skill:"Strangeness 3", type:"ult" },
-            { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。チャーミングな妹。", skill:"Charm Speed", type:"spd" },
-            { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。隠された魅力を持つ。", skill:"Charmonium", type:"atk" },
-            { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。最も重く、最強の女騎士。", skill:"Truth Smasher", type:"ult" },
-            { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。万物に質量を与える女神。", skill:"God Field", type:"ult" },
-            { id: 15, name: "Photon", symbol: "γ", rarity: "common", image: "images/Photon.png", desc: "光子。光の速さで情報を届けるアイドル。", skill:"Optical Flash", type:"spd" },
-            { id: 16, name: "Gluon", symbol: "g", rarity: "rare", image: "images/Gluon.png", desc: "グルーオン。みんなを繋ぐ接着剤の妖精。", skill:"Strong Bond", type:"def" },
-            { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/Charm_Quark.png", desc: "チャームクォーク。可愛さ全振りの小悪魔。", skill:"Lovely Charm", type:"atk" },
-            { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/Neutrino.png", desc: "ニュートリノ。壁もすり抜ける幽霊少女。", skill:"Ghost Pass", type:"spd" },
-            { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。触れると危険なツンデレ双子。", skill:"Annihilation", type:"ult" },
-            { id: 20, name: "Positron", symbol: "e⁺", rarity: "rare", image: "images/Positron.png", desc: "陽電子。電子と対になる反粒子。", skill:"Mirror Dash", type:"spd" },
-            { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。変化を司る厳格な管理者。", skill:"Beta Decay", type:"atk" },
-            { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。重厚な守りの中立者。", skill:"Neutral Heavy", type:"def" },
-            { id: 23, name: "Tachyon", symbol: "T", rarity: "ultra", image: "images/Tachyon.png", desc: "タキオン。光速を超える未来の使者。", skill:"Time Travel", type:"spd" },
-            // ★Gravitonにスキン定義追加
+            { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。ラボの主人公。", skill:"Proton Beam", type:"atk" },
+            { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。冷静沈着。", skill:"Neutron Shield", type:"def" },
+            { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。元気な子。", skill:"Yukawa Force", type:"spd" },
+            { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。ストレンジちゃん。", skill:"Strange Hit", type:"atk" },
+            { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。お姉さん。", skill:"Hyper Guard", type:"def" },
+            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", rarity: "rare", image: "images/sigma.png", desc: "シグマ粒子。攻撃的。", skill:"Isospin Slash", type:"atk" },
+            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", rarity: "holo", image: "images/xi.png", desc: "グザイ粒子。ツンデレ。", skill:"Cascade Fall", type:"atk" },
+            { id: 8, name: "H-Dibaryon", symbol: "H", rarity: "holo", image: "images/h_dibaryon.png", desc: "Hダイバリオン。伝説。", skill:"Hexa-Quark", type:"def" },
+            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。爆発的。", skill:"Resonance", type:"spd" },
+            { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。王者。", skill:"Strangeness 3", type:"ult" },
+            { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。チャーミング。", skill:"Charm Speed", type:"spd" },
+            { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。隠された魅力。", skill:"Charmonium", type:"atk" },
+            { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。最強の女騎士。", skill:"Truth Smasher", type:"ult" },
+            { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。女神。", skill:"God Field", type:"ult" },
+            { id: 15, name: "Photon", symbol: "γ", rarity: "common", image: "images/Photon.png", desc: "光子。アイドル。", skill:"Optical Flash", type:"spd" },
+            { id: 16, name: "Gluon", symbol: "g", rarity: "rare", image: "images/Gluon.png", desc: "グルーオン。妖精。", skill:"Strong Bond", type:"def" },
+            { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/Charm_Quark.png", desc: "チャームクォーク。小悪魔。", skill:"Lovely Charm", type:"atk" },
+            { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/Neutrino.png", desc: "ニュートリノ。幽霊少女。", skill:"Ghost Pass", type:"spd" },
+            { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。危険な双子。", skill:"Annihilation", type:"ult" },
+            { id: 20, name: "Positron", symbol: "e⁺", rarity: "rare", image: "images/Positron.png", desc: "陽電子。反粒子。", skill:"Mirror Dash", type:"spd" },
+            { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。管理者。", skill:"Beta Decay", type:"atk" },
+            { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。守護者。", skill:"Neutral Heavy", type:"def" },
+            { id: 23, name: "Tachyon", symbol: "T", rarity: "ultra", image: "images/Tachyon.png", desc: "タキオン。未来人。", skill:"Time Travel", type:"spd" },
             { 
-                id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。時空を統べる幻の存在。", skill:"Event Horizon", type:"ult",
-                skins: [
-                    { id: 'default', name: 'Default', image: 'images/Graviton.png' },
-                    { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' },
-                    { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' }
-                ]
+                id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill:"Event Horizon", type:"ult",
+                skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ]
             }
         ];
 
+        // ★素材追加
         const materials = [
             { id: 'm1', name: 'Dry Ice', cost: 500 }, { id: 'm2', name: 'Alcohol', cost: 300 },
             { id: 'm3', name: 'PMT', cost: 5000 }, { id: 'm4', name: 'Scintillator', cost: 3000 },
-            { id: 'm5', name: 'Fiber', cost: 2000 }, { id: 'm6', name: 'MPPC', cost: 8000 }
+            { id: 'm5', name: 'Fiber', cost: 2000 }, { id: 'm6', name: 'MPPC', cost: 8000 },
+            { id: 'm7', name: 'Gold Wire', cost: 4000 }, { id: 'm8', name: 'PCB', cost: 1500 }, { id: 'm9', name: 'Liq. Helium', cost: 12000 }
         ];
+
+        // ★検出器大量追加 & レシピ制
         const detectors = [
-            { id: 'd1', name: 'Cloud Chamber', req: {m1:1}, power: 1 },
-            { id: 'd2', name: 'Scinti Counter', req: {m3:1}, power: 3 },
-            { id: 'd3', name: 'Fiber Tracker', req: {m6:5}, power: 10 } // Power修正済み
+            { id: 'd0', name: 'Geiger Counter', power: 1, req: {} }, // 初期装備（無料）
+            { id: 'd1', name: 'Cloud Chamber', power: 2, req: {m1:1, m2:1} },
+            { id: 'd2', name: 'Spark Chamber', power: 5, req: {m7:1, m2:1} },
+            { id: 'd3', name: 'Scinti Counter', power: 8, req: {m3:1, m4:1} },
+            { id: 'd4', name: 'Wire Chamber', power: 12, req: {m7:2, m8:1} },
+            { id: 'd5', name: 'Cherenkov Det', power: 18, req: {m3:2, m1:2} },
+            { id: 'd6', name: 'EM Calorimeter', power: 25, req: {m4:3, m3:2} },
+            { id: 'd7', name: 'Hadron Cal', power: 30, req: {m4:5, m3:3} },
+            { id: 'd8', name: 'Fiber Tracker', power: 45, req: {m6:5, m5:5} },
+            { id: 'd9', name: 'TPC', power: 60, req: {m7:5, m8:2} },
+            { id: 'd10', name: 'Silicon Vertex', power: 80, req: {m6:10, m8:1} },
+            { id: 'd11', name: 'Belle II', power: 120, req: {m6:5, m7:5, m3:5} },
+            { id: 'd12', name: 'Super-K', power: 200, req: {m3:20} }
         ];
+
         const beams = [{id:'b1',name:'Cosmic',cost:0,power:1}, {id:'b2',name:'RI',cost:5000,power:3}];
         const targets = [{id:'t1',name:'Air',cost:0,power:1}, {id:'t2',name:'Gold',cost:10000,power:2}];
 
@@ -339,7 +348,7 @@
             catch(e) { console.error("Init Error:", e); }
         };
 
-        // --- Helper: Get Current Skin Image ---
+        // --- Helper: Get Skin Image ---
         function getImgSrc(p) {
             if(user.equippedSkins && user.equippedSkins[p.id] && p.skins) {
                 const s = p.skins.find(sk => sk.id === user.equippedSkins[p.id]);
@@ -349,164 +358,90 @@
         }
 
         // --- View Logic ---
-        function showHome() {
-            document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active'));
-            document.getElementById('view-home').classList.add('active');
-        }
-        function showView(id) {
-            document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
+        function showHome() { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
+        function showView(id) { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById(id).classList.add('active'); }
         function refreshUI() {
             document.getElementById('disp-money').innerText = user.money.toLocaleString();
             renderShop(); renderCraft(); renderOffice();
         }
 
-        // --- Deck Logic (Updated for Skin) ---
+        // --- Deck Logic ---
         function renderDeckHome() {
-            const el = document.getElementById('home-deck-display');
-            if(!el) return; el.innerHTML = '';
+            const el = document.getElementById('home-deck-display'); if(!el) return; el.innerHTML = '';
             user.deck.forEach((pid, index) => {
                 if(pid) {
                     const p = particles.find(x => x.id === pid);
                     if(p) {
-                        const img = document.createElement('img');
-                        img.src = getImgSrc(p); // Skin function used
-                        img.className = 'deck-member' + (index === 0 ? ' flagship' : '');
-                        img.style.zIndex = 50 - index; 
-                        img.onclick = () => showCharDetail(p.id); 
-                        el.appendChild(img);
+                        const img = document.createElement('img'); img.src = getImgSrc(p);
+                        img.className = 'deck-member' + (index === 0 ? ' flagship' : ''); img.style.zIndex = 50 - index; 
+                        img.onclick = () => showCharDetail(p.id); el.appendChild(img);
                     }
                 }
             });
         }
-
         function renderDeckEdit() {
-            const el = document.getElementById('deck-slots-container');
-            if(!el) return; el.innerHTML = '';
+            const el = document.getElementById('deck-slots-container'); if(!el) return; el.innerHTML = '';
             for(let i=0; i<5; i++) {
-                const pid = user.deck[i];
-                const p = pid ? particles.find(x => x.id === pid) : null;
+                const pid = user.deck[i]; const p = pid ? particles.find(x => x.id === pid) : null;
                 let content = `<div style="font-size:2rem; color:#555;">+</div><div style="color:#aaa;">EMPTY</div>`;
                 if(p) {
-                    content = `
-                        <img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)">
-                        <div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div>
-                        <div class="slot-remove" onclick="removeMember(${i}, event)">×</div>
-                    `;
+                    content = `<img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)"><div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div><div class="slot-remove" onclick="removeMember(${i}, event)">×</div>`;
                 }
-                const div = document.createElement('div');
-                div.className = 'slot-card';
-                div.innerHTML = content;
-                div.onclick = (e) => { 
-                    if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) openSelectModal(i);
-                };
+                const div = document.createElement('div'); div.className = 'slot-card'; div.innerHTML = content;
+                div.onclick = (e) => { if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) openSelectModal(i); };
                 el.appendChild(div);
             }
         }
-
-        // ★詳細画面 & 着せ替えロジック
         function showCharDetail(pid, e) {
-            if(e) e.stopPropagation();
-            const p = particles.find(x => x.id === pid);
-            if(!p) return;
-            
-            // スキンボタン生成
+            if(e) e.stopPropagation(); const p = particles.find(x => x.id === pid); if(!p) return;
             let skinBtns = "";
             if(p.skins) {
                 skinBtns = `<div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;"><div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">COSTUME CHANGE</div><div class="skin-btn-container">`;
                 const currentSkin = (user.equippedSkins && user.equippedSkins[pid]) || 'default';
-                p.skins.forEach(s => {
-                    skinBtns += `<div class="skin-btn ${s.id===currentSkin?'active':''}" onclick="changeSkin(${pid}, '${s.id}')">${s.name}</div>`;
-                });
+                p.skins.forEach(s => { skinBtns += `<div class="skin-btn ${s.id===currentSkin?'active':''}" onclick="changeSkin(${pid}, '${s.id}')">${s.name}</div>`; });
                 skinBtns += `</div></div>`;
             }
-
-            const html = `
-                <div class="detail-img-box">
-                    <img src="${getImgSrc(p)}" id="detail-img-preview">
-                    <div style="margin-top:10px; font-weight:bold; font-family:'Orbitron'" class="rarity-${p.rarity}">${p.rarity.toUpperCase()}</div>
-                </div>
-                <div class="detail-info">
-                    <div style="color:#aaa; font-size:0.9rem;">No.${p.id}</div>
-                    <h1 style="margin:5px 0;">${p.name} <span style="font-size:1.2rem; color:#888;">(${p.symbol})</span></h1>
-                    <div class="detail-type">TYPE: ${p.type.toUpperCase()}</div>
-                    <div class="detail-skill-box">
-                        <div style="color:var(--hc-orange); font-weight:bold; font-family:'Orbitron'">SKILL: ${p.skill}</div>
-                    </div>
-                    <div style="margin-top:20px; line-height:1.6; color:#ddd;">${p.desc}</div>
-                    ${skinBtns}
-                </div>
-            `;
-            document.getElementById('detail-content').innerHTML = html;
-            document.getElementById('detail-modal').style.display = 'flex';
+            const html = `<div class="detail-img-box"><img src="${getImgSrc(p)}" id="detail-img-preview"><div style="margin-top:10px; font-weight:bold; font-family:'Orbitron'" class="rarity-${p.rarity}">${p.rarity.toUpperCase()}</div></div><div class="detail-info"><div style="color:#aaa; font-size:0.9rem;">No.${p.id}</div><h1 style="margin:5px 0;">${p.name} <span style="font-size:1.2rem; color:#888;">(${p.symbol})</span></h1><div class="detail-type">TYPE: ${p.type.toUpperCase()}</div><div class="detail-skill-box"><div style="color:var(--hc-orange); font-weight:bold; font-family:'Orbitron'">SKILL: ${p.skill}</div></div><div style="margin-top:20px; line-height:1.6; color:#ddd;">${p.desc}</div>${skinBtns}</div>`;
+            document.getElementById('detail-content').innerHTML = html; document.getElementById('detail-modal').style.display = 'flex';
         }
-
         function changeSkin(pid, skinId) {
-            if(!user.equippedSkins) user.equippedSkins = {};
-            user.equippedSkins[pid] = skinId;
-            saveGame();
-            
-            // プレビュー更新
+            if(!user.equippedSkins) user.equippedSkins = {}; user.equippedSkins[pid] = skinId; saveGame();
             const p = particles.find(x => x.id === pid);
             if(p) {
                 document.getElementById('detail-img-preview').src = getImgSrc(p);
-                // ボタンのactive更新
                 const btns = document.querySelectorAll('.skin-btn');
-                btns.forEach(b => {
-                    if(b.innerText === p.skins.find(s=>s.id===skinId).name) b.classList.add('active');
-                    else b.classList.remove('active');
-                });
+                btns.forEach(b => { if(b.innerText === p.skins.find(s=>s.id===skinId).name) b.classList.add('active'); else b.classList.remove('active'); });
             }
-            // 裏でデッキ表示も更新
-            renderDeckHome();
-            renderDeckEdit();
+            renderDeckHome(); renderDeckEdit();
         }
-
-        function removeMember(index, e) {
-            e.stopPropagation();
-            user.deck[index] = null;
-            renderDeckEdit(); renderDeckHome(); saveGame();
-        }
+        function removeMember(index, e) { e.stopPropagation(); user.deck[index] = null; renderDeckEdit(); renderDeckHome(); saveGame(); }
         function openSelectModal(slotIndex) {
-            currentSlotIndex = slotIndex;
-            const list = document.getElementById('select-list');
-            list.innerHTML = '';
-            let hasAny = false;
+            currentSlotIndex = slotIndex; const list = document.getElementById('select-list'); list.innerHTML = ''; let hasAny = false;
             Object.keys(user.invPart).forEach(pidStr => {
                 const pid = parseInt(pidStr);
                 if(user.invPart[pid] > 0) {
-                    hasAny = true;
-                    const p = particles.find(x => x.id === pid);
+                    hasAny = true; const p = particles.find(x => x.id === pid);
                     if(p) {
-                        const div = document.createElement('div');
-                        div.className = 'item-card';
+                        const div = document.createElement('div'); div.className = 'item-card';
                         div.innerHTML = `<img src="${getImgSrc(p)}" style="width:50px"><br><span class="rarity-${p.rarity}">${p.name}</span>`;
-                        div.onclick = () => {
-                            user.deck[currentSlotIndex] = pid;
-                            closeModal('select-modal'); renderDeckEdit(); renderDeckHome(); saveGame();
-                        };
+                        div.onclick = () => { user.deck[currentSlotIndex] = pid; closeModal('select-modal'); renderDeckEdit(); renderDeckHome(); saveGame(); };
                         list.appendChild(div);
                     }
                 }
             });
-            if(!hasAny) list.innerHTML = '<p>所持している粒子がありません。</p>';
-            document.getElementById('select-modal').style.display = 'flex';
+            if(!hasAny) list.innerHTML = '<p>所持している粒子がありません。</p>'; document.getElementById('select-modal').style.display = 'flex';
         }
-
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function saveDeck() { saveGame(); alert("編成を保存しました！"); }
 
         // --- Experiment ---
         function initProposalForm() {
-            const b = document.getElementById('sel-beam');
-            const t = document.getElementById('sel-target');
-            const d = document.getElementById('sel-detector');
+            const b = document.getElementById('sel-beam'), t = document.getElementById('sel-target'), d = document.getElementById('sel-detector');
             if(b) b.innerHTML = beams.map(x=>`<option value="${x.id}">${x.name} ¥${x.cost}</option>`).join('');
             if(t) t.innerHTML = targets.map(x=>`<option value="${x.id}">${x.name} ¥${x.cost}</option>`).join('');
             if(d) {
                 if(!user.invDet || user.invDet.length === 0) d.innerHTML = '<option value="">(No Detector)</option>';
-                else d.innerHTML = user.invDet.map(id => { const det = detectors.find(x=>x.id==id); return det?`<option value="${id}">${det.name}</option>`:''; }).join('');
+                else d.innerHTML = user.invDet.map(id => { const det = detectors.find(x=>x.id==id); return det?`<option value="${id}">${det.name} (Pwr:${det.power})</option>`:''; }).join('');
             }
             calcProposalCost();
         }
@@ -515,55 +450,39 @@
             const t = targets.find(x=>x.id==document.getElementById('sel-target').value);
             document.getElementById('prop-cost').innerText = ((b?b.cost:0)+(t?t.cost:0)).toLocaleString();
         }
-        
         function runExperiment(times = 1){
             const bVal=document.getElementById('sel-beam').value, tVal=document.getElementById('sel-target').value, dVal=document.getElementById('sel-detector').value;
             if(!dVal){alert("検出器が必要です");return;}
             const b=beams.find(x=>x.id==bVal), t=targets.find(x=>x.id==tVal);
-            const costPerRun = b.cost + t.cost;
-            const totalCost = costPerRun * times;
-
+            const totalCost = (b.cost + t.cost) * times;
             if(user.money < totalCost){alert("資金不足");return;}
             user.money -= totalCost;
 
             const det = detectors.find(x => x.id == dVal);
-            const power = b.power * t.power * (det ? det.power : 1); // Power Fix
+            const power = b.power * t.power * (det ? det.power : 1);
             
             let results = [];
             for(let i=0; i<times; i++) {
-                const rand=Math.random()*100; 
-                let tr="common";
-                if(power > 50) {
-                    if(rand < 1) tr="genesis"; else if(rand < 6) tr="ultra"; else if(rand < 20) tr="holo"; else if(rand < 50) tr="rare";
-                } else if(power > 10) {
-                    if(rand < 0.5) tr="genesis"; else if(rand < 3) tr="ultra"; else if(rand < 15) tr="holo"; else if(rand < 40) tr="rare";
-                }
+                const rand=Math.random()*100; let tr="common";
+                if(power > 100) { if(rand<2) tr="genesis"; else if(rand<10) tr="ultra"; else if(rand<30) tr="holo"; else if(rand<60) tr="rare"; }
+                else if(power > 50) { if(rand<1) tr="genesis"; else if(rand<6) tr="ultra"; else if(rand<20) tr="holo"; else if(rand<50) tr="rare"; }
+                else if(power > 10) { if(rand<0.5) tr="genesis"; else if(rand<3) tr="ultra"; else if(rand<15) tr="holo"; else if(rand<40) tr="rare"; }
                 
-                let c=particles.filter(p=>p.rarity===tr); 
-                if(c.length===0) c=particles.filter(p=>p.rarity==="common");
-                
+                let c=particles.filter(p=>p.rarity===tr); if(c.length===0) c=particles.filter(p=>p.rarity==="common");
                 const p = c[Math.floor(Math.random()*c.length)];
-                user.invPart[p.id] = (user.invPart[p.id]||0)+1;
-                results.push(p);
+                user.invPart[p.id] = (user.invPart[p.id]||0)+1; results.push(p);
             }
-            
             saveGame(); refreshUI();
             
             const resEl = document.getElementById('exp-result-content');
-            if(times === 1) {
-                const p = results[0];
-                resEl.innerHTML = `<img src="${getImgSrc(p)}" style="width:100px"><br><h3 class="rarity-${p.rarity}">GET: ${p.name}</h3><p>${p.desc}</p>`;
-            } else {
-                let html = '<div class="gacha-grid">';
-                results.forEach(p => {
-                    html += `<div class="gacha-item"><img src="${getImgSrc(p)}"><div class="rarity-${p.rarity}" style="font-size:0.7rem;">${p.name}</div></div>`;
-                });
-                html += '</div>';
-                resEl.innerHTML = html;
+            if(times === 1) { const p = results[0]; resEl.innerHTML = `<img src="${getImgSrc(p)}" style="width:100px"><br><h3 class="rarity-${p.rarity}">GET: ${p.name}</h3><p>${p.desc}</p>`; }
+            else {
+                let html = '<div class="gacha-grid">'; results.forEach(p => { html += `<div class="gacha-item"><img src="${getImgSrc(p)}"><div class="rarity-${p.rarity}" style="font-size:0.7rem;">${p.name}</div></div>`; }); html += '</div>'; resEl.innerHTML = html;
             }
             document.getElementById('result-modal').style.display='block';
         }
 
+        // --- Shop & Craft ---
         function renderShop(){
             const el=document.getElementById('shop-list'); if(!el)return; el.innerHTML='';
             materials.forEach(m=>{ el.innerHTML+=`<div class="item-card" onclick="buy('${m.id}')"><div>${m.name}</div><div style="color:var(--hc-green)">¥${m.cost}</div><div style="font-size:0.8rem">持: ${user.invMat?user.invMat[m.id]||0:0}</div></div>`; });
@@ -573,21 +492,50 @@
         }
         function renderCraft(){
             const el=document.getElementById('craft-list'); if(!el)return; el.innerHTML='';
-            detectors.forEach(d=>{ const own=user.invDet.includes(d.id); el.innerHTML+=`<div class="item-card" onclick="craft('${d.id}')"><div>${d.name}</div><div>${own?'OWNED':'CRAFT'}</div></div>`; });
+            detectors.forEach(d=>{
+                const own=user.invDet.includes(d.id);
+                // レシピ表示
+                let reqHtml = ''; let canCraft = true;
+                if(Object.keys(d.req).length === 0) reqHtml = "FREE (Starter)";
+                else {
+                    Object.keys(d.req).forEach(mid => {
+                        const m = materials.find(x=>x.id==mid);
+                        const need = d.req[mid];
+                        const have = user.invMat[mid]||0;
+                        if(have < need) canCraft = false;
+                        reqHtml += `<div>${m.name}: ${have}/${need}</div>`;
+                    });
+                }
+                const btnState = (own || !canCraft) ? 'disabled' : '';
+                const btnText = own ? 'OWNED' : 'CRAFT';
+                
+                el.innerHTML += `
+                    <div class="craft-card ${own?'owned':''}">
+                        <div style="font-weight:bold; color:var(--hc-orange)">${d.name} <span style="font-size:0.8rem; color:#aaa;">(Pw:${d.power})</span></div>
+                        <div class="craft-req">${reqHtml}</div>
+                        <button class="craft-btn" ${btnState} onclick="craft('${d.id}')">${btnText}</button>
+                    </div>`;
+            });
         }
         function craft(id){
-            if(user.invDet.includes(id))return; user.invDet.push(id); saveGame(); refreshUI(); initProposalForm();
+            if(user.invDet.includes(id)) return;
+            const d = detectors.find(x=>x.id==id);
+            // 素材消費
+            if(Object.keys(d.req).length > 0) {
+                let ok = true;
+                Object.keys(d.req).forEach(mid => { if((user.invMat[mid]||0) < d.req[mid]) ok=false; });
+                if(!ok) return;
+                Object.keys(d.req).forEach(mid => { user.invMat[mid] -= d.req[mid]; });
+            }
+            user.invDet.push(id); saveGame(); refreshUI(); initProposalForm();
         }
+
         function renderOffice(){
             const el=document.getElementById('particle-stock-list'); if(!el)return; el.innerHTML='';
             Object.keys(user.invPart).forEach(pidStr=>{
                 const pid=parseInt(pidStr); if(user.invPart[pid]>0){
                     const p=particles.find(x=>x.id==pid); if(p){
-                        let pr=1000; 
-                        if(p.rarity=="rare")pr=3000; 
-                        if(p.rarity=="holo")pr=10000; 
-                        if(p.rarity=="ultra")pr=50000;
-                        if(p.rarity=="genesis")pr=1000000; 
+                        let pr=1000; if(p.rarity=="rare")pr=3000; if(p.rarity=="holo")pr=10000; if(p.rarity=="ultra")pr=50000; if(p.rarity=="genesis")pr=1000000; 
                         el.innerHTML+=`<div class="item-card" onclick="sell(${pid},${pr})"><span class="rarity-${p.rarity}">${p.name}</span> x${user.invPart[pid]}<br>PUBLISH (¥${pr})</div>`;
                     }
                 }
@@ -596,7 +544,13 @@
         function sell(pid,pr){ if(user.invPart[pid]>0){ user.invPart[pid]--; user.money+=pr; saveGame(); refreshUI(); } }
         function loadGame(){
             const d=localStorage.getItem('hadron_v8'); if(d){ try{user=JSON.parse(d);}catch(e){user={};} }
-            if(typeof user.money==='undefined')user.money=10000; if(!user.invMat)user.invMat={}; if(!user.invDet)user.invDet=[]; if(!user.invPart)user.invPart={1:1}; if(!user.deck)user.deck=[1,null,null,null,null];
+            if(typeof user.money==='undefined')user.money=10000; 
+            if(!user.invMat)user.invMat={}; 
+            // 初期装備: d0 (Geiger Counter)
+            if(!user.invDet) user.invDet=['d0']; 
+            if(user.invDet.length === 0) user.invDet=['d0'];
+
+            if(!user.invPart)user.invPart={1:1}; if(!user.deck)user.deck=[1,null,null,null,null];
             if(!user.equippedSkins) user.equippedSkins = {};
         }
         function saveGame(){ localStorage.setItem('hadron_v8',JSON.stringify(user)); }
