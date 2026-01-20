@@ -12,7 +12,7 @@
     <div id="skill-overlay" class="skill-cutin">LIMIT BREAK!</div>
     
     <div class="header">
-        <div style="font-family:'Orbitron'">MISSION: <span style="color:red" id="mission-name">...</span></div>
+        <div style="font-family:'Orbitron'">MISSION: <span style="color:red" id="mission-name">Loading...</span></div>
         <button class="btn-back" onclick="location.href='index.html'">RETREAT</button>
     </div>
 
@@ -20,9 +20,9 @@
         <div class="player-side">
             <div class="fleet-stats-box">
                 <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
-                    <span>FLEET HP</span> <span id="p-hp-val">1000</span>
+                    <span>FLEET HP</span> <span id="p-hp-val">0</span>
                 </div>
-                <div class="bar-container"><div id="p-hp-bar" class="hp-bar"></div></div>
+                <div class="bar-container"><div id="p-hp-bar" class="hp-bar" style="width:100%"></div></div>
                 <div class="bar-container" style="height:4px; background:#444;"><div id="p-ep-bar" class="ep-bar"></div></div>
                 <div style="text-align:right; font-size:0.7rem; color:#f1c40f;">TP (Tactical Point)</div>
                 <div id="buff-container" class="buff-list"></div>
@@ -33,9 +33,9 @@
         <div class="enemy-side">
             <div class="fleet-stats-box" style="position:relative; top:0; left:0; width:200px; border-color:#e74c3c;">
                 <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
-                    <span>BOSS HP</span> <span id="e-hp-val">5000</span>
+                    <span>BOSS HP</span> <span id="e-hp-val">0</span>
                 </div>
-                <div class="bar-container"><div id="e-hp-bar" class="hp-bar" style="background:#e74c3c;"></div></div>
+                <div class="bar-container"><div id="e-hp-bar" class="hp-bar" style="background:#e74c3c; width:100%"></div></div>
             </div>
             <div id="enemy-core" class="enemy-core" style="margin-top:20px;"></div>
         </div>
@@ -43,7 +43,7 @@
 
     <div class="command-panel">
         <div class="log-window" id="log">
-            > Fleet formation complete.<br>> Awaiting orders...
+            > Initializing Battle System...
         </div>
         <div class="command-grid">
             <button class="cmd-btn" style="--color:#3498db" onclick="playerAction('attack')">
@@ -61,8 +61,8 @@
         </div>
     </div>
 
-    <div id="result-modal" class="modal">
-        <div style="background:#222; border:2px solid gold; padding:40px; text-align:center; border-radius:10px; min-width:400px; color:white;">
+    <div id="result-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align:center;">
             <h1 id="res-title" style="color:gold">MISSION ACCOMPLISHED</h1>
             <p id="res-msg">Target Destroyed.</p>
             <div style="margin:20px 0; border-top:1px solid #444; padding-top:20px;">
@@ -74,29 +74,23 @@
     </div>
 
     <script>
-        // === バトル固有の変数定義 ===
+        // === バトル固有変数 (共通データはscript.jsから使用) ===
         let deckMembers = [];
         let flagShip = null;
         let stats = { hp: 0, maxHp: 0, ep: 0, atk: 0, regen: 0, critRate: 0.1, dmgRed: 0 };
-        let enemy = { hp: 5000, maxHp: 5000, atk: 100 };
+        let enemy = { hp: 0, maxHp: 0, atk: 0 };
         let isPlayerTurn = true;
         let activeBuffs = [];
-        let currentMission = null;
+        // user, currentMission は script.js のグローバル変数を使用
 
-        // script.jsの読み込み完了後に実行
         window.onload = function() {
-            // script.jsのloadGameを呼んで最新データをuserに入れる
-            if(typeof loadGame === 'function') {
-                loadGame(); 
-            } else {
-                console.error("script.js not loaded correctly");
-                return;
-            }
-
+            // データのロード (script.jsの関数)
+            if(typeof loadGame === 'function') loadGame();
+            
             // ミッションIDの取得
             const params = new URLSearchParams(window.location.search);
             const mid = params.get('mission') || 'm1';
-            currentMission = missionData[mid] || missionData['m1'];
+            currentMission = missionData[mid] || missionData['m1']; // script.jsのmissionDataを使用
 
             // UI反映
             document.getElementById('mission-name').innerText = currentMission.name;
@@ -105,7 +99,7 @@
             core.style.background = `radial-gradient(circle, ${currentMission.color}, #000)`;
             core.style.boxShadow = `0 0 60px ${currentMission.color}`;
 
-            // ★スキル補正計算 (script.jsの関数を使用)
+            // スキル補正 (script.jsの関数)
             const atkBonus = getSkillBonus('atk_up');
             const allBonus = getSkillBonus('all_up');
             const regenBonus = getSkillBonus('regen_up');
@@ -117,17 +111,20 @@
             deckIds.forEach((pid, index) => {
                 if(pid) {
                     const p = particles.find(x => x.id === pid) || particles[0]; 
-                    // script.jsのgetImgSrcを使用（着せ替え反映）
-                    let currentImg = getImgSrc(p);
+                    let currentImg = getImgSrc(p); // script.jsの関数
                     deckMembers.push({ ...p, index: index, image: currentImg });
                 }
             });
-            if(deckMembers.length === 0) deckMembers.push({ ...particles[0], index: 0, image: particles[0].image });
+            // デッキが空ならプロトンを入れる
+            if(deckMembers.length === 0) {
+                const p = particles[0];
+                deckMembers.push({ ...p, index: 0, image: p.image });
+            }
 
             flagShip = deckMembers[0]; 
             document.getElementById('skill-name').innerText = flagShip.skill;
 
-            // ステータス計算 & 表示
+            // ステータス計算
             deckMembers.forEach((member, i) => {
                 const img = document.createElement('img');
                 img.src = member.image;
@@ -148,39 +145,38 @@
                 let baseHp = 500 + rVal * 200;
                 let baseAtk = 100 + rVal * 150;
 
-                // ★名声ボーナス計算 (script.jsの関数を使用)
-                const fameParams = getFameParams(member.rarity);
-                const count = user.invPart ? (user.invPart[member.id] || 1) : 1;
-                const fameLv = Math.floor(count / fameParams.req);
-                const fameMult = 1 + (fameLv * fameParams.bonus);
+                // 名声ボーナス
+                const info = getFameInfo(member.id); // script.jsの関数
+                const fameMult = 1 + info.bonus;
 
-                // ★スキル補正適用
+                // スキル補正
                 let skillMultAtk = 1 + atkBonus + allBonus;
                 let skillMultHp = 1 + allBonus;
 
                 stats.maxHp += baseHp * fameMult * skillMultHp;
                 stats.atk += baseAtk * fameMult * skillMultAtk;
                 
-                if(fameLv > 0) console.log(`${member.name} Fame Lv.${fameLv} (x${fameMult.toFixed(2)})`);
+                if(info.lv > 0) console.log(`${member.name} Fame Lv.${info.lv} (x${fameMult.toFixed(2)})`);
             });
 
-            // 自動回復スキル
+            // 自動回復
             if(regenBonus > 0) stats.regen += Math.floor(stats.maxHp * 0.03 * (1+regenBonus));
 
             applyFleetBuffs();
             
-            // 敵ステータスの補正
-            enemy.maxHp = Math.floor(stats.atk * 10 * currentMission.hpMult);
+            // 敵ステータス設定
+            enemy.maxHp = Math.floor(Math.max(1000, stats.atk * 10 * currentMission.hpMult));
             enemy.hp = enemy.maxHp;
-            enemy.atk = Math.floor(stats.maxHp / 8 * currentMission.atkMult);
+            enemy.atk = Math.floor(Math.max(50, stats.maxHp / 8 * currentMission.atkMult));
             
             stats.hp = stats.maxHp;
             updateUI();
-            log(`Mission Start: ${currentMission.name}`);
+            
+            const l = document.getElementById('log');
+            l.innerHTML = `> Mission Start: ${currentMission.name}<br>> Hostile Detected.<br>> Awaiting orders...`;
         };
 
         // --- バトルロジック ---
-
         function applyFleetBuffs() {
             let types = { atk:0, def:0, spd:0, ult:0 };
             let ids = deckMembers.map(m => m.id);
@@ -190,7 +186,6 @@
             if(types.def >= 3) { stats.maxHp *= 1.2; addBuff("🛡 FORTRESS: HP+20%"); }
             if(types.spd >= 3) { stats.ep += 30; addBuff("⚡ RAPID: Start TP+30"); }
 
-            // Combo Bonus
             if(ids.includes(1) && ids.includes(2)) { stats.maxHp *= 1.15; addBuff("⚛️ Nucleus: HP+15%"); }
             if(ids.includes(13) && ids.includes(14)) { stats.atk *= 1.30; addBuff("⚖️ God Particle: Atk+30%"); }
             if(ids.includes(17) && ids.includes(12)) { stats.atk *= 1.15; addBuff("💖 Charm: Atk+15%"); }
@@ -280,7 +275,12 @@
         function dealDamageToEnemy(amount, isCrit) {
             enemy.hp -= amount; if(enemy.hp < 0) enemy.hp = 0; showDamage(amount, 'enemy-core', isCrit);
             const elm = document.getElementById('enemy-core'); elm.classList.add('damage'); setTimeout(()=>elm.classList.remove('damage'), 300);
-            updateUI(); if(enemy.hp <= 0) { log("<span style='color:gold'>TARGET SILENCED.</span>"); setTimeout(winGame_Battle, 1000); }
+            updateUI(); 
+            if(enemy.hp <= 0) { 
+                log("<span style='color:gold'>TARGET SILENCED.</span>"); 
+                // script.jsのwinGameを呼ぶ
+                setTimeout(() => { if(typeof winGame === 'function') winGame(); }, 1000); 
+            }
         }
 
         function dealDamageToPlayer(amount) {
@@ -302,17 +302,12 @@
 
         function addEp(v) { stats.ep = Math.min(100, stats.ep + v); updateUI(); }
 
-        // script.jsのwinGameと名前が被るため別名で定義
-        function winGame_Battle() {
-            // winGame関数はscript.jsにあるものを再利用する
-            if(typeof winGame === 'function') {
-                winGame(); // script.jsのwinGameを呼ぶ
-            } else {
-                console.error("winGame function not found in script.js");
-                // フォールバック（念のため）
-                document.getElementById('res-title').innerText = "WIN (Error: script.js missing)";
-                document.getElementById('result-modal').style.display = 'flex';
-            }
+        // リザルト表示用 (script.jsがない場合のフォールバック)
+        function loseGame() {
+            document.getElementById('res-title').innerText = "DEFEAT"; 
+            document.getElementById('res-title').style.color = "red"; 
+            document.getElementById('loot-display').style.display = "none"; 
+            document.getElementById('result-modal').style.display = 'flex';
         }
     </script>
 </body>
