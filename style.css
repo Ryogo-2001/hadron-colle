@@ -1,4 +1,4 @@
-/* ===== Hadron Lab Style ===== */
+/* ===== Hadron Lab Style Ver 22.0 ===== */
 :root {
     --hc-bg: #0a0e14;
     --hc-panel: #151922;
@@ -117,7 +117,7 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
 /* 共通グリッド */
 .shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
 
-/* ★改善版 アイテムカード */
+/* アイテムカード */
 .item-card { 
     background: var(--hc-panel); border: 2px solid #444; padding: 10px; 
     text-align: center; cursor: pointer; border-radius: 8px; transition: 0.2s;
@@ -125,7 +125,7 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
 }
 .item-card:hover { transform: translateY(-3px); }
 
-/* ★レアリティ別カードスタイル (枠線&発光) */
+/* レアリティ別カードスタイル */
 .card-common { border-color: #666; }
 .card-rare { border-color: #3498db; box-shadow: 0 0 5px rgba(52, 152, 219, 0.2); }
 .card-holo { border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); background: linear-gradient(135deg, #1a1a1a, #2a2200); }
@@ -136,7 +136,7 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
     background: linear-gradient(135deg, #000, #222);
 }
 
-/* レアリティテキスト色 */
+/* レアリティテキスト */
 .rarity-common { color: #aaa; }
 .rarity-rare { color: #3498db; font-weight: bold; }
 .rarity-holo { color: #f1c40f; text-shadow: 0 0 5px #f1c40f; font-weight: bold; }
@@ -147,7 +147,7 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
     animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1rem;
 }
 
-/* レアリティラベル (カード上部) */
+/* レアリティラベル */
 .rarity-label { font-size: 0.6rem; font-family: 'Orbitron'; letter-spacing: 1px; margin-bottom: 5px; color: #888; }
 .label-rare { color: #3498db; }
 .label-holo { color: #f1c40f; }
@@ -160,6 +160,7 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
     60%{border-color: #00ffff;} 80%{border-color: #0000ff;} 100%{border-color: #ff00ff;} 
 }
 
+/* モーダル */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; justify-content: center; align-items: center; }
 .modal-content { background: #222; padding: 20px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; border-radius: 10px; border: 1px solid var(--hc-blue); }
 
@@ -186,28 +187,17 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-
 /* ★名声（限界突破）バッジ */
 .fame-badge {
     position: absolute;
-    top: 0px;
-    left: 0px;
-    font-size: 1.5rem;
-    color: #ffd700; /* 金色 */
+    top: 0px; left: 0px;
+    font-size: 1.5rem; color: #ffd700;
     text-shadow: 0 0 3px #000, 0 0 10px #ff8c00;
-    z-index: 30;
-    font-family: 'M PLUS Rounded 1c';
-    pointer-events: none;
-    font-weight: bold;
+    z-index: 30; font-family: 'M PLUS Rounded 1c'; pointer-events: none; font-weight: bold;
 }
 .fame-badge span {
-    font-size: 0.8rem;
-    color: #fff;
-    vertical-align: middle;
-    margin-left: -5px;
+    font-size: 0.8rem; color: #fff; vertical-align: middle; margin-left: -5px;
 }
-
-/* ... (既存のCSSの続き) ... */
 
 /* ★スキルツリー */
 .skill-tree-grid {
