@@ -1,4 +1,4 @@
-/* ===== Hadron Lab Style Ver 22.10 (Card Fix) ===== */
+/* ===== Hadron Lab Style Ver 22.11 (Deck & Detail Fix) ===== */
 :root {
     --hc-bg: #0a0e14;
     --hc-panel: #151922;
@@ -381,4 +381,42 @@ body {
     margin: 20px 0;
     line-height: 1.8;
     color: #ecf0f1;
+}
+
+/* ★詳細画面の画像はみ出し防止用スタイル */
+.detail-layout { 
+    display: flex; 
+    gap: 20px; 
+    align-items: flex-start; 
+    text-align: left; 
+    /* 中身が大きすぎてもスクロールできるように */
+    max-height: 70vh; 
+    overflow-y: auto; 
+}
+
+.detail-img-box { 
+    width: 40%; 
+    flex-shrink: 0; 
+    text-align: center; 
+    background: radial-gradient(circle, #333, #000); 
+    padding: 10px; 
+    border-radius: 10px; 
+    border: 1px solid #555; 
+    
+    /* 画像を中央に配置 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.detail-img-box img { 
+    max-width: 100%; 
+    max-height: 400px; /* ★高さ制限を追加して画面からはみ出さないように */
+    width: auto;       /* アスペクト比を維持 */
+    object-fit: contain; 
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); 
+}
+
+.detail-info { 
+    width: 55%; 
 }
