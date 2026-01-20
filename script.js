@@ -44,7 +44,10 @@ const particles = [
     { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。", skill:"Beta Decay", type:"atk" },
     { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。", skill:"Neutral Heavy", type:"def" },
     { id: 23, name: "Tachyon", symbol: "T", rarity: "ultra", image: "images/Tachyon.png", desc: "タキオン。", skill:"Time Travel", type:"spd" },
-    { id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill:"Event Horizon", type:"ult", skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ] }
+    { 
+        id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill:"Event Horizon", type:"ult",
+        skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ]
+    }
 ];
 
 const materials = [
@@ -92,6 +95,7 @@ window.onload = function() {
     catch(e) { console.error("Init Error:", e); }
 };
 
+// ★ Helper Functions
 function getSkillBonus(type) {
     let bonus = 0;
     if(!user.skills) return 0;
@@ -394,14 +398,7 @@ function loadGame(){
 }
 function saveGame(){ localStorage.setItem('hadron_v8',JSON.stringify(user)); }
 
-// ★ Global winGame for Battle use
+// Global winGame for Battle use (This is used as fallback, battle.html has its own but we keep it safe)
 function winGame() {
-    // Battle側のwinGameは、この関数を呼ぶようになっているが、報酬ロジックはここにあるべき
-    // ただし、battle.htmlから呼ばれる場合、currentMission変数がscript.jsスコープにはない(battle.htmlスコープにある)
-    // したがって、script.jsのwinGameは、汎用的なものではなく、battle.html内にロジックを持つべきか？
-    // あるいは、script.jsにcurrentMission変数を定義しておくか。
-    // 現状の構成では、battle.htmlでwinGameを再定義していないため、script.jsのwinGameが呼ばれるが、currentMissionがnullになる可能性がある。
-    // ★修正: script.jsのwinGameは削除し、battle.html側で実装する形に変更済み。
-    // 念のため、空関数かエラー回避用のダミーとして残す。
     console.log("Global winGame called.");
 }
