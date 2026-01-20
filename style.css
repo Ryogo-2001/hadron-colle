@@ -1,4 +1,4 @@
-/* ===== Hadron Lab Style Ver 22.0 ===== */
+/* ===== Hadron Lab Style Ver 22.4 (Complete) ===== */
 :root {
     --hc-bg: #0a0e14;
     --hc-panel: #151922;
@@ -11,9 +11,18 @@
     --hc-text: #ecf0f1;
 }
 
-body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 'M PLUS Rounded 1c', sans-serif; overflow: hidden; user-select: none; }
+body { 
+    margin: 0; background: var(--hc-bg); color: var(--hc-text); 
+    font-family: 'M PLUS Rounded 1c', sans-serif; overflow: hidden; user-select: none; 
+    /* バトル画面用の背景設定 */
+    background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
+}
 
-/* 背景 */
+/* ==============================
+   共通・ホーム画面用スタイル
+   ============================== */
+
+/* 背景画像（ホーム画面用） */
 .lab-container {
     width: 100vw; height: 100vh; position: relative;
     background-image: url('images/lab_bg.png'); 
@@ -55,7 +64,7 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
 }
 .main-view.active { display: block; }
 
-/* --- ホーム画面 --- */
+/* ホーム画面メニュー */
 #view-home { background: transparent; backdrop-filter: none; pointer-events: none; }
 .home-menu-container {
     position: absolute; top: 55%; left: 150px; transform: translateY(-50%);
@@ -69,18 +78,15 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
     background-color: rgba(0,0,0,0.8); 
 }
 .gear-btn:hover { transform: scale(1.1); z-index: 100; filter: brightness(1.2); border-color: white; }
-.gear-btn::before {
-    content: ""; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
-    border-radius: 50%; border: 2px dashed rgba(255,255,255,0.3); animation: spin 20s linear infinite; pointer-events: none;
-}
 .btn-main { width: 170px; height: 170px; background: radial-gradient(circle, #e67e22, #d35400); border: 4px solid #f1c40f; color: #fff; font-size: 1.4rem; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; }
 .btn-shop { width: 100px; height: 100px; background: #2ecc71; color: white; top: 15%; left: 15%; font-size: 0.8rem; }
 .btn-deck { width: 100px; height: 100px; background: #9b59b6; color: white; top: 70%; left: 15%; font-size: 0.8rem; }
 .btn-office { width: 100px; height: 100px; background: #3498db; color: white; top: 85%; left: 50%; transform: translateX(-50%); font-size: 0.8rem; }
 .btn-battle { width: 110px; height: 110px; background: #c0392b; color: white; top: 65%; right: 5%; font-size: 0.9rem; border-color: #e74c3c; }
 .btn-craft { width: 100px; height: 100px; background: #7f8c8d; color: white; top: 15%; right: 15%; font-size: 0.9rem; }
+.btn-lab { width: 100px; height: 100px; background: #1abc9c; color: white; top: 5%; left: 50%; transform: translateX(-50%); font-size: 0.8rem; z-index: 20; }
 
-/* デッキ表示 (ホーム) */
+/* デッキ表示エリア */
 .deck-display-area {
     position: absolute; right: 20px; bottom: 20px; height: 60vh; width: 60vw; pointer-events: none; 
     display: flex; justify-content: flex-end; align-items: flex-end; z-index: 10;
@@ -90,34 +96,21 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
     box-shadow: 5px 5px 15px rgba(0,0,0,0.8); transition: 0.3s; pointer-events: auto; cursor: pointer;
     transform-origin: bottom center; border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5);
 }
-.deck-member:hover { transform: translateY(-30px) scale(1.1); z-index: 100; margin-right: -20px; box-shadow: 0 0 30px rgba(255,255,255,0.4); border-color: white; }
 .deck-member.flagship { width: 260px; z-index: 20; border: 2px solid var(--hc-orange); }
 
-/* 編成・ミッション選択 */
+/* 編成・カードスロット */
 .deck-slots { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 30px; }
 .slot-card {
     width: 18%; background: #222; border: 2px dashed #555; height: 250px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; border-radius: 10px; position: relative; overflow: hidden;
 }
-.slot-card:hover { border-color: var(--hc-green); background: #2a2a2a; }
-.slot-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.2s; }
-.slot-card img:hover { opacity: 1; transform: scale(1.1); }
 .slot-label { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); text-align: center; padding: 5px 0; font-weight: bold; color: var(--hc-orange); pointer-events: none; }
 .slot-remove { position: absolute; top: 5px; right: 5px; background: red; width: 25px; height: 25px; border-radius: 50%; text-align: center; line-height: 25px; font-weight:bold; cursor: pointer; z-index: 10; border:2px solid white; }
-
-.mission-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-.mission-card { background: linear-gradient(135deg, #222, #111); border: 2px solid #444; border-radius: 10px; padding: 20px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-.mission-card:hover { transform: translateY(-5px); border-color: var(--hc-blue); box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); }
-.mission-tag { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 8px; border-radius: 3px; background: #333; }
-.tag-money { color: #f1c40f; border: 1px solid #f1c40f; }
-.tag-mat { color: #2ecc71; border: 1px solid #2ecc71; }
-.tag-boss { color: #e74c3c; border: 1px solid #e74c3c; font-weight: bold; }
-
-/* 共通グリッド */
-.shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
+.slot-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.2s; }
 
 /* アイテムカード */
+.shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
 .item-card { 
     background: var(--hc-panel); border: 2px solid #444; padding: 10px; 
     text-align: center; cursor: pointer; border-radius: 8px; transition: 0.2s;
@@ -125,7 +118,7 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
 }
 .item-card:hover { transform: translateY(-3px); }
 
-/* レアリティ別カードスタイル */
+/* レアリティスタイル */
 .card-common { border-color: #666; }
 .card-rare { border-color: #3498db; box-shadow: 0 0 5px rgba(52, 152, 219, 0.2); }
 .card-holo { border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); background: linear-gradient(135deg, #1a1a1a, #2a2200); }
@@ -135,8 +128,6 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
     animation: border-rainbow 3s linear infinite;
     background: linear-gradient(135deg, #000, #222);
 }
-
-/* レアリティテキスト */
 .rarity-common { color: #aaa; }
 .rarity-rare { color: #3498db; font-weight: bold; }
 .rarity-holo { color: #f1c40f; text-shadow: 0 0 5px #f1c40f; font-weight: bold; }
@@ -146,111 +137,120 @@ body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 
     background-size: 400%; -webkit-background-clip: text; color: transparent; 
     animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1rem;
 }
-
-/* レアリティラベル */
 .rarity-label { font-size: 0.6rem; font-family: 'Orbitron'; letter-spacing: 1px; margin-bottom: 5px; color: #888; }
 .label-rare { color: #3498db; }
 .label-holo { color: #f1c40f; }
 .label-ultra { color: #e74c3c; }
 .label-genesis { color: #fff; text-shadow: 0 0 5px #fff; }
 
-@keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
-@keyframes border-rainbow { 
-    0%{border-color: #ff0000;} 20%{border-color: #ffff00;} 40%{border-color: #00ff00;} 
-    60%{border-color: #00ffff;} 80%{border-color: #0000ff;} 100%{border-color: #ff00ff;} 
+/* 名声バッジ */
+.fame-badge { position: absolute; top: 0px; left: 0px; font-size: 1.5rem; color: #ffd700; text-shadow: 0 0 3px #000, 0 0 10px #ff8c00; z-index: 30; font-family: 'M PLUS Rounded 1c'; pointer-events: none; font-weight: bold; }
+.fame-badge span { font-size: 0.8rem; color: #fff; vertical-align: middle; margin-left: -5px; }
+
+/* ==============================
+   バトル画面用スタイル (ここが抜けていました！)
+   ============================== */
+.header { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.8); border-bottom: 2px solid #444; z-index: 100; position: relative; }
+.btn-back { padding: 10px 20px; background: transparent; border: 2px solid #555; color: white; cursor: pointer; font-family: 'Orbitron'; }
+
+.battle-field { height: 55vh; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: relative; }
+
+/* プレイヤーサイド */
+.player-side { width: 50%; height: 100%; position: relative; display: flex; align-items: center; }
+.fleet-container { position: relative; width: 100%; height: 300px; }
+.fleet-member {
+    position: absolute; height: 200px; width: auto; object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(0,243,255,0.3));
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+.fleet-member.flagship { height: 280px; z-index: 50 !important; filter: drop-shadow(0 0 20px rgba(255,215,0,0.6)); }
+.fleet-member.attack { transform: translateX(100px) !important; filter: brightness(1.5); }
+.fleet-member.damage { animation: shake 0.4s; filter: sepia(1) hue-rotate(-50deg) saturate(3); }
 
-/* モーダル */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; justify-content: center; align-items: center; }
-.modal-content { background: #222; padding: 20px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; border-radius: 10px; border: 1px solid var(--hc-blue); }
-
-.detail-layout { display: flex; gap: 20px; align-items: flex-start; text-align: left; }
-.detail-img-box { width: 40%; text-align: center; background: radial-gradient(circle, #333, #000); padding: 20px; border-radius: 10px; border: 1px solid #555; }
-.detail-img-box img { max-width: 100%; max-height: 300px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
-.detail-info { width: 60%; }
-.detail-type { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.8rem; background: #444; margin-bottom: 10px; }
-.detail-skill-box { margin-top: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-left: 4px solid var(--hc-orange); }
-.skin-btn-container { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-.skin-btn { padding: 5px 10px; background: #444; border: 1px solid #666; color: white; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
-.skin-btn:hover, .skin-btn.active { background: var(--hc-blue); border-color: #fff; }
-
-.craft-card { background: #1a1a1a; padding: 15px; border: 1px solid #444; text-align: left; position: relative; border-radius: 5px; }
-.craft-card.owned { border-color: #2ecc71; background: #0f2215; }
-.craft-req { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
-.craft-btn { position: absolute; top: 10px; right: 10px; background: var(--hc-blue); border: none; color: white; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-size: 0.8rem; }
-.craft-btn:disabled { background: #444; cursor: not-allowed; }
-
-.gacha-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-.gacha-item { background: #111; padding: 5px; border-radius: 5px; border: 1px solid #444; }
-.gacha-item img { width: 100%; height: auto; }
-
-@keyframes spin { 100% { transform: rotate(360deg); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* ★名声（限界突破）バッジ */
-.fame-badge {
-    position: absolute;
-    top: 0px; left: 0px;
-    font-size: 1.5rem; color: #ffd700;
-    text-shadow: 0 0 3px #000, 0 0 10px #ff8c00;
-    z-index: 30; font-family: 'M PLUS Rounded 1c'; pointer-events: none; font-weight: bold;
+/* エネミーサイド */
+.enemy-side { width: 40%; text-align: center; }
+.enemy-core {
+    width: 220px; height: 220px; border-radius: 50%; 
+    background: radial-gradient(circle, #e74c3c, #8e44ad);
+    box-shadow: 0 0 60px #c0392b; border: 6px solid #fff; margin: 0 auto;
+    display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: bold;
+    text-shadow: 2px 2px 0 #000; animation: pulse 3s infinite; position: relative;
 }
-.fame-badge span {
-    font-size: 0.8rem; color: #fff; vertical-align: middle; margin-left: -5px;
-}
+.enemy-core.damage { animation: shake 0.3s; background: white; }
 
-/* ★スキルツリー */
-.skill-tree-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    padding-bottom: 50px;
+/* コマンドパネル */
+.command-panel {
+    position: absolute; bottom: 0; width: 100%; height: 30vh;
+    background: rgba(16, 20, 30, 0.95); border-top: 2px solid #3498db;
+    display: flex; align-items: center; padding: 0 40px; gap: 20px; box-sizing: border-box;
 }
+.log-window {
+    flex: 1.5; height: 80%; background: #000; border: 1px solid #444; padding: 10px;
+    overflow-y: auto; font-family: monospace; color: #aaa; font-size: 0.9rem; line-height: 1.6;
+}
+.command-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cmd-btn {
+    padding: 15px; font-family: 'Orbitron'; font-size: 1.1rem; cursor: pointer;
+    background: linear-gradient(135deg, #2c3e50, #000); border: 1px solid #555; color: white;
+    border-radius: 5px; transition: 0.2s; position: relative;
+}
+.cmd-btn:hover { border-color: var(--color); box-shadow: 0 0 15px var(--color); transform: translateY(-2px); }
+.cmd-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 
-.skill-card {
-    background: #111;
-    border: 1px solid #444;
-    border-radius: 8px;
-    padding: 15px;
-    position: relative;
-    transition: 0.3s;
-    opacity: 0.7;
+/* ステータスバー・バフ */
+.fleet-stats-box {
+    position: absolute; top: -40px; left: 20px; width: 300px;
+    background: rgba(0,0,0,0.7); border: 1px solid #3498db; padding: 10px; border-radius: 5px; z-index: 100;
 }
+.bar-container { width: 100%; height: 8px; background: #333; margin: 3px 0; border-radius: 4px; overflow: hidden; }
+.hp-bar { height: 100%; background: #2ecc71; width: 100%; transition: 0.3s; }
+.ep-bar { height: 100%; background: #f1c40f; width: 0%; transition: 0.3s; }
+.buff-list { font-size: 0.7rem; color: #aaa; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px; }
+.buff-tag { background: rgba(52, 152, 219, 0.3); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(52, 152, 219, 0.5); color: #81ecec; }
 
-.skill-card.unlocked {
-    border-color: var(--hc-blue);
-    background: linear-gradient(135deg, #15202b, #000);
-    box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
-    opacity: 1;
+/* エフェクト */
+.skill-cutin {
+    position: fixed; top: 30%; left: 0; width: 100%; background: rgba(52, 152, 219, 0.9);
+    color: white; font-size: 3rem; font-family: 'Orbitron'; font-weight: bold; font-style: italic;
+    text-align: center; padding: 20px 0; transform: translateX(-100%); z-index: 200; display: none;
 }
+.skill-cutin.active { display: block; animation: cutIn 1.5s ease-in-out; }
+.damage-pop, .heal-pop {
+    position: absolute; font-family: 'Orbitron'; font-weight: bold; font-size: 3rem;
+    text-shadow: 0 0 5px #000; pointer-events: none; z-index: 100; animation: popUp 0.8s forwards;
+}
+.damage-pop { color: #fff; text-shadow: 0 0 10px #e74c3c; }
+.heal-pop { color: #2ecc71; text-shadow: 0 0 10px #27ae60; font-size: 2.5rem; }
 
-.skill-card.purchasable {
-    border-color: var(--hc-green);
-    opacity: 1;
-    cursor: pointer;
-}
-.skill-card.purchasable:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
-}
+/* ミッション */
+.mission-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.mission-card { background: linear-gradient(135deg, #222, #111); border: 2px solid #444; border-radius: 10px; padding: 20px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
+.mission-card:hover { transform: translateY(-5px); border-color: var(--hc-blue); box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); }
+.mission-tag { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 8px; border-radius: 3px; background: #333; }
+.tag-money { color: #f1c40f; border: 1px solid #f1c40f; }
+.tag-mat { color: #2ecc71; border: 1px solid #2ecc71; }
+.tag-boss { color: #e74c3c; border: 1px solid #e74c3c; font-weight: bold; }
 
-.skill-card.locked {
-    filter: grayscale(1);
-    border-style: dashed;
-}
-
+/* スキルツリー */
+.skill-tree-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding-bottom: 50px; }
+.skill-card { background: #111; border: 1px solid #444; border-radius: 8px; padding: 15px; position: relative; transition: 0.3s; opacity: 0.7; }
+.skill-card.unlocked { border-color: var(--hc-blue); background: linear-gradient(135deg, #15202b, #000); box-shadow: 0 0 10px rgba(52, 152, 219, 0.2); opacity: 1; }
+.skill-card.purchasable { border-color: var(--hc-green); opacity: 1; cursor: pointer; }
+.skill-card.purchasable:hover { transform: translateY(-3px); box-shadow: 0 0 15px rgba(46, 204, 113, 0.4); }
+.skill-card.locked { filter: grayscale(1); border-style: dashed; }
 .skill-icon { font-size: 2rem; margin-bottom: 10px; }
 .skill-name { font-family: 'Orbitron'; font-weight: bold; color: #fff; margin-bottom: 5px; }
 .skill-desc { font-size: 0.85rem; color: #aaa; margin-bottom: 10px; line-height: 1.4; }
 .skill-cost { font-weight: bold; color: var(--hc-blue); font-size: 0.9rem; }
-
-.skill-status {
-    position: absolute;
-    top: 10px; right: 10px;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
+.skill-status { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
 .st-acquired { background: var(--hc-blue); color: white; }
 .st-can-buy { background: var(--hc-green); color: white; animation: pulse 2s infinite; }
 .st-locked { background: #333; color: #777; }
+
+/* アニメーション定義 */
+@keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+@keyframes border-rainbow { 0%{border-color: #ff0000;} 20%{border-color: #ffff00;} 40%{border-color: #00ff00;} 60%{border-color: #00ffff;} 80%{border-color: #0000ff;} 100%{border-color: #ff00ff;} }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+@keyframes shake { 0%{transform:translate(0,0)} 25%{transform:translate(-5px,5px)} 50%{transform:translate(5px,-5px)} 75%{transform:translate(-5px,-5px)} 100%{transform:translate(0,0)} }
+@keyframes popUp { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-50px);opacity:0} }
+@keyframes cutIn { 0%{transform:translateX(-100%)} 20%{transform:translateX(0)} 80%{transform:translateX(0)} 100%{transform:translateX(100%)} }
