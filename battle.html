@@ -2,170 +2,423 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Fleet Battle | Hadron Lab</title>
+    <title>Tactical Battle | Hadron Lab</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #050505; color: white; font-family: 'M PLUS Rounded 1c'; overflow: hidden; background-size: 30px 30px; background-image: radial-gradient(#111 20%, transparent 20%), radial-gradient(#111 20%, transparent 20%); background-position: 0 0, 15px 15px; }
+        body { 
+            margin: 0; background: #050505; color: white; font-family: 'M PLUS Rounded 1c'; overflow: hidden; 
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
+        }
         
-        .header { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.8); border-bottom: 2px solid #444; }
+        /* UIパーツ */
+        .header { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.8); border-bottom: 2px solid #444; z-index: 100; position: relative; }
         .btn-back { padding: 10px 20px; background: transparent; border: 2px solid #555; color: white; cursor: pointer; font-family: 'Orbitron'; }
         
-        /* 戦闘画面レイアウト */
-        .battle-field { height: 65vh; display: flex; position: relative; }
+        /* バトルフィールド */
+        .battle-field { height: 55vh; display: flex; position: relative; align-items: center; justify-content: space-between; padding: 0 50px; }
         
-        /* 左側：味方艦隊 */
-        .fleet-side {
-            width: 50%; height: 100%; position: relative;
-            display: flex; flex-direction: column-reverse; /* 手前が一番下 */
-            justify-content: center; padding-left: 50px;
+        /* プレイヤーサイド */
+        .player-hud { width: 300px; text-align: center; position: relative; z-index: 10; }
+        .secretary-img { 
+            height: 300px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,243,255,0.5)); 
+            transition: 0.2s; animation: float 4s infinite ease-in-out;
         }
-        .fleet-member {
-            width: 150px; height: 150px; object-fit: contain;
-            margin-top: -80px; /* 重ねる */
-            filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.8));
-            transition: 0.2s; position: relative; z-index: 1;
-            animation: float 3s ease-in-out infinite;
-        }
-        .fleet-member:hover { transform: scale(1.1); z-index: 10; }
-        .fleet-member.flagship { width: 220px; height: 220px; z-index: 5; margin-bottom: 20px; }
+        .secretary-img.attack { animation: lunge 0.3s; }
+        .secretary-img.damage { animation: shake 0.3s; filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
 
-        /* 右側：敵 */
-        .enemy-side { width: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .player-stats { background: rgba(0,0,0,0.7); border: 1px solid #3498db; padding: 10px; border-radius: 5px; margin-top: -20px; position: relative; z-index: 11; }
+        .bar-container { width: 100%; height: 10px; background: #333; margin: 5px 0; border-radius: 5px; overflow: hidden; }
+        .hp-bar { height: 100%; background: #2ecc71; width: 100%; transition: 0.3s; }
+        .ep-bar { height: 100%; background: #f1c40f; width: 0%; transition: 0.3s; }
+
+        /* エネミーサイド */
+        .enemy-hud { width: 300px; text-align: center; position: relative; }
         .enemy-core {
-            width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, #f1c40f, #d35400);
-            box-shadow: 0 0 50px #e67e22; border: 5px solid white;
+            width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, #e74c3c, #8e44ad);
+            box-shadow: 0 0 50px #c0392b; border: 4px solid #fff; margin: 0 auto;
             display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: bold;
-            text-shadow: 2px 2px 0 #000; animation: pulse 2s infinite;
+            text-shadow: 2px 2px 0 #000; animation: pulse 3s infinite; position: relative;
         }
-        .hp-container { width: 300px; height: 20px; background: #333; margin-top: 20px; border: 1px solid #555; border-radius: 10px; overflow: hidden; }
-        .hp-bar { width: 100%; height: 100%; background: #e74c3c; transition: width 0.2s; }
-
-        /* コントロール */
-        .panel { height: 25vh; background: #111; border-top: 2px solid #333; display: flex; padding: 20px; gap: 20px; }
-        .log { flex: 2; background: #000; border: 1px solid #333; padding: 10px; overflow-y: auto; font-family: monospace; color: #2ecc71; }
-        .actions { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .btn-fire { width: 100%; padding: 20px; background: #c0392b; color: white; font-family: 'Orbitron'; font-size: 1.5rem; border: none; cursor: pointer; }
-        .btn-fire:disabled { background: #333; cursor: not-allowed; }
-
-        /* エフェクト */
-        .beam { position: absolute; height: 10px; background: #00f3ff; box-shadow: 0 0 20px #00f3ff; opacity: 0; }
+        .enemy-core.damage { animation: shake 0.3s; background: white; }
         
-        @keyframes float { 0%,100%{transform:translateX(0)} 50%{transform:translateX(10px)} }
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+        /* コマンドパネル */
+        .command-panel {
+            position: absolute; bottom: 0; width: 100%; height: 30vh;
+            background: rgba(16, 20, 30, 0.95); border-top: 2px solid #3498db;
+            display: flex; align-items: center; padding: 0 50px; box-sizing: border-box; gap: 30px;
+        }
+        
+        .log-window {
+            flex: 1; height: 80%; background: #000; border: 1px solid #444; padding: 10px;
+            overflow-y: auto; font-family: monospace; color: #aaa; font-size: 0.9rem; line-height: 1.6;
+        }
+        
+        .command-grid {
+            flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        .cmd-btn {
+            padding: 20px; font-family: 'Orbitron'; font-size: 1.2rem; cursor: pointer;
+            background: linear-gradient(135deg, #2c3e50, #000); border: 1px solid #555; color: white;
+            border-radius: 5px; transition: 0.2s; text-align: left; position: relative;
+        }
+        .cmd-btn:hover { border-color: var(--color); box-shadow: 0 0 15px var(--color); transform: translateY(-2px); }
+        .cmd-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        .cmd-cost { position: absolute; right: 10px; bottom: 5px; font-size: 0.8rem; color: #aaa; }
+
+        /* エフェクト類 */
+        .damage-pop {
+            position: absolute; font-family: 'Orbitron'; font-weight: bold; font-size: 3rem;
+            color: #fff; text-shadow: 0 0 10px #e74c3c; pointer-events: none; z-index: 100;
+            animation: popUp 0.8s forwards;
+        }
+        .skill-cutin {
+            position: fixed; top: 30%; left: 0; width: 100%; background: rgba(52, 152, 219, 0.9);
+            color: white; font-size: 3rem; font-family: 'Orbitron'; font-weight: bold; font-style: italic;
+            text-align: center; padding: 20px 0; transform: translateX(-100%); z-index: 200;
+            display: none;
+        }
+        .skill-cutin.active { display: block; animation: cutIn 1.5s ease-in-out; }
+
+        /* WARNING演出 */
+        #warning-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(200,0,0,0.3);
+            display: flex; justify-content: center; align-items: center; z-index: 500;
+            font-size: 5rem; color: red; font-family: 'Orbitron'; font-weight: bold; letter-spacing: 10px;
+            animation: warningFlash 2s forwards; pointer-events: none;
+        }
+
+        /* 結果モーダル */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
+            display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 999;
+        }
+
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+        @keyframes lunge { 0%{transform:translateX(0)} 50%{transform:translateX(50px)} 100%{transform:translateX(0)} }
+        @keyframes shake { 0%{transform:translate(0,0)} 25%{transform:translate(-5px,5px)} 50%{transform:translate(5px,-5px)} 75%{transform:translate(-5px,-5px)} 100%{transform:translate(0,0)} }
+        @keyframes popUp { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-50px);opacity:0} }
+        @keyframes cutIn { 0%{transform:translateX(-100%)} 20%{transform:translateX(0)} 80%{transform:translateX(0)} 100%{transform:translateX(100%)} }
+        @keyframes warningFlash { 0%{opacity:0} 10%{opacity:1} 20%{opacity:0} 30%{opacity:1} 100%{opacity:0} }
+
     </style>
 </head>
 <body>
+
+    <div id="warning-screen">WARNING</div>
+    <div id="skill-overlay" class="skill-cutin">LIMIT BREAK!</div>
+
     <div class="header">
-        <div>FLEET POWER: <span id="total-atk" style="color:#3498db">0</span> GeV</div>
+        <div style="font-family:'Orbitron'">MISSION: <span style="color:red">Gold Nucleus Destruction</span></div>
         <button class="btn-back" onclick="location.href='index.html'">RETREAT</button>
     </div>
 
     <div class="battle-field">
-        <div class="fleet-side" id="fleet-container">
+        <div class="player-hud">
+            <img id="flagship-img" class="secretary-img" src="images/proton.png">
+            <div class="player-stats">
+                <div style="display:flex; justify-content:space-between;">
+                    <span id="flagship-name">Player</span>
+                    <span>HP: <span id="p-hp-val">1000</span></span>
+                </div>
+                <div class="bar-container"><div id="p-hp-bar" class="hp-bar"></div></div>
+                <div class="bar-container" style="height:5px; background:#444;"><div id="p-ep-bar" class="ep-bar"></div></div>
+                <div style="text-align:right; font-size:0.8rem; color:#f1c40f;">EP: <span id="p-ep-val">0</span>%</div>
             </div>
-        <div class="enemy-side">
-            <div class="enemy-core" id="enemy">Au</div>
-            <div class="hp-container"><div class="hp-bar" id="hp-bar"></div></div>
+        </div>
+
+        <div class="enemy-hud">
+            <div id="enemy-core" class="enemy-core">Au</div>
+            <div class="player-stats" style="margin-top:20px; border-color:#e74c3c;">
+                <div style="display:flex; justify-content:space-between;">
+                    <span>Target: Gold-197</span>
+                    <span>HP: <span id="e-hp-val">5000</span></span>
+                </div>
+                <div class="bar-container"><div id="e-hp-bar" class="hp-bar" style="background:#e74c3c;"></div></div>
+            </div>
         </div>
     </div>
 
-    <div class="panel">
-        <div class="log" id="log">Initializing Battle System...</div>
-        <div class="actions">
-            <button class="btn-fire" id="btn-fire" onclick="attack()">ALL OUT ATTACK</button>
+    <div class="command-panel">
+        <div class="log-window" id="log">
+            > Analyzing Target...<br>
+            > Enemy: Gold Nucleus detected.<br>
+            > Battle Start!
+        </div>
+        
+        <div class="command-grid">
+            <button class="cmd-btn" style="--color:#3498db" onclick="playerAction('beam')">
+                📡 BEAM SHOT
+                <span class="cmd-cost">EP +10</span>
+            </button>
+            <button class="cmd-btn" style="--color:#2ecc71" onclick="playerAction('charge')">
+                ⚡ ENERGY CHARGE
+                <span class="cmd-cost">EP +40</span>
+            </button>
+            <button id="btn-skill" class="cmd-btn" style="--color:#f1c40f; grid-column: span 2;" onclick="playerAction('skill')" disabled>
+                ★ <span id="skill-name">SKILL</span>
+                <span class="cmd-cost">Cost: 100 EP</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="result-modal" class="modal">
+        <div style="background:#222; border:2px solid gold; padding:40px; text-align:center; border-radius:10px;">
+            <h1 id="res-title" style="color:gold">VICTORY</h1>
+            <p id="res-msg">Material Acquired!</p>
+            <div id="loot-display" style="font-size:2rem; margin:20px 0;"></div>
+            <button class="btn-back" onclick="location.href='index.html'" style="background:#333; margin-top:20px;">RETURN</button>
         </div>
     </div>
 
     <script>
+        // === Data ===
         const particles = [
-            { id: 1, name: "Muon", rarity: 1, image: "images/proton.png" },
-            { id: 2, name: "Electron", rarity: 1, image: "images/proton.png" },
-            { id: 3, name: "Proton", rarity: 1, image: "images/proton.png" },
-            { id: 4, name: "Pion", rarity: 2, image: "images/pion.png" },
-            { id: 5, name: "Kaon", rarity: 3, image: "images/kaon.png" },
-            { id: 6, name: "J/psi", rarity: 4, image: "images/j-psi.png" },
-            { id: 7, name: "Higgs", rarity: 5, image: "images/higgs.png" },
-            { id: 8, name: "Top Quark", rarity: 5, image: "images/top-quark.png" }
+            { id: 1, name: "Muon", image: "images/proton.png", skill:"Rapid Fire", type:"spd" },
+            { id: 2, name: "Electron", image: "images/proton.png", skill:"Electro Shock", type:"spd" },
+            { id: 3, name: "Proton", image: "images/proton.png", skill:"Stable Beam", type:"atk" },
+            { id: 4, name: "Pion", image: "images/pion.png", skill:"Meson Shield", type:"def" },
+            { id: 5, name: "Kaon", image: "images/kaon.png", skill:"Strange Impact", type:"atk" },
+            { id: 6, name: "J/psi", image: "images/j-psi.png", skill:"Charm Buster", type:"atk" },
+            { id: 7, name: "Higgs", image: "images/higgs.png", skill:"God Particle", type:"ult" },
+            { id: 8, name: "Top Quark", image: "images/top-quark.png", skill:"Truth Hammer", type:"ult" }
         ];
+        const lootTable = ['m1','m2','m3','m4','m5','m6'];
+        const matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC" };
 
+        // === State ===
         let user = {};
-        let totalAtk = 0;
-        let enemyHp = 2000;
-        const maxHp = 2000;
+        let flagShip = null;
+        let stats = { hp: 1000, maxHp: 1000, ep: 0, atk: 100 };
+        let enemy = { hp: 3000, maxHp: 3000, atk: 80, name: "Gold-197" };
+        let isPlayerTurn = true;
 
         window.onload = function() {
-            const d = localStorage.getItem('hadron_v8');
+            // Load User Data
+            const d = localStorage.getItem('hadron_v8'); // Ver 8のデータを流用
             if(d) user = JSON.parse(d);
             
-            // デッキ描画 & 攻撃力計算
-            const container = document.getElementById('fleet-container');
-            const deck = user.deck || [3,null,null,null,null]; // fallback
-            
-            let memberCount = 0;
-            deck.forEach((pid, idx) => {
+            // Setup Deck
+            const deck = user.deck || [3];
+            const leaderId = deck[0] || 3;
+            flagShip = particles.find(p => p.id === leaderId) || particles[2];
+
+            // Setup UI
+            document.getElementById('flagship-img').src = flagShip.image;
+            document.getElementById('flagship-name').innerText = flagShip.name;
+            document.getElementById('skill-name').innerText = flagShip.skill;
+
+            // Calculate Stats (Based on Deck & Inv)
+            let deckPower = 0;
+            deck.forEach(pid => {
                 if(pid) {
-                    memberCount++;
-                    const p = particles.find(x => x.id === pid) || particles[2];
-                    const img = document.createElement('img');
-                    img.src = p.image;
-                    img.className = 'fleet-member';
-                    if(idx === 0) img.classList.add('flagship'); // 1番目は旗艦（大きい）
-                    
-                    // 攻撃力加算 (レア度 * 100)
-                    totalAtk += (p.rarity * 150);
-                    container.appendChild(img);
+                    const p = particles.find(x=>x.id==pid);
+                    deckPower += (p.rarity||1) * 200; // 仮計算
                 }
             });
-
-            // 検出器ボーナス
-            totalAtk += (user.invDet || []).length * 50;
+            deckPower += (user.invDet||[]).length * 100;
             
-            if(memberCount === 0) {
-                log("No fleet deployed! Default Proton launched.");
-                const img = document.createElement('img'); img.src="images/proton.png"; img.className='fleet-member flagship';
-                container.appendChild(img);
-                totalAtk = 100;
-            }
+            stats.atk = 100 + deckPower;
+            stats.maxHp = 1000 + (deckPower * 2);
+            stats.hp = stats.maxHp;
+            
+            enemy.maxHp = stats.atk * 8; // 敵の強さを調整
+            enemy.hp = enemy.maxHp;
+            enemy.atk = stats.maxHp / 10;
 
-            document.getElementById('total-atk').innerText = totalAtk;
-            log(`Fleet deployed. Total Power: ${totalAtk}`);
+            updateUI();
+            log(`Fleet Deployed. Flagship: ${flagShip.name}`);
+            log(`Total ATK: ${stats.atk} / HP: ${stats.maxHp}`);
         };
 
-        function log(msg) {
-            const div = document.getElementById('log');
-            div.innerHTML += `> ${msg}<br>`;
-            div.scrollTop = div.scrollHeight;
+        function updateUI() {
+            // Player
+            document.getElementById('p-hp-val').innerText = stats.hp;
+            document.getElementById('p-hp-bar').style.width = (stats.hp/stats.maxHp*100) + "%";
+            document.getElementById('p-ep-val').innerText = stats.ep;
+            document.getElementById('p-ep-bar').style.width = stats.ep + "%";
+            
+            // Enemy
+            document.getElementById('e-hp-val').innerText = enemy.hp;
+            document.getElementById('e-hp-bar').style.width = (enemy.hp/enemy.maxHp*100) + "%";
+
+            // Button State
+            document.getElementById('btn-skill').disabled = (stats.ep < 100 || !isPlayerTurn);
+            const btns = document.querySelectorAll('.cmd-btn');
+            btns.forEach(b => { if(b.id!=='btn-skill') b.disabled = !isPlayerTurn; });
         }
 
-        function attack() {
-            const btn = document.getElementById('btn-fire');
-            btn.disabled = true;
-            
-            // アニメーション
-            const fleet = document.querySelectorAll('.fleet-member');
-            fleet.forEach(img => {
-                img.style.transform = 'translateX(50px)';
-                setTimeout(()=>img.style.transform='translateX(0)', 200);
-            });
+        function log(msg) {
+            const l = document.getElementById('log');
+            l.innerHTML += `> ${msg}<br>`;
+            l.scrollTop = l.scrollHeight;
+        }
 
-            // ダメージ計算
-            const dmg = Math.floor(totalAtk * (0.9 + Math.random()*0.2));
-            enemyHp -= dmg;
-            if(enemyHp < 0) enemyHp = 0;
-            
-            const pct = (enemyHp / maxHp) * 100;
-            document.getElementById('hp-bar').style.width = pct + "%";
-            
-            log(`Volley fired! Target damage: ${dmg}`);
+        // === Battle Logic ===
 
-            if(enemyHp <= 0) {
-                log("Target Destroyed!");
-                document.getElementById('enemy').style.transform = 'scale(0)';
-                setTimeout(() => { alert("VICTORY! Material Gained."); location.href='index.html'; }, 1000);
-            } else {
-                setTimeout(() => btn.disabled = false, 800);
+        function playerAction(type) {
+            if(!isPlayerTurn) return;
+            isPlayerTurn = false;
+            updateUI();
+
+            if(type === 'beam') {
+                log(`${flagShip.name} fires main beam!`);
+                animPlayerAttack();
+                setTimeout(() => {
+                    dealDamageToEnemy(stats.atk);
+                    addEp(10);
+                    endTurn();
+                }, 500);
+            } 
+            else if(type === 'charge') {
+                log("Charging energy...");
+                addEp(40);
+                setTimeout(endTurn, 800);
+            }
+            else if(type === 'skill') {
+                useSkill();
             }
         }
+
+        function useSkill() {
+            stats.ep = 0;
+            updateUI();
+            
+            // Skill Cut-in
+            const overlay = document.getElementById('skill-overlay');
+            overlay.innerText = flagShip.skill + "!!";
+            overlay.classList.add('active');
+            
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                animPlayerAttack();
+                
+                // Skill Effects
+                let dmg = stats.atk * 2.5;
+                if(flagShip.type === 'ult') dmg = stats.atk * 4; // Ultra Rare
+                
+                log(`<span style="color:gold">SKILL ACTIVATED: ${flagShip.skill}</span>`);
+                
+                setTimeout(() => {
+                    dealDamageToEnemy(Math.floor(dmg), true);
+                    endTurn();
+                }, 600);
+            }, 1500);
+        }
+
+        function endTurn() {
+            if(enemy.hp <= 0) return; // Win check handled in damage
+            
+            log("Enemy Turn...");
+            setTimeout(enemyAction, 1000);
+        }
+
+        function enemyAction() {
+            // Enemy AI (Simple)
+            const action = Math.random();
+            const elm = document.getElementById('enemy-core');
+            
+            elm.style.transform = 'scale(1.2)'; // Telegrah
+            setTimeout(() => {
+                elm.style.transform = 'scale(1)';
+                
+                let dmg = enemy.atk * (0.8 + Math.random()*0.4);
+                if(action > 0.8) {
+                    dmg *= 1.5;
+                    log("<span style='color:red'>Enemy uses Charged Shot!</span>");
+                } else {
+                    log("Enemy attacks.");
+                }
+                
+                dealDamageToPlayer(Math.floor(dmg));
+                
+                if(stats.hp > 0) {
+                    isPlayerTurn = true;
+                    updateUI();
+                    log("Your Turn.");
+                }
+            }, 500);
+        }
+
+        // === Damage & Result ===
+
+        function dealDamageToEnemy(amount, isCrit) {
+            enemy.hp -= amount;
+            if(enemy.hp < 0) enemy.hp = 0;
+            showDamage(amount, 'enemy-core', isCrit);
+            updateUI();
+            
+            const elm = document.getElementById('enemy-core');
+            elm.classList.add('damage');
+            setTimeout(()=>elm.classList.remove('damage'), 300);
+
+            if(enemy.hp <= 0) {
+                log("<span style='color:gold'>TARGET DESTROYED!</span>");
+                setTimeout(winGame, 1000);
+            }
+        }
+
+        function dealDamageToPlayer(amount) {
+            stats.hp -= amount;
+            if(stats.hp < 0) stats.hp = 0;
+            showDamage(amount, 'flagship-img', false);
+            updateUI();
+
+            const elm = document.getElementById('flagship-img');
+            elm.classList.add('damage');
+            setTimeout(()=>elm.classList.remove('damage'), 300);
+
+            if(stats.hp <= 0) {
+                log("<span style='color:red'>SIGNAL LOST...</span>");
+                setTimeout(loseGame, 1000);
+            }
+        }
+
+        function addEp(amount) {
+            stats.ep += amount;
+            if(stats.ep > 100) stats.ep = 100;
+            updateUI();
+        }
+
+        // Animation Helpers
+        function animPlayerAttack() {
+            const img = document.getElementById('flagship-img');
+            img.classList.add('attack');
+            setTimeout(()=>img.classList.remove('attack'), 300);
+        }
+
+        function showDamage(val, targetId, isCrit) {
+            const target = document.getElementById(targetId);
+            const rect = target.getBoundingClientRect();
+            const el = document.createElement('div');
+            el.className = 'damage-pop';
+            el.innerText = val;
+            if(isCrit) { el.style.color = 'gold'; el.style.fontSize = '4rem'; }
+            
+            el.style.left = (rect.left + rect.width/2 - 20) + 'px';
+            el.style.top = (rect.top) + 'px';
+            document.body.appendChild(el);
+            setTimeout(()=>el.remove(), 800);
+        }
+
+        function winGame() {
+            // Reward
+            const loot = lootTable[Math.floor(Math.random()*lootTable.length)];
+            user.invMat[loot] = (user.invMat[loot]||0) + 1;
+            localStorage.setItem('hadron_v8', JSON.stringify(user));
+
+            document.getElementById('loot-display').innerText = `📦 ${matNames[loot]}`;
+            document.getElementById('result-modal').style.display = 'flex';
+        }
+
+        function loseGame() {
+            document.getElementById('res-title').innerText = "DEFEAT";
+            document.getElementById('res-title').style.color = "red";
+            document.getElementById('res-msg').innerText = "Repair required...";
+            document.getElementById('loot-display').style.display = "none";
+            document.getElementById('result-modal').style.display = 'flex';
+        }
+
     </script>
 </body>
 </html>
