@@ -3,441 +3,597 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>赤尾 亮伍 | Hadron Lab</title>
+    <title> Hadron Lab Ver 5.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== ハドこれ 4.1 Lab Home UI ===== */
+        /* ===== Hadron Lab 5.0 System UI ===== */
         :root {
             --hc-dark: #1a1c23;
-            --hc-panel: rgba(20, 25, 40, 0.85);
+            --hc-panel: rgba(20, 25, 40, 0.9);
             --hc-orange: #f39c12;
             --hc-red: #e74c3c;
             --hc-blue: #3498db;
             --hc-green: #2ecc71;
+            --hc-purple: #9b59b6;
             --hc-glow: #00f3ff;
-            --hc-ultra: #e74c3c;
+            --hc-ultra: #ff3333;
         }
 
-        body { margin: 0; background: #000; color: white; font-family: 'M PLUS Rounded 1c', sans-serif; overflow: hidden; }
+        body { margin: 0; background: #000; color: white; font-family: 'M PLUS Rounded 1c', sans-serif; overflow: hidden; user-select: none; }
 
-        /* 背景：研究室のイメージ（画像適用） */
+        /* 背景 */
         .lab-container {
-            width: 100vw; height: 100vh;
-            position: relative;
-            
-            /* ★★★ ここを修正しました ★★★ */
-            background-image: url('images/lab_bg.png');
-            background-size: cover;
-            background-position: center;
-            background-color: #0a0e14; /* 読み込み前の予備色 */
+            width: 100vw; height: 100vh; position: relative;
+            background-image: url('images/lab_bg.png'); 
+            background-size: cover; background-position: center; background-color: #0a0e14;
         }
 
-        /* 上部バー（資材） */
+        /* 上部バー（資源） */
         .top-bar {
-            position: absolute; top: 0; left: 0; width: 100%; height: 60px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-            display: flex; align-items: center; padding: 0 20px; box-sizing: border-box; z-index: 10;
+            position: absolute; top: 0; left: 0; width: 100%; height: 70px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
+            display: flex; align-items: center; padding: 0 20px; box-sizing: border-box; z-index: 10; gap: 15px;
         }
-        .resource-box {
+        .res-box {
             display: flex; align-items: center; background: rgba(0,0,0,0.6); 
-            border: 1px solid #444; border-radius: 30px; padding: 5px 20px; margin-right: 20px;
+            border: 1px solid #444; border-radius: 5px; padding: 5px 15px; min-width: 120px;
         }
-        .res-icon { width: 20px; height: 20px; background: var(--hc-green); border-radius: 50%; margin-right: 10px; box-shadow: 0 0 10px var(--hc-green);}
-        .res-val { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--hc-glow); }
+        .res-icon { font-size: 1.2rem; margin-right: 8px; }
+        .res-val { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: var(--hc-glow); }
+        .res-label { font-size: 0.7rem; color: #aaa; margin-bottom: 2px; }
 
         /* 左サイドメニュー */
         .menu-area {
-            position: absolute; left: 50px; top: 100px; bottom: 50px; width: 300px;
-            display: flex; flex-direction: column; justify-content: center; gap: 20px; z-index: 20;
+            position: absolute; left: 30px; top: 100px; bottom: 30px; width: 320px;
+            display: flex; flex-direction: column; gap: 15px; z-index: 20;
         }
 
         .menu-btn {
-            width: 250px; height: 60px; 
-            background: rgba(30, 40, 60, 0.9);
-            border: 2px solid var(--hc-blue); border-left: 10px solid var(--hc-blue);
-            border-radius: 5px; color: white; 
+            height: 65px; background: rgba(30, 40, 60, 0.95);
+            border-left: 5px solid #555; border-radius: 0 10px 10px 0;
             display: flex; align-items: center; padding-left: 20px;
-            font-family: 'Orbitron', sans-serif; font-size: 1.2rem; cursor: pointer;
-            transition: all 0.2s; position: relative; overflow: hidden;
+            font-family: 'Orbitron', sans-serif; font-size: 1.1rem; cursor: pointer;
+            transition: all 0.2s; color: #ddd; border-top: 1px solid #333; border-bottom: 1px solid #333;
         }
-        .menu-btn:hover { transform: translateX(10px); background: var(--hc-blue); text-shadow: 0 0 10px white; }
+        .menu-btn:hover { transform: translateX(10px); color: white; text-shadow: 0 0 10px white; }
+        
+        .btn-gacha { border-color: var(--hc-orange); }
+        .btn-craft { border-color: var(--hc-blue); }
+        .btn-exp { border-color: var(--hc-purple); }
+        .btn-list { border-color: var(--hc-green); }
 
-        /* 出撃ボタン（特大） */
+        /* 出撃ボタン */
         .btn-sortie {
-            width: 200px; height: 200px; border-radius: 50%;
-            background: radial-gradient(circle, #e74c3c, #c0392b);
-            border: 5px solid #ffcccc; box-shadow: 0 0 30px var(--hc-red);
+            width: 100%; height: 80px; margin-bottom: 20px;
+            background: linear-gradient(90deg, #c0392b, #8e44ad);
+            border: 2px solid #ff9999; border-radius: 10px;
             display: flex; justify-content: center; align-items: center; flex-direction: column;
-            position: absolute; left: -20px; top: -120px; /* メニューの上に配置 */
-            cursor: pointer; transition: transform 0.2s; z-index: 30;
+            cursor: pointer; transition: transform 0.2s; box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
         }
-        .btn-sortie:hover { transform: scale(1.05); box-shadow: 0 0 50px var(--hc-red); }
-        .sortie-text { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 0 #000; }
-        .sortie-sub { font-size: 0.8rem; }
+        .btn-sortie:hover { transform: scale(1.05); filter: brightness(1.2); }
 
         /* 右側：秘書粒子エリア */
         .secretary-area {
-            position: absolute; right: 0; bottom: 0; height: 90vh; width: 50vw;
-            pointer-events: none; /* クリックを透過（画像自体にイベントつけるため） */
-            display: flex; align-items: flex-end; justify-content: flex-end;
+            position: absolute; right: 0; bottom: 0; height: 90vh; width: 55vw;
+            pointer-events: none; display: flex; align-items: flex-end; justify-content: flex-end;
         }
         .secretary-img {
-            max-height: 100%; max-width: 100%; object-fit: contain;
-            filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
-            pointer-events: auto; cursor: help;
-            transition: transform 0.1s;
+            max-height: 95%; max-width: 95%; object-fit: contain;
+            filter: drop-shadow(0 0 30px rgba(0,0,0,0.8));
+            pointer-events: auto; cursor: help; transition: transform 0.1s;
         }
-        .secretary-img:active { transform: scale(0.98); }
-
-        /* 吹き出し */
+        
         .bubble {
-            position: absolute; right: 300px; top: 20%;
-            background: white; color: #333; padding: 20px; border-radius: 20px;
-            max-width: 300px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            display: none; animation: popIn 0.3s; z-index: 15;
-        }
-        .bubble::after {
-            content: ''; position: absolute; right: -10px; top: 50%;
-            border-width: 10px; border-style: solid;
-            border-color: transparent transparent transparent white;
+            position: absolute; right: 30%; top: 30%;
+            background: rgba(255,255,255,0.95); color: #333; padding: 20px; border-radius: 20px;
+            max-width: 300px; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            display: none; animation: popIn 0.3s; z-index: 15; font-size: 0.9rem;
         }
 
-        /* モーダル（ガチャ・改装などの画面） */
+        /* モーダル共通 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
             z-index: 100; display: none; justify-content: center; align-items: center;
         }
         .modal-window {
-            width: 800px; max-height: 80vh; background: #1a1c23;
-            border: 2px solid var(--hc-blue); border-radius: 10px;
-            padding: 20px; overflow-y: auto; position: relative;
-            box-shadow: 0 0 50px rgba(52, 152, 219, 0.3);
+            width: 900px; max-height: 85vh; background: #151515;
+            border: 1px solid #444; border-radius: 10px;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
-        .close-modal {
-            position: absolute; top: 10px; right: 20px; font-size: 2rem;
-            cursor: pointer; color: #aaa;
+        .modal-header {
+            padding: 15px 20px; background: #222; border-bottom: 1px solid #444;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .close-modal:hover { color: white; }
+        .modal-title { font-family: 'Orbitron'; font-size: 1.5rem; color: white; }
+        .close-btn { font-size: 2rem; cursor: pointer; color: #888; }
+        .modal-body { padding: 20px; overflow-y: auto; color: #ccc; }
 
-        /* コレクションリスト */
-        .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
-        .mini-card { background: #2a2d35; border: 1px solid #444; border-radius: 5px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; }
-        .mini-card.got { opacity: 1; border-color: var(--hc-orange); }
-        .mini-card:not(.got) { opacity: 0.3; filter: grayscale(100%); }
-        .mini-rarity-ultra { color: var(--hc-ultra); text-shadow: 0 0 5px red; font-weight: bold;}
+        /* 素材ガチャ画面 */
+        .gacha-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
+        .mat-item {
+            background: #252525; border: 1px solid #444; padding: 10px; border-radius: 5px;
+            text-align: center; display: flex; flex-direction: column; align-items: center;
+        }
+        .mat-icon { font-size: 2rem; margin-bottom: 5px; }
         
-        /* ガチャ演出用 */
-        .particle-card { width: 100%; max-width: 300px; background: white; border-radius: 10px; margin: 0 auto; overflow: hidden; display: none; color: #333; animation: popIn 0.5s; position: relative; }
-        /* レアリティエフェクト */
-        .rarity-ultra { 
-            border: 4px solid var(--hc-ultra); 
-            background: linear-gradient(135deg, #fff 0%, #ffcccc 40%, #fff 50%, #ffcccc 60%, #fff 100%);
-            background-size: 300% auto;
-            animation: popIn 0.5s, shimmer 3s linear infinite;
-            box-shadow: 0 0 30px var(--hc-ultra);
+        /* クラフト画面 */
+        .craft-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .craft-card {
+            background: #222; border: 1px solid #444; padding: 15px; border-radius: 5px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .rarity-holo { 
-            border: 4px solid #f1c40f; 
-            animation: popIn 0.5s, holoPulse 2s ease-in-out infinite; 
-            background: linear-gradient(135deg, #fff, #fffbe0); 
+        .craft-info h4 { margin: 0 0 5px 0; color: var(--hc-blue); }
+        .craft-cost { font-size: 0.8rem; color: #aaa; }
+        .btn-do-craft {
+            padding: 8px 15px; background: var(--hc-blue); border: none; color: white;
+            cursor: pointer; border-radius: 4px; font-weight: bold;
         }
+        .btn-do-craft:disabled { background: #444; cursor: not-allowed; }
+
+        /* 実験画面 */
+        .exp-setup { display: flex; justify-content: space-around; margin-bottom: 30px; }
+        .slot-box {
+            width: 40%; background: #222; border: 2px dashed #555; padding: 20px;
+            text-align: center; cursor: pointer; border-radius: 10px;
+        }
+        .slot-box.selected { border-style: solid; border-color: var(--hc-green); background: #1a2a1a; }
+        .exp-result { text-align: center; min-height: 200px; display: flex; justify-content: center; align-items: center; }
+
+        /* コレクション & 出撃編成 */
+        .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .p-card {
+            background: #2a2d35; border: 1px solid #555; border-radius: 5px; height: 110px;
+            position: relative; cursor: pointer; overflow: hidden; transition: 0.2s;
+        }
+        .p-card.selected { border-color: var(--hc-green); box-shadow: 0 0 15px var(--hc-green); }
+        .p-card img { width: 100%; height: 60px; object-fit: cover; opacity: 0.5; }
+        .p-card.owned img { opacity: 1; }
+        .p-lvl { position: absolute; bottom: 2px; right: 5px; font-size: 0.8rem; font-weight: bold; color: var(--hc-orange); }
+        .p-name { position: absolute; top: 2px; left: 5px; font-weight: bold; text-shadow: 0 1px 2px black; font-size: 0.9rem;}
 
         @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-        @keyframes holoPulse { 0% { box-shadow: 0 0 15px #f1c40f; } 50% { box-shadow: 0 0 40px #f1c40f; } 100% { box-shadow: 0 0 15px #f1c40f; } }
     </style>
 </head>
 <body>
     <div class="lab-container">
         <div class="top-bar">
-            <div style="font-family:'Orbitron'; font-weight:bold; margin-right:30px; color:#aaa;">LAB LEVEL <span style="color:white;">120</span></div>
-            <div class="resource-box">
-                <div class="res-icon" style="background:#f1c40f;"></div>
-                <div class="res-val" id="res-budget">0</div>
+            <div class="res-box">
+                <span class="res-icon">💰</span>
+                <div>
+                    <div class="res-label">BUDGET</div>
+                    <div class="res-val">¥<span id="disp-money">0</span></div>
+                </div>
             </div>
-            <div class="resource-box">
-                <div class="res-icon" style="background:#3498db;"></div>
-                <div class="res-val" id="acc-status">STABLE</div>
+            <div class="res-box" style="flex-grow:1; justify-content: flex-start;">
+                <span class="res-icon">📦</span>
+                <div id="disp-materials" style="font-size:0.8rem; display:flex; gap:15px; color:#ddd;">
+                    </div>
             </div>
         </div>
 
         <div class="menu-area">
-            <div style="position:relative; height:100px;">
-                <div class="btn-sortie" onclick="location.href='battle.html'">
-                    <div class="sortie-text">SORTIE</div>
-                    <div class="sortie-sub">出 撃</div>
-                </div>
+            <div class="btn-sortie" onclick="location.href='battle.html'">
+                <div style="font-family:'Orbitron'; font-size:1.8rem; font-weight:bold;">SORTIE</div>
+                <div style="font-size:0.8rem;">出撃 (BOSS BATTLE)</div>
             </div>
 
-            <div class="menu-btn" onclick="openModal('gacha-modal')" style="border-color:#f39c12;">
-                <span>⚡ ACCELERATOR (Gacha)</span>
+            <div class="menu-btn btn-gacha" onclick="openModal('modal-gacha')">
+                <span>🔩 MATERIAL GACHA</span>
             </div>
-            <div class="menu-btn" onclick="openModal('archive-modal')" style="border-color:#2ecc71;">
-                <span>📂 ARCHIVE (List)</span>
+            <div class="menu-btn btn-craft" onclick="openModal('modal-craft')">
+                <span>🛠 CRAFT DETECTOR</span>
             </div>
-            <div class="menu-btn" onclick="openModal('upgrade-modal')" style="border-color:#9b59b6;">
-                <span>🛠 UPGRADE (Lab)</span>
+            <div class="menu-btn btn-exp" onclick="openModal('modal-exp')">
+                <span>⚗️ EXPERIMENT</span>
+            </div>
+            <div class="menu-btn btn-list" onclick="openModal('modal-list')">
+                <span>📂 COLLECTION</span>
             </div>
             <div class="menu-btn" onclick="changeSecretary()" style="border-color:#e74c3c;">
                 <span>🔄 CHANGE SECRETARY</span>
             </div>
         </div>
 
-        <div class="bubble" id="secretary-bubble">ようこそ、実験室へ。</div>
+        <div class="bubble" id="secretary-bubble">研究費が足りません...</div>
         <div class="secretary-area">
             <img id="secretary-img" class="secretary-img" src="" onclick="talkSecretary()">
         </div>
     </div>
 
-    <div id="gacha-modal" class="modal-overlay">
+    <div id="modal-gacha" class="modal-overlay">
         <div class="modal-window">
-            <span class="close-modal" onclick="closeModal('gacha-modal')">×</span>
-            <h2 style="font-family:'Orbitron'; border-bottom:1px solid #444; margin-bottom:20px;">PARTICLE COLLIDER</h2>
-            
-            <div style="text-align:center;">
-                <p id="acc-level-display" style="color:var(--hc-orange); font-size:1.5rem; font-family:'Orbitron';">Current: 30 GeV</p>
-                <div style="display:flex; justify-content:center; gap:20px; margin:30px 0;">
-                    <button onclick="tryGacha(1)" style="padding:20px 50px; background:#e67e22; border:none; color:white; font-size:1.5rem; font-weight:bold; cursor:pointer; border-radius:10px;">
-                        BUILD (¥300)
-                    </button>
-                </div>
-                <div id="gacha-result-area" style="min-height:300px; display:flex; justify-content:center; align-items:center;">
-                     <div class="particle-card" id="single-result">
-                        <img id="card-img" src="" style="width:100%; height:200px; object-fit:cover;">
-                        <div style="padding:15px;">
-                            <h2 id="card-name" style="margin:0;">Name</h2>
-                            <div id="card-rarity" style="color:#888; font-size:0.8rem; margin-bottom:10px;">RARITY</div>
-                            <p id="card-desc" style="font-size:0.9rem; background:#f9f9f9; padding:10px; border-radius:5px;"></p>
-                        </div>
-                    </div>
-                    <p id="gacha-status" style="color:#aaa;">Ready to collision.</p>
-                </div>
+            <div class="modal-header">
+                <span class="modal-title">MATERIAL SUPPLY (GACHA)</span>
+                <span class="close-btn" onclick="closeModal('modal-gacha')">×</span>
+            </div>
+            <div class="modal-body" style="text-align:center;">
+                <p>予算を使って実験用素材を調達します。</p>
+                <button onclick="runMaterialGacha(10)" style="padding:15px 40px; background:var(--hc-orange); border:none; border-radius:5px; font-size:1.2rem; font-weight:bold; cursor:pointer;">
+                    ORDER 10 (¥3,000)
+                </button>
+                <div id="gacha-result" class="gacha-grid"></div>
             </div>
         </div>
     </div>
 
-    <div id="archive-modal" class="modal-overlay">
+    <div id="modal-craft" class="modal-overlay">
         <div class="modal-window">
-            <span class="close-modal" onclick="closeModal('archive-modal')">×</span>
-            <h2 style="font-family:'Orbitron';">ARCHIVE</h2>
-            <div class="collection-grid" id="collection-list"></div>
+            <div class="modal-header">
+                <span class="modal-title">EQUIPMENT CRAFTING</span>
+                <span class="close-btn" onclick="closeModal('modal-craft')">×</span>
+            </div>
+            <div class="modal-body">
+                <h3>ACCELERATORS</h3>
+                <div id="craft-list-acc" class="craft-list" style="margin-bottom:20px;"></div>
+                <h3>DETECTORS</h3>
+                <div id="craft-list-det" class="craft-list"></div>
+            </div>
         </div>
     </div>
 
-    <div id="upgrade-modal" class="modal-overlay">
+    <div id="modal-exp" class="modal-overlay">
         <div class="modal-window">
-            <span class="close-modal" onclick="closeModal('upgrade-modal')">×</span>
-            <h2 style="font-family:'Orbitron';">FACILITY UPGRADE</h2>
-            <div style="text-align:center; padding:30px;">
-                <p>加速器を強化して、より重い粒子を発見しましょう。</p>
-                <h3 id="upgrade-current" style="color:var(--hc-blue);">Current: 30 GeV</h3>
-                <button id="btn-upgrade-action" onclick="upgradeAccelerator()" style="margin-top:20px; padding:15px 40px; background:#9b59b6; color:white; border:none; border-radius:5px; font-size:1.2rem; cursor:pointer;">
-                    UPGRADE
-                </button>
+            <div class="modal-header">
+                <span class="modal-title">PHYSICS EXPERIMENT</span>
+                <span class="close-btn" onclick="closeModal('modal-exp')">×</span>
+            </div>
+            <div class="modal-body">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <p>加速器と検出器をセットして実験を行います。確率で粒子が生成されます。</p>
+                    <div style="color:var(--hc-red); font-weight:bold; font-size:1.2rem;">COST: ¥10,000</div>
+                </div>
+
+                <div class="exp-setup">
+                    <div id="slot-acc" class="slot-box" onclick="selectEquip('acc')">
+                        <div style="font-size:2rem;">⚡</div>
+                        <div id="sel-acc-name">Select Accelerator</div>
+                    </div>
+                    <div style="display:flex; align-items:center; font-size:2rem;">+</div>
+                    <div id="slot-det" class="slot-box" onclick="selectEquip('det')">
+                        <div style="font-size:2rem;">📡</div>
+                        <div id="sel-det-name">Select Detector</div>
+                    </div>
+                </div>
+
+                <div style="text-align:center;">
+                    <button id="btn-run-exp" onclick="runExperiment()" disabled style="padding:15px 50px; background:var(--hc-purple); border:none; border-radius:5px; font-size:1.5rem; font-weight:bold; color:white; cursor:pointer; opacity:0.5;">
+                        START EXPERIMENT
+                    </button>
+                </div>
+
+                <div id="exp-result" class="exp-result">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-list" class="modal-overlay">
+        <div class="modal-window">
+            <div class="modal-header">
+                <span class="modal-title">PARTICLE ARCHIVE</span>
+                <span class="close-btn" onclick="closeModal('modal-list')">×</span>
+            </div>
+            <div class="modal-body">
+                <div id="collection-view" class="particle-list"></div>
             </div>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // ★データ定義 (Ver 4.1)
+        // === データ定義 ===
+
+        // 粒子データ
         const particleDB = [
-            { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子です。基本ですね。" },
-            { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子です。" },
-            { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。" },
-            { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。" },
-            { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。" },
-            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", rarity: "rare", image: "images/sigma.png", desc: "シグマ粒子。" },
-            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", rarity: "holo", image: "images/xi.png", desc: "グザイ粒子。" },
-            { id: 8, name: "H-Dibaryon", symbol: "H", rarity: "holo", image: "images/h_dibaryon.png", desc: "Hダイバリオン。" },
-            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。" },
-            { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。" },
-            { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。" },
-            { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。" },
-            { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。" },
-            { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。" }
+            { id: 1, name: "Proton", symbol: "p", rarity: 1, image: "images/proton.png", desc: "物質の基礎。" },
+            { id: 2, name: "Neutron", symbol: "n", rarity: 1, image: "images/neutron.png", desc: "中性子。" },
+            { id: 3, name: "Pion", symbol: "π", rarity: 1, image: "images/pion.png", desc: "湯川粒子。" },
+            { id: 4, name: "Kaon", symbol: "K", rarity: 2, image: "images/kaon.png", desc: "ストレンジ。" },
+            { id: 5, name: "Lambda", symbol: "Λ", rarity: 2, image: "images/lambda.png", desc: "ハイパー核の主役。" },
+            { id: 6, name: "Sigma", symbol: "Σ", rarity: 2, image: "images/sigma.png", desc: "シグマ。" },
+            { id: 7, name: "Xi", symbol: "Ξ", rarity: 3, image: "images/xi.png", desc: "ストレンジ-2。" },
+            { id: 8, name: "Omega", symbol: "Ω", rarity: 3, image: "images/omega.png", desc: "王者の風格。" },
+            { id: 9, name: "J/psi", symbol: "J/ψ", rarity: 4, image: "images/j-psi.png", desc: "チャーム。" },
+            { id: 10, name: "Higgs", symbol: "H", rarity: 5, image: "images/higgs.png", desc: "神の粒子。" }
         ];
 
-        const accelerators = {
-            1: { name: "30 GeV Synchrotron", nextCost: 3000 },
-            2: { name: "J-PARC (50 GeV)", nextCost: 10000 },
-            3: { name: "LHC (14 TeV)", nextCost: 0 }
+        // 素材データ
+        const materialDB = {
+            m1: { name: "Alumium", icon: "🔩", rarity: 1 },
+            m2: { name: "Cable", icon: "➰", rarity: 1 },
+            m3: { name: "Scintillator", icon: "✨", rarity: 2 },
+            m4: { name: "PMT", icon: "💡", rarity: 2 },
+            m5: { name: "FPGA", icon: "💾", rarity: 3 },
+            m6: { name: "SuperCon", icon: "❄️", rarity: 4 }
         };
 
-        // 状態変数
-        let collection = new Set();
-        let budget = 1000;
-        let accLevel = 1;
-        let secretaryId = 1; // 秘書粒子のID
+        // 装置データ (レシピと性能)
+        const equipmentDB = [
+            // 加速器 (Power: レア粒子出現率補正)
+            { id: "acc1", type: "acc", name: "Synchrotron (Low)", power: 10, req: { m1: 5, m2: 5 } },
+            { id: "acc2", type: "acc", name: "Cyclotron (Mid)", power: 30, req: { m1: 10, m2: 10, m6: 2 } },
+            { id: "acc3", type: "acc", name: "LHC (High)", power: 80, req: { m1: 20, m6: 10, m5: 5 } },
+            // 検出器 (Sens: 成功率補正)
+            { id: "det1", type: "det", name: "Scintillator Counter", sens: 20, req: { m3: 5, m4: 2 } },
+            { id: "det2", type: "det", name: "Drift Chamber", sens: 50, req: { m2: 10, m5: 5 } },
+            { id: "det3", type: "det", name: "Hyper Detector", sens: 90, req: { m3: 20, m4: 10, m5: 10 } }
+        ];
 
-        // 初期化
+        // ユーザーデータ初期値
+        let userData = {
+            money: 50000,
+            materials: { m1:0, m2:0, m3:0, m4:0, m5:0, m6:0 },
+            equipments: [], // 所持している装置IDリスト
+            particles: {}, // { id: { level: 1, count: 1 } }
+            secretary: 1
+        };
+
+        // 一時状態
+        let selectedAcc = null;
+        let selectedDet = null;
+
+        // === ゲームロジック ===
+
         window.onload = function() {
             loadGame();
             updateUI();
             setSecretaryDisplay();
         };
 
-        // UI更新
         function updateUI() {
-            document.getElementById('res-budget').innerText = budget;
-            const acc = accelerators[accLevel] || accelerators[1];
-            document.getElementById('acc-status').innerText = (accLevel === 3) ? "LHC ONLINE" : "STABLE";
-            document.getElementById('acc-level-display').innerText = acc.name;
+            document.getElementById('disp-money').innerText = userData.money.toLocaleString();
             
-            // アップグレードボタン
-            const btn = document.getElementById('btn-upgrade-action');
-            if (accLevel >= 3) {
-                btn.disabled = true;
-                btn.innerText = "MAX LEVEL";
-            } else {
-                btn.innerHTML = `UPGRADE (¥${acc.nextCost})`;
-                btn.disabled = (budget < acc.nextCost);
+            // 素材表示
+            const matArea = document.getElementById('disp-materials');
+            matArea.innerHTML = "";
+            for(let key in materialDB) {
+                if(userData.materials[key] > 0) {
+                    matArea.innerHTML += `<div>${materialDB[key].icon} ${userData.materials[key]}</div>`;
+                }
             }
-            
+
+            renderCraftList();
             renderCollection();
         }
 
-        // 秘書艦（秘書粒子）の設定
-        function setSecretaryDisplay() {
-            // もし所持していなければプロトンにする
-            if(!collection.has(secretaryId)) secretaryId = 1;
+        // 1. 素材ガチャ
+        function runMaterialGacha(count) {
+            const cost = 3000;
+            if(userData.money < cost) { alert("予算不足！"); return; }
+            userData.money -= cost;
 
-            const p = particleDB.find(x => x.id === secretaryId) || particleDB[0];
-            document.getElementById('secretary-img').src = p.image;
+            const resDiv = document.getElementById('gacha-result');
+            resDiv.innerHTML = "";
+            const matKeys = Object.keys(materialDB);
+
+            for(let i=0; i<count; i++) {
+                // 確率: 低レアが出やすい
+                const r = Math.random();
+                let pick = matKeys[0];
+                if(r > 0.95) pick = "m6"; // 超電導
+                else if(r > 0.85) pick = "m5";
+                else if(r > 0.70) pick = "m4";
+                else if(r > 0.55) pick = "m3";
+                else if(r > 0.30) pick = "m2";
+                else pick = "m1";
+
+                userData.materials[pick]++;
+                
+                // 表示
+                const m = materialDB[pick];
+                resDiv.innerHTML += `
+                    <div class="mat-item" style="border-color:${getColor(m.rarity)}">
+                        <div class="mat-icon">${m.icon}</div>
+                        <div style="font-size:0.8rem;">${m.name}</div>
+                    </div>
+                `;
+            }
+            saveGame();
+            updateUI();
         }
 
-        // 秘書変更（ランダムに所持粒子から選ぶ）
-        function changeSecretary() {
-            const myIds = Array.from(collection);
-            if(myIds.length > 0) {
-                secretaryId = myIds[Math.floor(Math.random() * myIds.length)];
-                setSecretaryDisplay();
-                talkSecretary("Particle Changed.");
+        // 2. クラフト
+        function renderCraftList() {
+            const listAcc = document.getElementById('craft-list-acc');
+            const listDet = document.getElementById('craft-list-det');
+            listAcc.innerHTML = ""; listDet.innerHTML = "";
+
+            equipmentDB.forEach(eq => {
+                const isOwned = userData.equipments.includes(eq.id);
+                // コスト文字列作成
+                let reqStr = "";
+                let canCraft = true;
+                for(let mKey in eq.req) {
+                    const need = eq.req[mKey];
+                    const have = userData.materials[mKey];
+                    if(have < need) canCraft = false;
+                    reqStr += `${materialDB[mKey].icon}${need} `;
+                }
+
+                const html = `
+                    <div class="craft-card">
+                        <div class="craft-info">
+                            <h4>${eq.name}</h4>
+                            <div class="craft-cost">${reqStr}</div>
+                        </div>
+                        <button class="btn-do-craft" onclick="craftItem('${eq.id}')" 
+                            ${(canCraft && !isOwned) ? "" : "disabled"}>
+                            ${isOwned ? "OWNED" : "CRAFT"}
+                        </button>
+                    </div>
+                `;
+                if(eq.type === 'acc') listAcc.innerHTML += html;
+                else listDet.innerHTML += html;
+            });
+        }
+
+        function craftItem(eqId) {
+            const eq = equipmentDB.find(e => e.id === eqId);
+            // 素材消費
+            for(let mKey in eq.req) {
+                userData.materials[mKey] -= eq.req[mKey];
+            }
+            userData.equipments.push(eqId);
+            alert(`${eq.name} の開発に成功しました！`);
+            saveGame();
+            updateUI();
+        }
+
+        // 3. 実験
+        function selectEquip(type) {
+            // 所持している該当タイプの装備リストを表示して選ばせる（簡易実装）
+            const owned = equipmentDB.filter(e => e.type === type && userData.equipments.includes(e.id));
+            if(owned.length === 0) { alert("装置を持っていません。CRAFTで作ってください。"); return; }
+            
+            // 簡易的に名前リストを出してプロンプトで選ばせる（本来は専用UI推奨）
+            let msg = "IDを入力してください:\n";
+            owned.forEach((e, idx) => msg += `${idx}: ${e.name}\n`);
+            const input = prompt(msg, "0");
+            if(input !== null && owned[input]) {
+                if(type === 'acc') {
+                    selectedAcc = owned[input];
+                    document.getElementById('sel-acc-name').innerText = selectedAcc.name;
+                    document.getElementById('slot-acc').classList.add('selected');
+                } else {
+                    selectedDet = owned[input];
+                    document.getElementById('sel-det-name').innerText = selectedDet.name;
+                    document.getElementById('slot-det').classList.add('selected');
+                }
+            }
+            
+            // 両方揃ったらボタン有効化
+            const btn = document.getElementById('btn-run-exp');
+            if(selectedAcc && selectedDet) {
+                btn.disabled = false;
+                btn.style.opacity = 1;
             }
         }
 
-        // 秘書トーク
-        function talkSecretary(msg) {
-            const bubble = document.getElementById('secretary-bubble');
-            const p = particleDB.find(x => x.id === secretaryId);
-            
-            bubble.innerText = msg || p.desc;
-            bubble.style.display = 'block';
-            setTimeout(() => { bubble.style.display = 'none'; }, 3000);
-        }
+        function runExperiment() {
+            const cost = 10000;
+            if(userData.money < cost) { alert("実験予算(¥10,000)が足りません！"); return; }
+            userData.money -= cost;
 
-        // モーダル操作
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        // ガチャロジック
-        function tryGacha(times) {
-            const cost = 300;
-            if(budget < cost) { alert("予算不足です！"); return; }
-            budget -= cost;
-            updateUI();
-            
-            document.getElementById('gacha-status').innerText = "COLLISION DETECTED...";
-            document.getElementById('single-result').style.display = 'none';
+            const resArea = document.getElementById('exp-result');
+            resArea.innerHTML = "<h3>EXPERIMENTING...</h3>";
 
             setTimeout(() => {
-                const result = getGachaResult();
-                collection.add(result.id);
+                // パラメータ計算
+                // Power: レア度抽選値に加算
+                // Sens: 成功率（ゴミにならない確率）
+                const power = selectedAcc.power; 
+                const sens = selectedDet.sens;
+
+                // 成功判定
+                if(Math.random() * 100 > sens + 10) {
+                    resArea.innerHTML = "<h2 style='color:gray;'>FAILURE...</h2><p>ノイズしか観測されませんでした。</p>";
+                    saveGame();
+                    updateUI();
+                    return;
+                }
+
+                // 粒子抽選
+                let rand = Math.random() * 100;
+                // Powerが高いほどrandを減らす（高レアが出やすくする）
+                rand -= power;
+
+                let rarity = 1;
+                if(rand < 0) rarity = 5; // Higgs
+                else if(rand < 20) rarity = 4;
+                else if(rand < 50) rarity = 3;
+                else if(rand < 80) rarity = 2;
+                else rarity = 1;
+
+                const candidates = particleDB.filter(p => p.rarity === rarity);
+                const p = candidates[Math.floor(Math.random() * candidates.length)];
+
+                // 獲得処理
+                if(!userData.particles[p.id]) {
+                    userData.particles[p.id] = { level: 1, count: 0 };
+                }
+                userData.particles[p.id].count++;
+
+                resArea.innerHTML = `
+                    <div style="animation:popIn 0.5s;">
+                        <h2 style="color:${getColor(p.rarity)}">DISCOVERY!</h2>
+                        <img src="${p.image}" style="width:150px;">
+                        <h3>${p.name}</h3>
+                        <p>${p.desc}</p>
+                    </div>
+                `;
                 saveGame();
                 updateUI();
-                showGachaResult(result);
-            }, 800);
+            }, 1000);
         }
 
-        function getGachaResult() {
-            const rand = Math.random();
-            let rarity = 'common';
-            if (accLevel === 1) { 
-                if (rand > 0.85) rarity = 'rare';
-            } else if (accLevel === 2) {
-                if (rand > 0.95) rarity = 'holo'; else if (rand > 0.75) rarity = 'rare';
-            } else {
-                if (rand > 0.97) rarity = 'ultra'; else if (rand > 0.85) rarity = 'holo'; else if (rand > 0.60) rarity = 'rare';
-            }
-            let candidates = particleDB.filter(p => p.rarity === rarity);
-            if(candidates.length === 0) candidates = particleDB.filter(p => p.rarity === 'common');
-            return candidates[Math.floor(Math.random() * candidates.length)];
-        }
-
-        function showGachaResult(p) {
-            const card = document.getElementById('single-result');
-            card.className = "particle-card"; 
-            if(p.rarity === 'ultra') card.classList.add('rarity-ultra');
-            else if(p.rarity === 'holo') card.classList.add('rarity-holo');
-            
-            document.getElementById('card-img').src = p.image;
-            document.getElementById('card-name').innerText = p.name;
-            document.getElementById('card-rarity').innerText = p.rarity.toUpperCase();
-            document.getElementById('card-desc').innerText = p.desc;
-            
-            document.getElementById('gacha-status').innerText = "";
-            card.style.display = 'block';
-        }
-
-        // アップグレード
-        function upgradeAccelerator() {
-            const acc = accelerators[accLevel];
-            if (budget >= acc.nextCost && accLevel < 3) {
-                budget -= acc.nextCost;
-                accLevel++;
-                saveGame();
-                updateUI();
-                alert(`加速器が ${accelerators[accLevel].name} にアップグレードされました！`);
-            }
-        }
-
-        // データ保存・読込
-        function saveGame() {
-            localStorage.setItem('hadron_collection', JSON.stringify([...collection]));
-            localStorage.setItem('hadron_budget', budget);
-            localStorage.setItem('hadron_level', accLevel);
-        }
-        function loadGame() {
-            const savedCol = localStorage.getItem('hadron_collection');
-            if(savedCol) JSON.parse(savedCol).forEach(id => collection.add(id));
-            collection.add(1); // 最低限プロトンは持たせる
-            
-            const savedBudget = localStorage.getItem('hadron_budget');
-            if(savedBudget) budget = parseInt(savedBudget);
-            
-            const savedLvl = localStorage.getItem('hadron_level');
-            if(savedLvl) accLevel = parseInt(savedLvl);
+        // 共通
+        function getColor(rarity) {
+            if(rarity==5) return "#ff3333";
+            if(rarity==4) return "#f1c40f";
+            if(rarity==3) return "#9b59b6";
+            if(rarity==2) return "#3498db";
+            return "#ccc";
         }
 
         function renderCollection() {
-            const list = document.getElementById('collection-list');
-            list.innerHTML = '';
+            const list = document.getElementById('collection-view');
+            list.innerHTML = "";
             particleDB.forEach(p => {
-                const div = document.createElement('div');
-                const isGot = collection.has(p.id);
-                div.className = `mini-card ${isGot ? 'got' : ''}`;
-                let star = "";
-                if(p.rarity==='holo') star = "★";
-                if(p.rarity==='ultra') star = '<span class="mini-rarity-ultra">UR</span>';
-
-                div.innerHTML = `
-                    <div style="font-weight:bold; color:white; font-size:1.2rem;">${isGot ? p.symbol : '?'}</div>
-                    <div style="position:absolute; top:2px; left:2px; font-size:0.7rem; color:#ffd700;">${star}</div>
+                const data = userData.particles[p.id];
+                const isOwned = !!data;
+                list.innerHTML += `
+                    <div class="p-card ${isOwned?'owned':''}" onclick="setSecretary(${p.id})">
+                        <img src="${p.image}">
+                        <div class="p-name" style="color:${getColor(p.rarity)}">${p.symbol}</div>
+                        ${isOwned ? `<div class="p-lvl">Lv.${data.level}</div>` : ''}
+                    </div>
                 `;
-                // クリックで秘書艦にする
-                if(isGot) {
-                    div.onclick = () => {
-                        secretaryId = p.id;
-                        setSecretaryDisplay();
-                        closeModal('archive-modal');
-                        talkSecretary("Secretary assigned.");
-                    };
-                }
-                list.appendChild(div);
             });
         }
+
+        // 秘書・セーブ・ロード
+        function setSecretary(id) {
+            if(!userData.particles[id]) return;
+            userData.secretary = id;
+            setSecretaryDisplay();
+            talkSecretary("Secretary changed.");
+            saveGame();
+        }
+
+        function setSecretaryDisplay() {
+            const id = userData.secretary;
+            const p = particleDB.find(x => x.id === id) || particleDB[0];
+            document.getElementById('secretary-img').src = p.image;
+        }
+        function talkSecretary(msg) {
+            const bub = document.getElementById('secretary-bubble');
+            bub.innerText = msg || "実験、お疲れ様です。";
+            bub.style.display = 'block';
+            setTimeout(()=>bub.style.display='none', 3000);
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        // 秘書変更ボタン用
+        function changeSecretary() {
+            const keys = Object.keys(userData.particles);
+            if(keys.length === 0) return;
+            const rndId = keys[Math.floor(Math.random()*keys.length)];
+            setSecretary(parseInt(rndId));
+        }
+
+        function saveGame() { localStorage.setItem('hadron_lab_v5', JSON.stringify(userData)); }
+        function loadGame() {
+            const d = localStorage.getItem('hadron_lab_v5');
+            if(d) userData = JSON.parse(d);
+            // 初期装備・資金がない場合の救済
+            if(userData.money < 3000 && Object.keys(userData.particles).length===0) userData.money = 100000; 
+        }
+
     </script>
 </body>
 </html>
