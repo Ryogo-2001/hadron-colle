@@ -1,4 +1,4 @@
-/* ===== Hadron Lab Style Ver 22.4 (Complete) ===== */
+/* ===== Hadron Lab Style Ver 22.10 (Card Fix) ===== */
 :root {
     --hc-bg: #0a0e14;
     --hc-panel: #151922;
@@ -86,7 +86,7 @@ body {
 .btn-craft { width: 100px; height: 100px; background: #7f8c8d; color: white; top: 15%; right: 15%; font-size: 0.9rem; }
 .btn-lab { width: 100px; height: 100px; background: #1abc9c; color: white; top: 5%; left: 50%; transform: translateX(-50%); font-size: 0.8rem; z-index: 20; }
 
-/* デッキ表示エリア */
+/* デッキ表示エリア (ホーム画面の立ち絵) */
 .deck-display-area {
     position: absolute; right: 20px; bottom: 20px; height: 60vh; width: 60vw; pointer-events: none; 
     display: flex; justify-content: flex-end; align-items: flex-end; z-index: 10;
@@ -98,18 +98,109 @@ body {
 }
 .deck-member.flagship { width: 260px; z-index: 20; border: 2px solid var(--hc-orange); }
 
-/* 編成・カードスロット */
-.deck-slots { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 30px; }
-.slot-card {
-    width: 18%; background: #222; border: 2px dashed #555; height: 250px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    cursor: pointer; border-radius: 10px; position: relative; overflow: hidden;
+/* =================================================================
+   ★ここを大幅修正: 編成・カードスロット (縦長カードデザイン)
+   ================================================================= */
+.deck-slots { 
+    display: flex; 
+    justify-content: center; /* 中央寄せ */
+    gap: 15px; /* カード間の隙間 */
+    margin-bottom: 30px; 
+    flex-wrap: wrap; /* 画面幅が狭いときは折り返す */
 }
-.slot-label { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); text-align: center; padding: 5px 0; font-weight: bold; color: var(--hc-orange); pointer-events: none; }
-.slot-remove { position: absolute; top: 5px; right: 5px; background: red; width: 25px; height: 25px; border-radius: 50%; text-align: center; line-height: 25px; font-weight:bold; cursor: pointer; z-index: 10; border:2px solid white; }
-.slot-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.2s; }
 
-/* アイテムカード */
+/* カード本体 */
+.slot-card {
+    width: 160px;  /* ★固定幅 */
+    height: 240px; /* ★固定高さ（縦長） */
+    background: #151922;
+    border: 3px solid #444; /* デフォルトの枠線 */
+    border-radius: 10px;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    cursor: pointer; 
+    position: relative; 
+    overflow: hidden;
+    transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+/* ホバー時の動き */
+.slot-card:hover { 
+    transform: translateY(-5px); 
+    z-index: 10; 
+}
+
+/* ★レアリティ別の枠色と発光 */
+.slot-card.card-common { border-color: #666; }
+.slot-card.card-rare { 
+    border-color: #3498db; 
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.4); 
+}
+.slot-card.card-holo { 
+    border-color: #f1c40f; 
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.5); 
+}
+.slot-card.card-ultra { 
+    border-color: #e74c3c; 
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.6); 
+}
+.slot-card.card-genesis { 
+    border-color: #fff; 
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); 
+    animation: border-rainbow 3s linear infinite; 
+}
+
+/* カード内の画像 */
+.slot-card img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; /* ★枠いっぱいにトリミングして表示 */
+    opacity: 0.9; 
+    transition: 0.2s; 
+}
+.slot-card img:hover { 
+    opacity: 1; 
+    transform: scale(1.1); 
+}
+
+/* カード下部の名前ラベル */
+.slot-label { 
+    position: absolute; 
+    bottom: 0; 
+    width: 100%; 
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0)); 
+    text-align: center; 
+    padding: 10px 0 5px 0; 
+    font-weight: bold; 
+    color: var(--hc-orange); 
+    pointer-events: none; 
+    text-shadow: 0 2px 2px #000;
+}
+
+/* 削除ボタン */
+.slot-remove { 
+    position: absolute; 
+    top: 5px; 
+    right: 5px; 
+    background: #e74c3c; 
+    width: 24px; 
+    height: 24px; 
+    border-radius: 50%; 
+    text-align: center; 
+    line-height: 22px; 
+    font-weight: bold; 
+    color: white; 
+    cursor: pointer; 
+    z-index: 20; 
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+.slot-remove:hover { transform: scale(1.1); background: red; }
+
+/* アイテムカード (ショップなど) */
 .shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
 .item-card { 
     background: var(--hc-panel); border: 2px solid #444; padding: 10px; 
@@ -118,7 +209,7 @@ body {
 }
 .item-card:hover { transform: translateY(-3px); }
 
-/* レアリティスタイル */
+/* アイテムカード側のレアリティスタイル */
 .card-common { border-color: #666; }
 .card-rare { border-color: #3498db; box-shadow: 0 0 5px rgba(52, 152, 219, 0.2); }
 .card-holo { border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); background: linear-gradient(135deg, #1a1a1a, #2a2200); }
@@ -255,8 +346,6 @@ body {
 @keyframes popUp { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-50px);opacity:0} }
 @keyframes cutIn { 0%{transform:translateX(-100%)} 20%{transform:translateX(0)} 80%{transform:translateX(0)} 100%{transform:translateX(100%)} }
 
-/* ★★★ ここから下を style.css の一番下に貼り付けてください ★★★ */
-
 /* モーダル（ポップアップ画面の背景） */
 .modal-overlay {
     position: fixed;
@@ -264,30 +353,29 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* 背景を暗くする */
-    z-index: 2000; /* 最前面に表示 */
-    display: none; /* JSで制御するため初期は非表示 */
-    justify-content: center; /* 横方向中央揃え */
-    align-items: center; /* 縦方向中央揃え */
-    backdrop-filter: blur(5px); /* 背景をぼかす */
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
 }
 
-/* モーダルの中身（白い枠の部分） */
+/* モーダルの中身 */
 .modal-content {
     background: #111;
     padding: 40px;
     width: 80%;
     max-width: 600px;
     border-radius: 15px;
-    border: 2px solid var(--hc-blue); /* 青い枠線 */
+    border: 2px solid var(--hc-blue);
     text-align: center;
     box-shadow: 0 0 30px rgba(52, 152, 219, 0.3);
     color: white;
     font-family: 'Orbitron', sans-serif;
-    animation: popUp 0.5s ease-out; /* ふわっと出るアニメーション */
+    animation: popUp 0.5s ease-out;
 }
 
-/* 獲得アイテムの表示エリア */
 #loot-display {
     font-size: 1.2rem;
     margin: 20px 0;
