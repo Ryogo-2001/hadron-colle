@@ -4,44 +4,7 @@
     <meta charset="UTF-8">
     <title>Tactical Battle | Hadron Lab</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
-    <style>
-        /* (Style部分はVer 17.0/18.0と同じため省略なし) */
-        body { margin: 0; background: #050505; color: white; font-family: 'M PLUS Rounded 1c'; overflow: hidden; background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%); }
-        .header { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.8); border-bottom: 2px solid #444; z-index: 100; position: relative; }
-        .btn-back { padding: 10px 20px; background: transparent; border: 2px solid #555; color: white; cursor: pointer; font-family: 'Orbitron'; }
-        .battle-field { height: 55vh; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-        .player-side { width: 50%; height: 100%; position: relative; display: flex; align-items: center; }
-        .fleet-container { position: relative; width: 100%; height: 300px; }
-        .fleet-member { position: absolute; height: 200px; width: auto; object-fit: contain; filter: drop-shadow(0 0 10px rgba(0,243,255,0.3)); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .fleet-member.flagship { height: 280px; z-index: 50 !important; filter: drop-shadow(0 0 20px rgba(255,215,0,0.6)); }
-        .fleet-member.attack { transform: translateX(100px) !important; filter: brightness(1.5); }
-        .fleet-member.damage { animation: shake 0.4s; filter: sepia(1) hue-rotate(-50deg) saturate(3); }
-        .fleet-stats-box { position: absolute; top: -40px; left: 20px; width: 300px; background: rgba(0,0,0,0.7); border: 1px solid #3498db; padding: 10px; border-radius: 5px; z-index: 100; }
-        .bar-container { width: 100%; height: 8px; background: #333; margin: 3px 0; border-radius: 4px; overflow: hidden; }
-        .hp-bar { height: 100%; background: #2ecc71; width: 100%; transition: 0.3s; }
-        .ep-bar { height: 100%; background: #f1c40f; width: 0%; transition: 0.3s; }
-        .buff-list { font-size: 0.7rem; color: #aaa; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .buff-tag { background: rgba(52, 152, 219, 0.3); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(52, 152, 219, 0.5); color: #81ecec; }
-        .enemy-side { width: 40%; text-align: center; }
-        .enemy-core { width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, #e74c3c, #8e44ad); box-shadow: 0 0 60px #c0392b; border: 6px solid #fff; margin: 0 auto; display: flex; justify-content: center; align-items: center; font-size: 3rem; font-weight: bold; text-shadow: 2px 2px 0 #000; animation: pulse 3s infinite; position: relative; }
-        .enemy-core.damage { animation: shake 0.3s; background: white; }
-        .command-panel { position: absolute; bottom: 0; width: 100%; height: 30vh; background: rgba(16, 20, 30, 0.95); border-top: 2px solid #3498db; display: flex; align-items: center; padding: 0 40px; gap: 20px; box-sizing: border-box; }
-        .log-window { flex: 1.5; height: 80%; background: #000; border: 1px solid #444; padding: 10px; overflow-y: auto; font-family: monospace; color: #aaa; font-size: 0.9rem; line-height: 1.6; }
-        .command-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .cmd-btn { padding: 15px; font-family: 'Orbitron'; font-size: 1.1rem; cursor: pointer; background: linear-gradient(135deg, #2c3e50, #000); border: 1px solid #555; color: white; border-radius: 5px; transition: 0.2s; position: relative; }
-        .cmd-btn:hover { border-color: var(--color); box-shadow: 0 0 15px var(--color); transform: translateY(-2px); }
-        .cmd-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
-        .skill-cutin { position: fixed; top: 30%; left: 0; width: 100%; background: rgba(52, 152, 219, 0.9); color: white; font-size: 3rem; font-family: 'Orbitron'; font-weight: bold; font-style: italic; text-align: center; padding: 20px 0; transform: translateX(-100%); z-index: 200; display: none; }
-        .skill-cutin.active { display: block; animation: cutIn 1.5s ease-in-out; }
-        .damage-pop, .heal-pop { position: absolute; font-family: 'Orbitron'; font-weight: bold; font-size: 3rem; text-shadow: 0 0 5px #000; pointer-events: none; z-index: 100; animation: popUp 0.8s forwards; }
-        .damage-pop { color: #fff; text-shadow: 0 0 10px #e74c3c; }
-        .heal-pop { color: #2ecc71; text-shadow: 0 0 10px #27ae60; font-size: 2.5rem; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; flex-direction: column; z-index: 999; }
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
-        @keyframes shake { 0%{transform:translate(0,0)} 25%{transform:translate(-5px,5px)} 50%{transform:translate(5px,-5px)} 75%{transform:translate(-5px,-5px)} 100%{transform:translate(0,0)} }
-        @keyframes popUp { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-50px);opacity:0} }
-        @keyframes cutIn { 0%{transform:translateX(-100%)} 20%{transform:translateX(0)} 80%{transform:translateX(0)} 100%{transform:translateX(100%)} }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -94,7 +57,7 @@
     </div>
 
     <script>
-        // === ミッション定義 ===
+        // === Mission Data (Same as index.html) ===
         const missionData = {
             'm1': { name: "Basic Training", enemy: "Nucleus", symbol:"N", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 2000, matChance: 0.3 } },
             'm2': { name: "Gold Rush", enemy: "Gold Chunk", symbol:"Au", hpMult: 2, atkMult: 0.5, color: "#f1c40f", drops: { money: 10000, matChance: 0 } },
@@ -133,12 +96,8 @@
             }
         ];
 
-        // 新しい素材リストに対応
         const lootTable = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
-        const matNames = { 
-            m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC",
-            m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium"
-        };
+        const matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC", m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium" };
 
         let user = {};
         let deckMembers = [];
@@ -185,6 +144,7 @@
             flagShip = deckMembers[0]; 
             document.getElementById('skill-name').innerText = flagShip.skill;
 
+            // ★Stats Calc with Fame Bonus Logic
             deckMembers.forEach((member, i) => {
                 const img = document.createElement('img');
                 img.src = member.image;
@@ -202,13 +162,30 @@
                 if(member.rarity=="ultra") rVal=8;
                 if(member.rarity=="genesis") rVal=20; 
 
-                stats.maxHp += 500 + rVal * 200;
-                stats.atk += 100 + rVal * 150;
+                let baseHp = 500 + rVal * 200;
+                let baseAtk = 100 + rVal * 150;
+
+                // ★名声計算 (Battle側でも同じロジックを適用)
+                // Common:1000/5%, Rare:100/8%, Holo:40/10%, Ultra:10/10%, Genesis:5/10%
+                let req = 1000; let bonusPerLv = 0.05;
+                if(member.rarity === 'rare') { req = 100; bonusPerLv = 0.08; }
+                if(member.rarity === 'holo') { req = 40; bonusPerLv = 0.10; }
+                if(member.rarity === 'ultra') { req = 10; bonusPerLv = 0.10; }
+                if(member.rarity === 'genesis') { req = 5; bonusPerLv = 0.10; }
+
+                const count = user.invPart ? (user.invPart[member.id] || 1) : 1;
+                const fameLv = Math.floor(count / req);
+                const multiplier = 1 + (fameLv * bonusPerLv);
+
+                stats.maxHp += baseHp * multiplier;
+                stats.atk += baseAtk * multiplier;
+                
+                if(fameLv > 0) console.log(`${member.name} Fame Lv.${fameLv} (x${multiplier.toFixed(2)})`);
             });
 
             applyFleetBuffs();
             
-            // ★敵ステータスの補正
+            // 敵ステータスの補正
             enemy.maxHp = Math.floor(stats.atk * 10 * currentMission.hpMult);
             enemy.hp = enemy.maxHp;
             enemy.atk = Math.floor(stats.maxHp / 8 * currentMission.atkMult);
@@ -334,7 +311,6 @@
         }
         function addEp(v) { stats.ep = Math.min(100, stats.ep + v); updateUI(); }
 
-        // === ★NEW: 報酬ロジック ===
         function winGame() {
             // お金
             const money = currentMission.drops.money;
@@ -344,10 +320,8 @@
             // 素材
             if(currentMission.drops.matChance > 0) {
                 const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
-                // レア素材が出るステージかどうか
-                let table = lootTable; // デフォルト全種
+                let table = lootTable; 
                 if(!currentMission.drops.rareMat) {
-                    // 通常ステージはレア素材(m7,m8,m9)を除外
                     table = ['m1','m2','m3','m4','m5','m6'];
                 }
                 
