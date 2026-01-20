@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Tactical Battle2 | Hadron Lab</title>
+    <title>Tactical Battle | Hadron Lab</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
@@ -74,8 +74,7 @@
     </div>
 
     <script>
-        // === バトル固有変数 ===
-        // script.jsの変数を上書きしないよう、固有のものだけ宣言
+        // === バトル用変数 ===
         let deckMembers = [];
         let flagShip = null;
         let stats = { hp: 0, maxHp: 0, ep: 0, atk: 0, regen: 0, critRate: 0.1, dmgRed: 0 };
@@ -83,34 +82,34 @@
         let isPlayerTurn = true;
         let activeBuffs = [];
         
-        // ※重要: currentMission は宣言せず、script.js のグローバル変数を使います！
+        // 報酬計算用データ（ローカル定義で安全確保）
+        const b_lootTable = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
+        const b_matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC", m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium" };
 
         window.onload = function() {
-            // script.jsのロード確認とデータ読み込み
-            if(typeof loadGame === 'function') {
-                loadGame(); 
-            } else {
-                console.error("script.js not loaded.");
-                return;
-            }
-
-            // ミッションIDの取得と設定
+            if(typeof loadGame === 'function') loadGame();
+            
             const params = new URLSearchParams(window.location.search);
             const mid = params.get('mission') || 'm1';
-            // グローバル変数の currentMission に代入
-            currentMission = missionData[mid] || missionData['m1'];
+            
+            // script.jsのmissionDataが読み込めていれば使う、なければ安全策
+            if(typeof missionData !== 'undefined') {
+                currentMission = missionData[mid] || missionData['m1'];
+            } else {
+                // script.js読み込み失敗時の緊急用データ
+                currentMission = { name: "Training", enemy: "Target", symbol:"T", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 1000, matChance: 0 } };
+            }
 
-            // UI反映
             document.getElementById('mission-name').innerText = currentMission.name;
             const core = document.getElementById('enemy-core');
             core.innerText = currentMission.symbol;
             core.style.background = `radial-gradient(circle, ${currentMission.color}, #000)`;
             core.style.boxShadow = `0 0 60px ${currentMission.color}`;
 
-            // スキル補正 (script.jsの関数)
-            const atkBonus = getSkillBonus('atk_up');
-            const allBonus = getSkillBonus('all_up');
-            const regenBonus = getSkillBonus('regen_up');
+            // スキル補正
+            const atkBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('atk_up') : 0;
+            const allBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('all_up') : 0;
+            const regenBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('regen_up') : 0;
             
             // デッキ構築
             const deckIds = user.deck || [1, null, null, null, null];
@@ -119,11 +118,10 @@
             deckIds.forEach((pid, index) => {
                 if(pid) {
                     const p = particles.find(x => x.id === pid) || particles[0]; 
-                    let currentImg = getImgSrc(p); // script.jsの関数
+                    let currentImg = (typeof getImgSrc === 'function') ? getImgSrc(p) : p.image;
                     deckMembers.push({ ...p, index: index, image: currentImg });
                 }
             });
-            // デッキが空の場合の安全策
             if(deckMembers.length === 0) {
                 const p = particles[0];
                 deckMembers.push({ ...p, index: 0, image: p.image });
@@ -153,26 +151,25 @@
                 let baseHp = 500 + rVal * 200;
                 let baseAtk = 100 + rVal * 150;
 
-                // 名声ボーナス
-                const info = getFameInfo(member.id); // script.jsの関数
-                const fameMult = 1 + info.bonus;
+                // 名声ボーナス (script.js依存)
+                let fameMult = 1;
+                if(typeof getFameInfo === 'function') {
+                    const info = getFameInfo(member.id);
+                    fameMult = 1 + info.bonus;
+                    if(info.lv > 0) console.log(`${member.name} Fame Lv.${info.lv}`);
+                }
 
-                // スキル補正
                 let skillMultAtk = 1 + atkBonus + allBonus;
                 let skillMultHp = 1 + allBonus;
 
                 stats.maxHp += baseHp * fameMult * skillMultHp;
                 stats.atk += baseAtk * fameMult * skillMultAtk;
-                
-                if(info.lv > 0) console.log(`${member.name} Fame Lv.${info.lv} (x${fameMult.toFixed(2)})`);
             });
 
-            // 自動回復
             if(regenBonus > 0) stats.regen += Math.floor(stats.maxHp * 0.03 * (1+regenBonus));
 
             applyFleetBuffs();
             
-            // 敵ステータス設定
             enemy.maxHp = Math.floor(Math.max(1000, stats.atk * 10 * currentMission.hpMult));
             enemy.hp = enemy.maxHp;
             enemy.atk = Math.floor(Math.max(50, stats.maxHp / 8 * currentMission.atkMult));
@@ -184,7 +181,6 @@
             l.innerHTML = `> Mission Start: ${currentMission.name}<br>> Hostile Detected.<br>> Awaiting orders...`;
         };
 
-        // --- バトルロジック ---
         function applyFleetBuffs() {
             let types = { atk:0, def:0, spd:0, ult:0 };
             let ids = deckMembers.map(m => m.id);
@@ -286,8 +282,7 @@
             updateUI(); 
             if(enemy.hp <= 0) { 
                 log("<span style='color:gold'>TARGET SILENCED.</span>"); 
-                // script.jsのwinGameを呼ぶ
-                setTimeout(() => { if(typeof winGame === 'function') winGame(); }, 1000); 
+                setTimeout(winGameLocal, 1000); // ★ここを修正（ローカル関数を呼ぶ）
             }
         }
 
@@ -309,6 +304,44 @@
         }
 
         function addEp(v) { stats.ep = Math.min(100, stats.ep + v); updateUI(); }
+
+        // ★勝利処理（ローカル定義で確実に実行）
+        function winGameLocal() {
+            // スキル補正
+            let missionBonus = 0;
+            if(typeof getSkillBonus === 'function') missionBonus = getSkillBonus('mission_bonus');
+
+            const baseMoney = currentMission ? currentMission.drops.money : 1000;
+            const money = Math.floor(baseMoney * (1 + missionBonus));
+            user.money += money;
+            let msg = `💰 ¥${money.toLocaleString()}`;
+
+            // RP獲得
+            const rpGain = Math.floor(money * 0.1);
+            user.rp = (user.rp || 0) + rpGain;
+            msg += `<br>🧪 ${rpGain} RP`;
+
+            // 素材ドロップ
+            if(currentMission && currentMission.drops.matChance > 0) {
+                const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
+                let table = b_lootTable; 
+                if(!currentMission.drops.rareMat) {
+                    table = ['m1','m2','m3','m4','m5','m6'];
+                }
+                
+                for(let i=0; i<count; i++) {
+                    if(Math.random() < currentMission.drops.matChance) {
+                        const loot = table[Math.floor(Math.random()*table.length)];
+                        user.invMat[loot] = (user.invMat[loot]||0) + 1;
+                        msg += `<br>📦 ${b_matNames[loot]}`;
+                    }
+                }
+            }
+
+            localStorage.setItem('hadron_v8', JSON.stringify(user));
+            document.getElementById('loot-display').innerHTML = msg;
+            document.getElementById('result-modal').style.display = 'flex';
+        }
 
         function loseGame() {
             document.getElementById('res-title').innerText = "DEFEAT"; 
