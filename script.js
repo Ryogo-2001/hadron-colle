@@ -1,11 +1,23 @@
 // === Mission Data ===
 const missionData = {
-    'm1': { name: "Basic Training", drops: { money: 2000, matChance: 0.3 } },
-    'm2': { name: "Gold Rush", drops: { money: 10000, matChance: 0 } },
-    'm3': { name: "Material Depot", drops: { money: 1000, matChance: 1.0, maxMat: 3 } },
-    'm4': { name: "Antimatter Zone", drops: { money: 5000, matChance: 0.8, rareMat: true } },
-    'm5': { name: "Event Horizon", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } }
+    'm1': { name: "Basic Training", enemy: "Nucleus", symbol:"N", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 2000, matChance: 0.3 } },
+    'm2': { name: "Gold Rush", enemy: "Gold Chunk", symbol:"Au", hpMult: 2, atkMult: 0.5, color: "#f1c40f", drops: { money: 10000, matChance: 0 } },
+    'm3': { name: "Material Depot", enemy: "Carbon", symbol:"C", hpMult: 1.5, atkMult: 1, color: "#2ecc71", drops: { money: 1000, matChance: 1.0, maxMat: 3 } },
+    'm4': { name: "Antimatter Zone", enemy: "Anti-H", symbol:"H̄", hpMult: 3, atkMult: 2, color: "#9b59b6", drops: { money: 5000, matChance: 0.8, rareMat: true } },
+    'm5': { name: "Event Horizon", enemy: "Singularity", symbol:"⚫", hpMult: 10, atkMult: 5, color: "#fff", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } }
 };
+
+// === Skill Data (研究ツリー) ===
+const skills = [
+    { id: 's1', name: 'Efficient Funding', icon: '💰', cost: 100, desc: '売却時の獲得資金 +10%', type: 'sell_bonus', val: 0.1, req: null },
+    { id: 's2', name: 'Beam Tuning', icon: '⚡', cost: 200, desc: '実験(ガチャ)コスト -10%', type: 'cost_cut', val: 0.1, req: 's1' },
+    { id: 's3', name: 'Data Mining', icon: '💾', cost: 300, desc: '売却時の獲得RP +20%', type: 'rp_bonus', val: 0.2, req: 's1' },
+    { id: 's4', name: 'Battle Tactics', icon: '⚔️', cost: 500, desc: '艦隊の攻撃力 +10%', type: 'atk_up', val: 0.1, req: 's2' },
+    { id: 's5', name: 'High Sensitivity', icon: '📡', cost: 1000, desc: 'レア粒子の排出率が少し上昇', type: 'luck_up', val: 1.2, req: 's2' },
+    { id: 's6', name: 'Government Grant', icon: '🏛', cost: 1500, desc: 'ミッションクリア報酬 +20%', type: 'mission_bonus', val: 0.2, req: 's4' },
+    { id: 's7', name: 'Nanotech Repair', icon: '🩹', cost: 2000, desc: 'バトル中の自動回復量UP', type: 'regen_up', val: 0.5, req: 's4' },
+    { id: 's8', name: 'Grand Unified Theory', icon: '🌌', cost: 5000, desc: '全ステータス +20%', type: 'all_up', val: 0.2, req: 's5' }
+];
 
 // === Particles Data ===
 const particles = [
@@ -66,18 +78,37 @@ const detectors = [
 const beams = [{id:'b1',name:'Cosmic',cost:0,power:1}, {id:'b2',name:'RI',cost:5000,power:3}];
 const targets = [{id:'t1',name:'Air',cost:0,power:1}, {id:'t2',name:'Gold',cost:10000,power:2}];
 
-let user = { money: 10000, invMat: {}, invDet: [], invPart: {1:1}, deck: [1, null, null, null, null], equippedSkins: {} };
+// User Data (RPを追加)
+let user = { money: 10000, rp: 0, invMat: {}, invDet: [], invPart: {1:1}, deck: [1, null, null, null, null], equippedSkins: {}, skills: [] };
 let currentMission = null;
 let currentSlotIndex = 0;
 
 window.onload = function() {
-    try { loadGame(); refreshUI(); renderDeckHome(); renderDeckEdit(); initProposalForm(); }
+    try { 
+        loadGame(); 
+        refreshUI(); 
+        renderDeckHome(); 
+        renderDeckEdit(); 
+        initProposalForm(); 
+        renderMissionList(); // ミッション表示
+        renderLab(); // スキルツリー表示
+    }
     catch(e) { console.error("Init Error:", e); }
 };
 
-// === ★NEW: Fame Logic with Rarity Slope ===
+// ★ Helper: スキル効果取得
+function getSkillBonus(type) {
+    let bonus = 0;
+    if(!user.skills) return 0;
+    user.skills.forEach(sid => {
+        const s = skills.find(x => x.id === sid);
+        if(s && s.type === type) bonus += s.val;
+    });
+    return bonus;
+}
+
+// === ★修正: 限界突破（名声）の傾斜ロジック ===
 function getFameParams(rarity) {
-    // レアリティごとの「必要数」と「ボーナス上昇率」の定義
     switch(rarity) {
         case 'genesis': return { req: 5, bonus: 0.10 };    // 5体で+10%
         case 'ultra':   return { req: 10, bonus: 0.10 };   // 10体で+10%
@@ -97,7 +128,7 @@ function getFameInfo(pid) {
     
     return {
         lv: lv,
-        bonus: lv * params.bonus, // 割合 (0.1 = 10%)
+        bonus: lv * params.bonus,
         next: params.req - (count % params.req),
         req: params.req,
         bonusPerLv: params.bonus
@@ -114,9 +145,15 @@ function getImgSrc(p) {
 
 // --- View Logic ---
 function showHome() { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
-function showView(id) { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function showView(id) { 
+    document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); 
+    document.getElementById(id).classList.add('active'); 
+    if(id === 'view-lab') renderLab(); // ツリー更新
+}
 function refreshUI() {
     document.getElementById('disp-money').innerText = user.money.toLocaleString();
+    const rpEl = document.getElementById('disp-rp');
+    if(rpEl) rpEl.innerText = (user.rp || 0).toLocaleString();
     renderShop(); renderCraft(); renderOffice();
 }
 function startBattle(missionId) { location.href = `battle.html?mission=${missionId}`; }
@@ -156,7 +193,6 @@ function renderDeckEdit() {
     }
 }
 
-// ★ Updated: Show Detailed Fame Info
 function showCharDetail(pid, e) {
     if(e) e.stopPropagation(); const p = particles.find(x => x.id === pid); if(!p) return;
     
@@ -239,19 +275,35 @@ function initProposalForm() {
 function calcProposalCost(){
     const b = beams.find(x=>x.id==document.getElementById('sel-beam').value);
     const t = targets.find(x=>x.id==document.getElementById('sel-target').value);
-    document.getElementById('prop-cost').innerText = ((b?b.cost:0)+(t?t.cost:0)).toLocaleString();
+    let base = (b?b.cost:0)+(t?t.cost:0);
+    
+    // スキル効果: コスト削減
+    const discount = getSkillBonus('cost_cut');
+    const finalCost = Math.floor(base * (1 - discount));
+    
+    document.getElementById('prop-cost').innerText = finalCost.toLocaleString();
+    const dcEl = document.getElementById('cost-discount');
+    if(dcEl && discount > 0) dcEl.innerText = `(-${Math.round(discount*100)}% Cost)`;
 }
 function runExperiment(times = 1){
     const bVal=document.getElementById('sel-beam').value, tVal=document.getElementById('sel-target').value, dVal=document.getElementById('sel-detector').value;
     if(!dVal){alert("検出器が必要です");return;}
     const b=beams.find(x=>x.id==bVal), t=targets.find(x=>x.id==tVal);
-    const totalCost = (b.cost + t.cost) * times;
+    
+    const baseCost = b.cost + t.cost;
+    const discount = getSkillBonus('cost_cut');
+    const totalCost = Math.floor(baseCost * (1 - discount)) * times;
+
     if(user.money < totalCost){alert("資金不足");return;}
     user.money -= totalCost;
 
     const det = detectors.find(x => x.id == dVal);
-    const power = b.power * t.power * (det ? det.power : 1);
+    let power = b.power * t.power * (det ? det.power : 1);
     
+    // スキル効果: 運
+    const luck = getSkillBonus('luck_up');
+    if(luck > 0) power *= luck;
+
     let results = [];
     for(let i=0; i<times; i++) {
         const rand=Math.random()*100; let tr="common";
@@ -273,6 +325,7 @@ function runExperiment(times = 1){
     document.getElementById('result-modal').style.display='block';
 }
 
+// --- Shop & Craft ---
 function renderShop(){
     const el=document.getElementById('shop-list'); if(!el)return; el.innerHTML='';
     materials.forEach(m=>{ el.innerHTML+=`<div class="item-card" onclick="buy('${m.id}')"><div>${m.name}</div><div style="color:var(--hc-green)">¥${m.cost}</div><div style="font-size:0.8rem">持: ${user.invMat?user.invMat[m.id]||0:0}</div></div>`; });
@@ -308,6 +361,7 @@ function craft(id){
     user.invDet.push(id); saveGame(); refreshUI(); initProposalForm();
 }
 
+// --- Office Logic (With Skill Mod) ---
 function renderOffice(){
     const el=document.getElementById('particle-stock-list'); if(!el)return; el.innerHTML='';
     Object.keys(user.invPart).forEach(pidStr=>{
@@ -319,14 +373,101 @@ function renderOffice(){
         }
     });
 }
-function sell(pid,pr){ if(user.invPart[pid]>0){ user.invPart[pid]--; user.money+=pr; saveGame(); refreshUI(); } }
+function sell(pid,pr){ 
+    if(user.invPart[pid]>0){ 
+        user.invPart[pid]--; 
+        
+        // スキル効果: 売却額UP
+        const bonus = getSkillBonus('sell_bonus');
+        const finalPrice = Math.floor(pr * (1 + bonus));
+        user.money += finalPrice; 
+        
+        // スキル効果: RP獲得
+        const rpBonus = getSkillBonus('rp_bonus');
+        const rpGain = Math.floor((pr * 0.05) * (1 + rpBonus));
+        user.rp = (user.rp || 0) + rpGain;
+
+        saveGame(); refreshUI(); 
+    } 
+}
+
+// --- Mission Rendering ---
+function renderMissionList() {
+    const el = document.getElementById('mission-list-container');
+    if(!el) return;
+    el.innerHTML = '';
+    Object.keys(missionData).forEach(key => {
+        const m = missionData[key];
+        let tagClass = '';
+        if(m.drops.money > 5000) tagClass = 'tag-money';
+        if(m.drops.rareMat) tagClass = 'tag-boss';
+        
+        el.innerHTML += `
+            <div class="mission-card" onclick="startBattle('${key}')">
+                <h3>${m.name}</h3>
+                <div class="mission-tag ${tagClass}">${tagClass==='tag-boss'?'Hard':'Normal'}</div>
+                <div style="margin-top:10px; font-size:0.9rem; color:${m.color};">Target: ${m.enemy}</div>
+            </div>`;
+    });
+}
+
+// --- Laboratory (Skill Tree) Rendering ---
+function renderLab() {
+    const el = document.getElementById('skill-tree-container'); if(!el) return; el.innerHTML = '';
+    
+    skills.forEach(s => {
+        const owned = user.skills && user.skills.includes(s.id);
+        const unlocked = s.req === null || (user.skills && user.skills.includes(s.req));
+        
+        let statusClass = 'locked';
+        let statusText = 'LOCKED';
+        let onClick = '';
+
+        if (owned) {
+            statusClass = 'unlocked';
+            statusText = 'ACQUIRED';
+        } else if (unlocked) {
+            statusClass = 'purchasable';
+            statusText = 'UNLOCK';
+            onClick = `onclick="unlockSkill('${s.id}')"`;
+        }
+
+        el.innerHTML += `
+            <div class="skill-card ${statusClass}" ${onClick}>
+                <div class="skill-status ${owned?'st-acquired':(unlocked?'st-can-buy':'st-locked')}">${statusText}</div>
+                <div class="skill-icon">${s.icon}</div>
+                <div class="skill-name">${s.name}</div>
+                <div class="skill-desc">${s.desc}</div>
+                ${!owned ? `<div class="skill-cost">Cost: ${s.cost} RP</div>` : ''}
+                ${s.req ? `<div style="font-size:0.7rem; color:#666;">Req: ${skills.find(x=>x.id==s.req).name}</div>` : ''}
+            </div>
+        `;
+    });
+}
+
+function unlockSkill(sid) {
+    const s = skills.find(x => x.id === sid);
+    if (!user.rp || user.rp < s.cost) { alert("RP不足です！"); return; }
+    if (!user.skills) user.skills = [];
+    if (user.skills.includes(sid)) return;
+
+    user.rp -= s.cost;
+    user.skills.push(sid);
+    saveGame();
+    refreshUI();
+    renderLab();
+    initProposalForm(); 
+}
+
 function loadGame(){
     const d=localStorage.getItem('hadron_v8'); if(d){ try{user=JSON.parse(d);}catch(e){user={};} }
-    if(typeof user.money==='undefined')user.money=10000; 
-    if(!user.invMat)user.invMat={}; 
-    if(!user.invDet) user.invDet=['d0']; 
-    if(user.invDet.length === 0) user.invDet=['d0'];
-    if(!user.invPart)user.invPart={1:1}; if(!user.deck)user.deck=[1,null,null,null,null];
+    if(typeof user.money==='undefined') user.money=10000; 
+    if(typeof user.rp==='undefined') user.rp=0; 
+    if(!user.invMat) user.invMat={}; 
+    if(!user.invDet || user.invDet.length===0) user.invDet=['d0']; 
+    if(!user.invPart) user.invPart={1:1}; 
+    if(!user.deck) user.deck=[1,null,null,null,null];
     if(!user.equippedSkins) user.equippedSkins = {};
+    if(!user.skills) user.skills = [];
 }
 function saveGame(){ localStorage.setItem('hadron_v8',JSON.stringify(user)); }
