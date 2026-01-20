@@ -78,7 +78,6 @@ const detectors = [
 const beams = [{id:'b1',name:'Cosmic',cost:0,power:1}, {id:'b2',name:'RI',cost:5000,power:3}];
 const targets = [{id:'t1',name:'Air',cost:0,power:1}, {id:'t2',name:'Gold',cost:10000,power:2}];
 
-// User Data (RPを追加)
 let user = { money: 10000, rp: 0, invMat: {}, invDet: [], invPart: {1:1}, deck: [1, null, null, null, null], equippedSkins: {}, skills: [] };
 let currentMission = null;
 let currentSlotIndex = 0;
@@ -90,8 +89,8 @@ window.onload = function() {
         renderDeckHome(); 
         renderDeckEdit(); 
         initProposalForm(); 
-        renderMissionList(); // ミッション表示
-        renderLab(); // スキルツリー表示
+        renderMissionList(); 
+        renderLab(); 
     }
     catch(e) { console.error("Init Error:", e); }
 };
@@ -107,34 +106,24 @@ function getSkillBonus(type) {
     return bonus;
 }
 
-// === ★修正: 限界突破（名声）の傾斜ロジック ===
+// Helper: Fame
 function getFameParams(rarity) {
     switch(rarity) {
-        case 'genesis': return { req: 5, bonus: 0.10 };    // 5体で+10%
-        case 'ultra':   return { req: 10, bonus: 0.10 };   // 10体で+10%
-        case 'holo':    return { req: 40, bonus: 0.10 };   // 40体で+10%
-        case 'rare':    return { req: 100, bonus: 0.08 };  // 100体で+8%
-        default:        return { req: 1000, bonus: 0.05 }; // 1000体で+5% (Common)
+        case 'genesis': return { req: 5, bonus: 0.10 };
+        case 'ultra':   return { req: 10, bonus: 0.10 };
+        case 'holo':    return { req: 40, bonus: 0.10 };
+        case 'rare':    return { req: 100, bonus: 0.08 };
+        default:        return { req: 1000, bonus: 0.05 };
     }
 }
-
 function getFameInfo(pid) {
     const p = particles.find(x => x.id === pid);
     if(!p) return { lv: 0, bonus: 0, next: 0, req: 0 };
-    
     const count = user.invPart[pid] || 0;
     const params = getFameParams(p.rarity);
     const lv = Math.floor(count / params.req);
-    
-    return {
-        lv: lv,
-        bonus: lv * params.bonus,
-        next: params.req - (count % params.req),
-        req: params.req,
-        bonusPerLv: params.bonus
-    };
+    return { lv: lv, bonus: lv * params.bonus, next: params.req - (count % params.req), req: params.req, bonusPerLv: params.bonus };
 }
-
 function getImgSrc(p) {
     if(user.equippedSkins && user.equippedSkins[p.id] && p.skins) {
         const s = p.skins.find(sk => sk.id === user.equippedSkins[p.id]);
@@ -143,12 +132,13 @@ function getImgSrc(p) {
     return p.image;
 }
 
-// --- View Logic ---
+// --- View Logic (★修正: ミッション画面を開いた時にリストを描画) ---
 function showHome() { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
 function showView(id) { 
     document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); 
     document.getElementById(id).classList.add('active'); 
-    if(id === 'view-lab') renderLab(); // ツリー更新
+    if(id === 'view-lab') renderLab(); 
+    if(id === 'view-mission') renderMissionList(); // ★これが足りなかった！
 }
 function refreshUI() {
     document.getElementById('disp-money').innerText = user.money.toLocaleString();
@@ -158,6 +148,7 @@ function refreshUI() {
 }
 function startBattle(missionId) { location.href = `battle.html?mission=${missionId}`; }
 
+// --- Deck & Gacha ---
 function renderDeckHome() {
     const el = document.getElementById('home-deck-display'); if(!el) return; el.innerHTML = '';
     user.deck.forEach((pid, index) => {
@@ -180,12 +171,7 @@ function renderDeckEdit() {
         if(p) {
             const info = getFameInfo(p.id);
             const star = info.lv > 0 ? `<div class="fame-badge">★<span>${info.lv}</span></div>` : '';
-            content = `
-                ${star}
-                <img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)">
-                <div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div>
-                <div class="slot-remove" onclick="removeMember(${i}, event)">×</div>
-            `;
+            content = `<div style="position:relative;">${star}<img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)"></div><div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div><div class="slot-remove" onclick="removeMember(${i}, event)">×</div>`;
         }
         const div = document.createElement('div'); div.className = 'slot-card'; div.innerHTML = content;
         div.onclick = (e) => { if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) openSelectModal(i); };
@@ -195,22 +181,11 @@ function renderDeckEdit() {
 
 function showCharDetail(pid, e) {
     if(e) e.stopPropagation(); const p = particles.find(x => x.id === pid); if(!p) return;
-    
-    const info = getFameInfo(pid);
-    const count = user.invPart[pid] || 0;
-    
+    const info = getFameInfo(pid); const count = user.invPart[pid] || 0;
     let fameHtml = "";
-    if(info.lv > 0) {
-        fameHtml = `<div style="margin-bottom:10px; padding:5px; background:rgba(255, 215, 0, 0.2); border:1px solid gold; border-radius:5px; color:#ffd700; text-align:center;">
-            ★ FAME Lv.${info.lv} (Stats +${Math.round(info.bonus * 100)}%)<br>
-            <span style="font-size:0.7rem; color:#aaa;">Next Lv: ${info.next} more (${info.req} per Lv)</span>
-        </div>`;
-    } else {
-        fameHtml = `<div style="margin-bottom:10px; font-size:0.8rem; color:#555; text-align:center;">
-            Current: ${count} / Next Lv: ${info.next} needed<br>(Need ${info.req} for +${Math.round(info.bonusPerLv*100)}%)
-        </div>`;
-    }
-
+    if(info.lv > 0) fameHtml = `<div style="margin-bottom:10px; padding:5px; background:rgba(255, 215, 0, 0.2); border:1px solid gold; border-radius:5px; color:#ffd700; text-align:center;">★ FAME Lv.${info.lv} (Stats +${Math.round(info.bonus * 100)}%)<br><span style="font-size:0.7rem; color:#aaa;">Next Lv: ${info.next} more (${info.req} per Lv)</span></div>`;
+    else fameHtml = `<div style="margin-bottom:10px; font-size:0.8rem; color:#555; text-align:center;">Current: ${count} / Next Lv: ${info.next} needed<br>(Need ${info.req} for +${Math.round(info.bonusPerLv*100)}%)</div>`;
+    
     let skinBtns = "";
     if(p.skins) {
         skinBtns = `<div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;"><div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">COSTUME CHANGE</div><div class="skin-btn-container">`;
@@ -222,16 +197,7 @@ function showCharDetail(pid, e) {
     document.getElementById('detail-content').innerHTML = html; document.getElementById('detail-modal').style.display = 'flex';
 }
 
-function changeSkin(pid, skinId) {
-    if(!user.equippedSkins) user.equippedSkins = {}; user.equippedSkins[pid] = skinId; saveGame();
-    const p = particles.find(x => x.id === pid);
-    if(p) {
-        document.getElementById('detail-img-preview').src = getImgSrc(p);
-        const btns = document.querySelectorAll('.skin-btn');
-        btns.forEach(b => { if(b.innerText === p.skins.find(s=>s.id===skinId).name) b.classList.add('active'); else b.classList.remove('active'); });
-    }
-    renderDeckHome(); renderDeckEdit();
-}
+function changeSkin(pid, skinId) { if(!user.equippedSkins) user.equippedSkins = {}; user.equippedSkins[pid] = skinId; saveGame(); const p = particles.find(x => x.id === pid); if(p) { document.getElementById('detail-img-preview').src = getImgSrc(p); const btns = document.querySelectorAll('.skin-btn'); btns.forEach(b => { if(b.innerText === p.skins.find(s=>s.id===skinId).name) b.classList.add('active'); else b.classList.remove('active'); }); } renderDeckHome(); renderDeckEdit(); }
 function removeMember(index, e) { e.stopPropagation(); user.deck[index] = null; renderDeckEdit(); renderDeckHome(); saveGame(); }
 
 function openSelectModal(slotIndex) {
@@ -243,15 +209,8 @@ function openSelectModal(slotIndex) {
             if(p) {
                 const info = getFameInfo(p.id);
                 const star = info.lv > 0 ? `<div class="fame-badge" style="font-size:1rem;">★${info.lv}</div>` : '';
-                const div = document.createElement('div'); 
-                div.className = `item-card card-${p.rarity}`;
-                div.innerHTML = `
-                    ${star}
-                    <div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div>
-                    <img src="${getImgSrc(p)}" style="width:70px; margin-bottom:5px;">
-                    <div class="rarity-${p.rarity}" style="font-size:0.9rem;">${p.name}</div>
-                    <div style="font-size:0.7rem; color:#888;">所持: ${user.invPart[pid]}</div>
-                `;
+                const div = document.createElement('div'); div.className = `item-card card-${p.rarity}`;
+                div.innerHTML = `${star}<div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div><img src="${getImgSrc(p)}" style="width:70px; margin-bottom:5px;"><div class="rarity-${p.rarity}" style="font-size:0.9rem;">${p.name}</div><div style="font-size:0.7rem; color:#888;">所持: ${user.invPart[pid]}</div>`;
                 div.onclick = () => { user.deck[currentSlotIndex] = pid; closeModal('select-modal'); renderDeckEdit(); renderDeckHome(); saveGame(); };
                 list.appendChild(div);
             }
@@ -276,11 +235,8 @@ function calcProposalCost(){
     const b = beams.find(x=>x.id==document.getElementById('sel-beam').value);
     const t = targets.find(x=>x.id==document.getElementById('sel-target').value);
     let base = (b?b.cost:0)+(t?t.cost:0);
-    
-    // スキル効果: コスト削減
     const discount = getSkillBonus('cost_cut');
     const finalCost = Math.floor(base * (1 - discount));
-    
     document.getElementById('prop-cost').innerText = finalCost.toLocaleString();
     const dcEl = document.getElementById('cost-discount');
     if(dcEl && discount > 0) dcEl.innerText = `(-${Math.round(discount*100)}% Cost)`;
@@ -289,7 +245,6 @@ function runExperiment(times = 1){
     const bVal=document.getElementById('sel-beam').value, tVal=document.getElementById('sel-target').value, dVal=document.getElementById('sel-detector').value;
     if(!dVal){alert("検出器が必要です");return;}
     const b=beams.find(x=>x.id==bVal), t=targets.find(x=>x.id==tVal);
-    
     const baseCost = b.cost + t.cost;
     const discount = getSkillBonus('cost_cut');
     const totalCost = Math.floor(baseCost * (1 - discount)) * times;
@@ -299,8 +254,6 @@ function runExperiment(times = 1){
 
     const det = detectors.find(x => x.id == dVal);
     let power = b.power * t.power * (det ? det.power : 1);
-    
-    // スキル効果: 運
     const luck = getSkillBonus('luck_up');
     if(luck > 0) power *= luck;
 
@@ -310,13 +263,11 @@ function runExperiment(times = 1){
         if(power > 100) { if(rand<2) tr="genesis"; else if(rand<10) tr="ultra"; else if(rand<30) tr="holo"; else if(rand<60) tr="rare"; }
         else if(power > 50) { if(rand<1) tr="genesis"; else if(rand<6) tr="ultra"; else if(rand<20) tr="holo"; else if(rand<50) tr="rare"; }
         else if(power > 10) { if(rand<0.5) tr="genesis"; else if(rand<3) tr="ultra"; else if(rand<15) tr="holo"; else if(rand<40) tr="rare"; }
-        
         let c=particles.filter(p=>p.rarity===tr); if(c.length===0) c=particles.filter(p=>p.rarity==="common");
         const p = c[Math.floor(Math.random()*c.length)];
         user.invPart[p.id] = (user.invPart[p.id]||0)+1; results.push(p);
     }
     saveGame(); refreshUI();
-    
     const resEl = document.getElementById('exp-result-content');
     if(times === 1) { const p = results[0]; resEl.innerHTML = `<img src="${getImgSrc(p)}" style="width:100px"><br><h3 class="rarity-${p.rarity}">GET: ${p.name}</h3><p>${p.desc}</p>`; }
     else {
@@ -325,7 +276,6 @@ function runExperiment(times = 1){
     document.getElementById('result-modal').style.display='block';
 }
 
-// --- Shop & Craft ---
 function renderShop(){
     const el=document.getElementById('shop-list'); if(!el)return; el.innerHTML='';
     materials.forEach(m=>{ el.innerHTML+=`<div class="item-card" onclick="buy('${m.id}')"><div>${m.name}</div><div style="color:var(--hc-green)">¥${m.cost}</div><div style="font-size:0.8rem">持: ${user.invMat?user.invMat[m.id]||0:0}</div></div>`; });
@@ -361,7 +311,6 @@ function craft(id){
     user.invDet.push(id); saveGame(); refreshUI(); initProposalForm();
 }
 
-// --- Office Logic (With Skill Mod) ---
 function renderOffice(){
     const el=document.getElementById('particle-stock-list'); if(!el)return; el.innerHTML='';
     Object.keys(user.invPart).forEach(pidStr=>{
@@ -376,17 +325,12 @@ function renderOffice(){
 function sell(pid,pr){ 
     if(user.invPart[pid]>0){ 
         user.invPart[pid]--; 
-        
-        // スキル効果: 売却額UP
         const bonus = getSkillBonus('sell_bonus');
         const finalPrice = Math.floor(pr * (1 + bonus));
         user.money += finalPrice; 
-        
-        // スキル効果: RP獲得
         const rpBonus = getSkillBonus('rp_bonus');
         const rpGain = Math.floor((pr * 0.05) * (1 + rpBonus));
         user.rp = (user.rp || 0) + rpGain;
-
         saveGame(); refreshUI(); 
     } 
 }
@@ -411,27 +355,15 @@ function renderMissionList() {
     });
 }
 
-// --- Laboratory (Skill Tree) Rendering ---
+// --- Lab Rendering ---
 function renderLab() {
     const el = document.getElementById('skill-tree-container'); if(!el) return; el.innerHTML = '';
-    
     skills.forEach(s => {
         const owned = user.skills && user.skills.includes(s.id);
         const unlocked = s.req === null || (user.skills && user.skills.includes(s.req));
-        
-        let statusClass = 'locked';
-        let statusText = 'LOCKED';
-        let onClick = '';
-
-        if (owned) {
-            statusClass = 'unlocked';
-            statusText = 'ACQUIRED';
-        } else if (unlocked) {
-            statusClass = 'purchasable';
-            statusText = 'UNLOCK';
-            onClick = `onclick="unlockSkill('${s.id}')"`;
-        }
-
+        let statusClass = 'locked'; let statusText = 'LOCKED'; let onClick = '';
+        if (owned) { statusClass = 'unlocked'; statusText = 'ACQUIRED'; } 
+        else if (unlocked) { statusClass = 'purchasable'; statusText = 'UNLOCK'; onClick = `onclick="unlockSkill('${s.id}')"`; }
         el.innerHTML += `
             <div class="skill-card ${statusClass}" ${onClick}>
                 <div class="skill-status ${owned?'st-acquired':(unlocked?'st-can-buy':'st-locked')}">${statusText}</div>
@@ -440,23 +372,16 @@ function renderLab() {
                 <div class="skill-desc">${s.desc}</div>
                 ${!owned ? `<div class="skill-cost">Cost: ${s.cost} RP</div>` : ''}
                 ${s.req ? `<div style="font-size:0.7rem; color:#666;">Req: ${skills.find(x=>x.id==s.req).name}</div>` : ''}
-            </div>
-        `;
+            </div>`;
     });
 }
-
 function unlockSkill(sid) {
     const s = skills.find(x => x.id === sid);
     if (!user.rp || user.rp < s.cost) { alert("RP不足です！"); return; }
     if (!user.skills) user.skills = [];
     if (user.skills.includes(sid)) return;
-
-    user.rp -= s.cost;
-    user.skills.push(sid);
-    saveGame();
-    refreshUI();
-    renderLab();
-    initProposalForm(); 
+    user.rp -= s.cost; user.skills.push(sid);
+    saveGame(); refreshUI(); renderLab(); initProposalForm(); 
 }
 
 function loadGame(){
