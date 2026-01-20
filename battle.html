@@ -7,13 +7,11 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="skill-overlay" class="skill-cutin">LIMIT BREAK!</div>
     <div class="header">
-        <div style="font-family:'Orbitron'">MISSION: <span style="color:red" id="mission-name">Gold Nucleus Destruction</span></div>
+        <div style="font-family:'Orbitron'">MISSION: <span style="color:red" id="mission-name">...</span></div>
         <button class="btn-back" onclick="location.href='index.html'">RETREAT</button>
     </div>
-
     <div class="battle-field">
         <div class="player-side">
             <div class="fleet-stats-box">
@@ -25,16 +23,14 @@
             </div>
             <div id="fleet-container" class="fleet-container"></div>
         </div>
-
         <div class="enemy-side">
             <div class="fleet-stats-box" style="position:relative; top:0; left:0; width:200px; border-color:#e74c3c;">
                 <div style="display:flex; justify-content:space-between; font-size:0.8rem;"><span>BOSS HP</span> <span id="e-hp-val">5000</span></div>
                 <div class="bar-container"><div id="e-hp-bar" class="hp-bar" style="background:#e74c3c;"></div></div>
             </div>
-            <div id="enemy-core" class="enemy-core" style="margin-top:20px;">Au</div>
+            <div id="enemy-core" class="enemy-core" style="margin-top:20px;"></div>
         </div>
     </div>
-
     <div class="command-panel">
         <div class="log-window" id="log">> Fleet formation complete.<br>> Awaiting orders...</div>
         <div class="command-grid">
@@ -43,7 +39,6 @@
             <button id="btn-skill" class="cmd-btn" style="--color:#f1c40f; grid-column: span 2;" onclick="playerAction('skill')" disabled>★ <span id="skill-name">SKILL</span><div style="font-size:0.7rem; color:#aaa;">Cost: 100 TP</div></button>
         </div>
     </div>
-
     <div id="result-modal" class="modal">
         <div style="background:#222; border:2px solid gold; padding:40px; text-align:center; border-radius:10px; min-width:400px; color:white;">
             <h1 id="res-title" style="color:gold">MISSION ACCOMPLISHED</h1>
@@ -57,7 +52,15 @@
     </div>
 
     <script>
-        // === Mission Data (Same as index.html) ===
+        // === スキル定義 (JS側と合わせる) ===
+        const skills = [
+            { id: 's4', type: 'atk_up', val: 0.1 },
+            { id: 's6', type: 'mission_bonus', val: 0.2 },
+            { id: 's7', type: 'regen_up', val: 0.5 },
+            { id: 's8', type: 'all_up', val: 0.2 }
+        ];
+
+        // 共通データ等は script.js と同じ内容が必要だが、ここでは省略せずに必要なものを記述
         const missionData = {
             'm1': { name: "Basic Training", enemy: "Nucleus", symbol:"N", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 2000, matChance: 0.3 } },
             'm2': { name: "Gold Rush", enemy: "Gold Chunk", symbol:"Au", hpMult: 2, atkMult: 0.5, color: "#f1c40f", drops: { money: 10000, matChance: 0 } },
@@ -65,7 +68,6 @@
             'm4': { name: "Antimatter Zone", enemy: "Anti-H", symbol:"H̄", hpMult: 3, atkMult: 2, color: "#9b59b6", drops: { money: 5000, matChance: 0.8, rareMat: true } },
             'm5': { name: "Event Horizon", enemy: "Singularity", symbol:"⚫", hpMult: 10, atkMult: 5, color: "#fff", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } }
         };
-
         const particles = [
             { id: 1, name: "Proton", rarity: "common", image: "images/proton.png", skill:"Proton Beam", type:"atk" },
             { id: 2, name: "Neutron", rarity: "common", image: "images/neutron.png", skill:"Neutron Shield", type:"def" },
@@ -90,12 +92,8 @@
             { id: 21, name: "W Boson", rarity: "holo", image: "images/W_Boson.png", skill:"Beta Decay", type:"atk" },
             { id: 22, name: "Z Boson", rarity: "holo", image: "images/Z_Boson.png", skill:"Neutral Heavy", type:"def" },
             { id: 23, name: "Tachyon", rarity: "ultra", image: "images/Tachyon.png", skill:"Time Travel", type:"spd" },
-            { 
-                id: 24, name: "Graviton", rarity: "genesis", image: "images/Graviton.png", skill:"Event Horizon", type:"ult",
-                skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ]
-            }
+            { id: 24, name: "Graviton", rarity: "genesis", image: "images/Graviton.png", skill:"Event Horizon", type:"ult", skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ] }
         ];
-
         const lootTable = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
         const matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC", m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium" };
 
@@ -108,13 +106,21 @@
         let activeBuffs = [];
         let currentMission = null;
 
+        function getSkillBonus(type) {
+            let bonus = 0;
+            if(!user.skills) return 0;
+            user.skills.forEach(sid => {
+                const s = skills.find(x => x.id === sid);
+                if(s && s.type === type) bonus += s.val;
+            });
+            return bonus;
+        }
+
         window.onload = function() {
-            // ミッションIDの取得
             const params = new URLSearchParams(window.location.search);
             const mid = params.get('mission') || 'm1';
             currentMission = missionData[mid] || missionData['m1'];
 
-            // UI反映
             document.getElementById('mission-name').innerText = currentMission.name;
             const core = document.getElementById('enemy-core');
             core.innerText = currentMission.symbol;
@@ -124,6 +130,12 @@
             const d = localStorage.getItem('hadron_v8');
             if(d) user = JSON.parse(d);
             if(!user.equippedSkins) user.equippedSkins = {};
+            if(!user.skills) user.skills = [];
+
+            // ★スキル補正計算
+            const atkBonus = getSkillBonus('atk_up');
+            const allBonus = getSkillBonus('all_up');
+            const regenBonus = getSkillBonus('regen_up');
             
             const deckIds = user.deck || [1, null, null, null, null];
             const container = document.getElementById('fleet-container');
@@ -144,7 +156,6 @@
             flagShip = deckMembers[0]; 
             document.getElementById('skill-name').innerText = flagShip.skill;
 
-            // ★Stats Calc with Fame Bonus Logic
             deckMembers.forEach((member, i) => {
                 const img = document.createElement('img');
                 img.src = member.image;
@@ -165,27 +176,29 @@
                 let baseHp = 500 + rVal * 200;
                 let baseAtk = 100 + rVal * 150;
 
-                // ★名声計算 (Battle側でも同じロジックを適用)
-                // Common:1000/5%, Rare:100/8%, Holo:40/10%, Ultra:10/10%, Genesis:5/10%
+                // 名声ボーナス
                 let req = 1000; let bonusPerLv = 0.05;
                 if(member.rarity === 'rare') { req = 100; bonusPerLv = 0.08; }
                 if(member.rarity === 'holo') { req = 40; bonusPerLv = 0.10; }
                 if(member.rarity === 'ultra') { req = 10; bonusPerLv = 0.10; }
                 if(member.rarity === 'genesis') { req = 5; bonusPerLv = 0.10; }
-
                 const count = user.invPart ? (user.invPart[member.id] || 1) : 1;
                 const fameLv = Math.floor(count / req);
-                const multiplier = 1 + (fameLv * bonusPerLv);
+                const fameMult = 1 + (fameLv * bonusPerLv);
 
-                stats.maxHp += baseHp * multiplier;
-                stats.atk += baseAtk * multiplier;
-                
-                if(fameLv > 0) console.log(`${member.name} Fame Lv.${fameLv} (x${multiplier.toFixed(2)})`);
+                // ★スキル補正適用
+                let skillMultAtk = 1 + atkBonus + allBonus;
+                let skillMultHp = 1 + allBonus;
+
+                stats.maxHp += baseHp * fameMult * skillMultHp;
+                stats.atk += baseAtk * fameMult * skillMultAtk;
             });
+
+            // 自動回復スキル
+            if(regenBonus > 0) stats.regen += Math.floor(stats.maxHp * 0.03 * (1+regenBonus));
 
             applyFleetBuffs();
             
-            // 敵ステータスの補正
             enemy.maxHp = Math.floor(stats.atk * 10 * currentMission.hpMult);
             enemy.hp = enemy.maxHp;
             enemy.atk = Math.floor(stats.maxHp / 8 * currentMission.atkMult);
@@ -209,23 +222,10 @@
             if(ids.includes(17) && ids.includes(12)) { stats.atk *= 1.15; addBuff("💖 Charm: Atk+15%"); }
             if(ids.includes(19)) { stats.atk *= 1.25; stats.maxHp *= 0.9; addBuff("⚫ Antimatter: Atk UP/HP DOWN"); }
 
-            if(ids.includes(21) && ids.includes(22)) {
-                stats.regen += Math.floor(stats.maxHp * 0.05);
-                addBuff("♻️ Weak Force: Regen 5%");
-            }
-            if(ids.includes(20) && ids.includes(15)) {
-                stats.critRate += 0.2;
-                addBuff("💥 Gamma Burst: Crit+20%");
-            }
-            if(ids.includes(23)) {
-                stats.dmgRed += 0.15;
-                addBuff("🔮 Future Sight: Dmg Cut 15%");
-            }
-            if(ids.includes(24)) {
-                stats.atk *= 1.4;
-                enemy.atk *= 0.8;
-                addBuff("🌌 Gravity Well: Atk+40%/E.Atk-20%");
-            }
+            if(ids.includes(21) && ids.includes(22)) { stats.regen += Math.floor(stats.maxHp * 0.05); addBuff("♻️ Weak Force: Regen 5%"); }
+            if(ids.includes(20) && ids.includes(15)) { stats.critRate += 0.2; addBuff("💥 Gamma Burst: Crit+20%"); }
+            if(ids.includes(23)) { stats.dmgRed += 0.15; addBuff("🔮 Future Sight: Dmg Cut 15%"); }
+            if(ids.includes(24)) { stats.atk *= 1.4; enemy.atk *= 0.8; addBuff("🌌 Gravity Well: Atk+40%/E.Atk-20%"); }
         }
 
         function addBuff(name) {
@@ -287,7 +287,7 @@
             }, 500);
         }
         function applyRegen() {
-            if(stats.regen > 0 && stats.hp < stats.maxHp) { stats.hp = Math.min(stats.maxHp, stats.hp + stats.regen); showHeal(stats.regen, 'fleet-container'); log(`<span style='color:#2ecc71'>Auto-Repair: +${stats.regen} HP</span>`); updateUI(); }
+            if(stats.regen > 0 && stats.hp < stats.maxHp) { stats.hp = Math.min(stats.maxHp, stats.hp + stats.regen); showHeal(stats.regen, 'fleet-container'); log(`<span style='color:#2ecc71'>Auto-Repair: +${Math.floor(stats.regen)} HP</span>`); updateUI(); }
         }
         function animFleetAttack() { const mems = document.querySelectorAll('.fleet-member'); mems.forEach((img, i) => { setTimeout(() => { img.classList.add('attack'); setTimeout(()=>img.classList.remove('attack'), 300); }, i * 50); }); }
         function dealDamageToEnemy(amount, isCrit) {
@@ -311,13 +311,20 @@
         }
         function addEp(v) { stats.ep = Math.min(100, stats.ep + v); updateUI(); }
 
+        // ★RP獲得追加
         function winGame() {
-            // お金
-            const money = currentMission.drops.money;
+            // Money
+            const missionBonus = getSkillBonus('mission_bonus');
+            const money = Math.floor(currentMission.drops.money * (1 + missionBonus));
             user.money += money;
             let msg = `💰 ¥${money.toLocaleString()}`;
 
-            // 素材
+            // ★RP獲得 (資金の10%程度)
+            const rpGain = Math.floor(money * 0.1);
+            user.rp = (user.rp || 0) + rpGain;
+            msg += `<br>🧪 ${rpGain} RP`;
+
+            // Material
             if(currentMission.drops.matChance > 0) {
                 const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
                 let table = lootTable; 
