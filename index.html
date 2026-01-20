@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>  Hadron Lab</title>
+    <title>赤尾 亮伍 | Hadron Lab</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== ハドこれ 4.0 Lab Home UI ===== */
+        /* ===== ハドこれ 4.1 Lab Home UI ===== */
         :root {
             --hc-dark: #1a1c23;
             --hc-panel: rgba(20, 25, 40, 0.85);
@@ -16,19 +16,21 @@
             --hc-blue: #3498db;
             --hc-green: #2ecc71;
             --hc-glow: #00f3ff;
+            --hc-ultra: #e74c3c;
         }
 
         body { margin: 0; background: #000; color: white; font-family: 'M PLUS Rounded 1c', sans-serif; overflow: hidden; }
 
-        /* 背景：研究室のイメージ */
+        /* 背景：研究室のイメージ（画像適用） */
         .lab-container {
             width: 100vw; height: 100vh;
-            background: radial-gradient(circle at 70% 50%, #2c3e50 0%, #000 100%);
             position: relative;
-            background-image: 
-                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
+            
+            /* ★★★ ここを修正しました ★★★ */
+            background-image: url('images/lab_bg.png');
+            background-size: cover;
+            background-position: center;
+            background-color: #0a0e14; /* 読み込み前の予備色 */
         }
 
         /* 上部バー（資材） */
@@ -42,9 +44,9 @@
             border: 1px solid #444; border-radius: 30px; padding: 5px 20px; margin-right: 20px;
         }
         .res-icon { width: 20px; height: 20px; background: var(--hc-green); border-radius: 50%; margin-right: 10px; box-shadow: 0 0 10px var(--hc-green);}
-        .res-val { font-family: 'Orbitron'; font-size: 1.2rem; color: var(--hc-glow); }
+        .res-val { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--hc-glow); }
 
-        /* 左サイドメニュー（艦これ風ギアボタン） */
+        /* 左サイドメニュー */
         .menu-area {
             position: absolute; left: 50px; top: 100px; bottom: 50px; width: 300px;
             display: flex; flex-direction: column; justify-content: center; gap: 20px; z-index: 20;
@@ -56,11 +58,11 @@
             border: 2px solid var(--hc-blue); border-left: 10px solid var(--hc-blue);
             border-radius: 5px; color: white; 
             display: flex; align-items: center; padding-left: 20px;
-            font-family: 'Orbitron'; font-size: 1.2rem; cursor: pointer;
+            font-family: 'Orbitron', sans-serif; font-size: 1.2rem; cursor: pointer;
             transition: all 0.2s; position: relative; overflow: hidden;
         }
         .menu-btn:hover { transform: translateX(10px); background: var(--hc-blue); text-shadow: 0 0 10px white; }
-        
+
         /* 出撃ボタン（特大） */
         .btn-sortie {
             width: 200px; height: 200px; border-radius: 50%;
@@ -71,7 +73,7 @@
             cursor: pointer; transition: transform 0.2s; z-index: 30;
         }
         .btn-sortie:hover { transform: scale(1.05); box-shadow: 0 0 50px var(--hc-red); }
-        .sortie-text { font-family: 'Orbitron'; font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 0 #000; }
+        .sortie-text { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 0 #000; }
         .sortie-sub { font-size: 0.8rem; }
 
         /* 右側：秘書粒子エリア */
@@ -119,7 +121,7 @@
         }
         .close-modal:hover { color: white; }
 
-        /* 既存のスタイル移植 */
+        /* コレクションリスト */
         .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
         .mini-card { background: #2a2d35; border: 1px solid #444; border-radius: 5px; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; }
         .mini-card.got { opacity: 1; border-color: var(--hc-orange); }
@@ -128,8 +130,19 @@
         
         /* ガチャ演出用 */
         .particle-card { width: 100%; max-width: 300px; background: white; border-radius: 10px; margin: 0 auto; overflow: hidden; display: none; color: #333; animation: popIn 0.5s; position: relative; }
-        .rarity-ultra { border: 4px solid var(--hc-ultra); background: linear-gradient(135deg, #fff, #ffcccc); box-shadow: 0 0 30px var(--hc-ultra); animation: shimmer 3s linear infinite; }
-        .rarity-holo { border: 4px solid #f1c40f; animation: holoPulse 2s ease-in-out infinite; background: linear-gradient(135deg, #fff, #fffbe0); }
+        /* レアリティエフェクト */
+        .rarity-ultra { 
+            border: 4px solid var(--hc-ultra); 
+            background: linear-gradient(135deg, #fff 0%, #ffcccc 40%, #fff 50%, #ffcccc 60%, #fff 100%);
+            background-size: 300% auto;
+            animation: popIn 0.5s, shimmer 3s linear infinite;
+            box-shadow: 0 0 30px var(--hc-ultra);
+        }
+        .rarity-holo { 
+            border: 4px solid #f1c40f; 
+            animation: popIn 0.5s, holoPulse 2s ease-in-out infinite; 
+            background: linear-gradient(135deg, #fff, #fffbe0); 
+        }
 
         @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
@@ -229,7 +242,7 @@
 
     <script src="script.js"></script>
     <script>
-        // ★データ定義 (3.4準拠)
+        // ★データ定義 (Ver 4.1)
         const particleDB = [
             { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子です。基本ですね。" },
             { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子です。" },
@@ -319,7 +332,7 @@
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // ガチャロジック (Ver 3.3ベース)
+        // ガチャロジック
         function tryGacha(times) {
             const cost = 300;
             if(budget < cost) { alert("予算不足です！"); return; }
