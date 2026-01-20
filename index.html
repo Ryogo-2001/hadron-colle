@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Hadron Lab Ver 13.0</title>
+    <title>Hadron Lab Ver 14.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 13.0 Style ===== */
+        /* ===== Hadron Lab 14.0 Style ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -120,15 +120,29 @@
         .item-card { background: var(--hc-panel); border: 1px solid #444; padding: 10px; text-align: center; cursor: pointer; border-radius: 5px; }
         .item-card:hover { background: #333; border-color: #888; }
         
+        /* レアリティ設定 */
         .rarity-common { color: #fff; }
         .rarity-rare { color: #3498db; }
         .rarity-holo { color: #f1c40f; text-shadow: 0 0 5px #f1c40f; }
         .rarity-ultra { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; font-weight: bold; }
+        
+        /* ★GENESIS (虹色) */
+        .rarity-genesis {
+            background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            background-size: 400%;
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: rainbow 3s linear infinite;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            font-size: 1.1em;
+        }
+        @keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #222; padding: 20px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; border-radius: 10px; border: 1px solid var(--hc-blue); }
 
-        /* 詳細モーダル用 */
+        /* 詳細モーダル */
         .detail-layout { display: flex; gap: 20px; align-items: flex-start; text-align: left; }
         .detail-img-box { width: 40%; text-align: center; background: radial-gradient(circle, #333, #000); padding: 20px; border-radius: 10px; border: 1px solid #555; }
         .detail-img-box img { max-width: 100%; max-height: 300px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
@@ -264,7 +278,7 @@
 
     <script src="script.js"></script>
     <script>
-        // === DATA ===
+        // === ★UPDATED DATA (全24種) ===
         const particles = [
             { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。ラボの主人公。前向きな性格。", skill:"Proton Beam", type:"atk" },
             { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。冷静沈着で中立的な立場。", skill:"Neutron Shield", type:"def" },
@@ -284,7 +298,13 @@
             { id: 16, name: "Gluon", symbol: "g", rarity: "rare", image: "images/Gluon.png", desc: "グルーオン。みんなを繋ぐ接着剤の妖精。", skill:"Strong Bond", type:"def" },
             { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/Charm_Quark.png", desc: "チャームクォーク。可愛さ全振りの小悪魔。", skill:"Lovely Charm", type:"atk" },
             { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/Neutrino.png", desc: "ニュートリノ。壁もすり抜ける幽霊少女。", skill:"Ghost Pass", type:"spd" },
-            { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。触れると危険なツンデレ双子。", skill:"Annihilation", type:"ult" }
+            { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。触れると危険なツンデレ双子。", skill:"Annihilation", type:"ult" },
+            // ID 20-24 (New! GENESIS)
+            { id: 20, name: "Positron", symbol: "e⁺", rarity: "rare", image: "images/Positron.png", desc: "陽電子。電子と対になる反粒子。", skill:"Mirror Dash", type:"spd" },
+            { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。変化を司る厳格な管理者。", skill:"Beta Decay", type:"atk" },
+            { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。重厚な守りの中立者。", skill:"Neutral Heavy", type:"def" },
+            { id: 23, name: "Tachyon", symbol: "T", rarity: "ultra", image: "images/Tachyon.png", desc: "タキオン。光速を超える未来の使者。", skill:"Time Travel", type:"spd" },
+            { id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。時空を統べる幻の存在。", skill:"Event Horizon", type:"ult" }
         ];
 
         const materials = [
@@ -322,7 +342,7 @@
             renderShop(); renderCraft(); renderOffice();
         }
 
-        // --- Deck Logic (Modified for Details) ---
+        // --- Deck Logic ---
         function renderDeckHome() {
             const el = document.getElementById('home-deck-display');
             if(!el) return; el.innerHTML = '';
@@ -334,7 +354,7 @@
                         img.src = p.image;
                         img.className = 'deck-member' + (index === 0 ? ' flagship' : '');
                         img.style.zIndex = 50 - index; 
-                        img.onclick = () => showCharDetail(p.id); // ホーム画面でも詳細表示
+                        img.onclick = () => showCharDetail(p.id); 
                         el.appendChild(img);
                     }
                 }
@@ -347,9 +367,7 @@
             for(let i=0; i<5; i++) {
                 const pid = user.deck[i];
                 const p = pid ? particles.find(x => x.id === pid) : null;
-                
                 let content = `<div style="font-size:2rem; color:#555;">+</div><div style="color:#aaa;">EMPTY</div>`;
-                // 画像クリックと背景クリックで挙動を分ける
                 if(p) {
                     content = `
                         <img src="${p.image}" onclick="showCharDetail(${p.id}, event)">
@@ -357,16 +375,11 @@
                         <div class="slot-remove" onclick="removeMember(${i}, event)">×</div>
                     `;
                 }
-
                 const div = document.createElement('div');
                 div.className = 'slot-card';
                 div.innerHTML = content;
-                // カード背景（画像以外）をクリックしたら選択画面へ
                 div.onclick = (e) => { 
-                    // 画像と×ボタン以外なら選択画面を開く
-                    if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) {
-                        openSelectModal(i);
-                    }
+                    if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) openSelectModal(i);
                 };
                 el.appendChild(div);
             }
@@ -376,7 +389,6 @@
             if(e) e.stopPropagation();
             const p = particles.find(x => x.id === pid);
             if(!p) return;
-
             const html = `
                 <div class="detail-img-box">
                     <img src="${p.image}">
@@ -386,14 +398,10 @@
                     <div style="color:#aaa; font-size:0.9rem;">No.${p.id}</div>
                     <h1 style="margin:5px 0;">${p.name} <span style="font-size:1.2rem; color:#888;">(${p.symbol})</span></h1>
                     <div class="detail-type">TYPE: ${p.type.toUpperCase()}</div>
-                    
                     <div class="detail-skill-box">
                         <div style="color:var(--hc-orange); font-weight:bold; font-family:'Orbitron'">SKILL: ${p.skill}</div>
                     </div>
-                    
-                    <div style="margin-top:20px; line-height:1.6; color:#ddd;">
-                        ${p.desc}
-                    </div>
+                    <div style="margin-top:20px; line-height:1.6; color:#ddd;">${p.desc}</div>
                 </div>
             `;
             document.getElementById('detail-content').innerHTML = html;
@@ -434,7 +442,7 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function saveDeck() { saveGame(); alert("編成を保存しました！"); }
 
-        // --- Other Logic ---
+        // --- Other Logic (Updated for Genesis) ---
         function initProposalForm() {
             const b = document.getElementById('sel-beam');
             const t = document.getElementById('sel-target');
@@ -458,10 +466,28 @@
             const b=beams.find(x=>x.id==bVal), t=targets.find(x=>x.id==tVal);
             if(user.money<b.cost+t.cost){alert("資金不足");return;}
             user.money-=(b.cost+t.cost);
-            const rand=Math.random()*100; let tr="common";
-            if(rand<5)tr="ultra"; else if(rand<20)tr="holo"; else if(rand<50)tr="rare";
+            
+            // パワー計算 (簡易)
+            const power = b.power * t.power * ((user.invDet.length||1));
+            const rand=Math.random()*100; 
+            let tr="common";
+            
+            // ★GENESIS対応ガチャ確率
+            if(power > 50) {
+                if(rand < 1) tr="genesis";      // 1%
+                else if(rand < 6) tr="ultra";
+                else if(rand < 20) tr="holo";
+                else if(rand < 50) tr="rare";
+            } else if(power > 10) {
+                if(rand < 0.5) tr="genesis";    // 0.5%
+                else if(rand < 3) tr="ultra";
+                else if(rand < 15) tr="holo";
+                else if(rand < 40) tr="rare";
+            }
+
             let c=particles.filter(p=>p.rarity===tr); if(c.length===0)c=particles.filter(p=>p.rarity==="common");
             const p=c[Math.floor(Math.random()*c.length)];
+            
             user.invPart[p.id]=(user.invPart[p.id]||0)+1; saveGame(); refreshUI();
             document.getElementById('exp-result-content').innerHTML=`<img src="${p.image}" style="width:100px"><br><h3 class="rarity-${p.rarity}">GET: ${p.name}</h3><p>${p.desc}</p>`;
             document.getElementById('result-modal').style.display='block';
@@ -485,7 +511,11 @@
             Object.keys(user.invPart).forEach(pidStr=>{
                 const pid=parseInt(pidStr); if(user.invPart[pid]>0){
                     const p=particles.find(x=>x.id==pid); if(p){
-                        let pr=1000; if(p.rarity=="rare")pr=3000; if(p.rarity=="holo")pr=10000; if(p.rarity=="ultra")pr=50000;
+                        let pr=1000; 
+                        if(p.rarity=="rare")pr=3000; 
+                        if(p.rarity=="holo")pr=10000; 
+                        if(p.rarity=="ultra")pr=50000;
+                        if(p.rarity=="genesis")pr=1000000; // 100万！
                         el.innerHTML+=`<div class="item-card" onclick="sell(${pid},${pr})"><span class="rarity-${p.rarity}">${p.name}</span> x${user.invPart[pid]}<br>PUBLISH (¥${pr})</div>`;
                     }
                 }
