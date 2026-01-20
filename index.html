@@ -257,21 +257,30 @@
     <script src="script.js"></script>
     <script>
         // === ★NEW DATA (14 Types) ===
-        const particles = [
-            { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子です。基本ですね。" },
-            { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子です。" },
-            { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。" },
-            { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。" },
-            { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。" },
-            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", rarity: "rare", image: "images/sigma.png", desc: "シグマ粒子。" },
-            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", rarity: "holo", image: "images/xi.png", desc: "グザイ粒子。" },
-            { id: 8, name: "H-Dibaryon", symbol: "H", rarity: "holo", image: "images/h_dibaryon.png", desc: "Hダイバリオン。" },
-            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。" },
-            { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。" },
-            { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。" },
-            { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。" },
-            { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。" },
-            { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。" }
+        // === ★NEW DATA (19 Types) ===
+        const particleDB = [
+            // --- 既存キャラクター (ID 1-14) ---
+            { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。ラボの主人公。前向きな性格。", skill:"Proton Beam", type:"atk" },
+            { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。冷静沈着で中立的な立場。", skill:"Neutron Shield", type:"def" },
+            { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。核力を媒介する元気な子。", skill:"Yukawa Force", type:"spd" },
+            { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。ちょっと不思議なストレンジちゃん。", skill:"Strange Hit", type:"atk" },
+            { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。お姉さん的存在。", skill:"Hyper Guard", type:"def" },
+            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", rarity: "rare", image: "images/sigma.png", desc: "シグマ粒子。攻撃的な性格。", skill:"Isospin Slash", type:"atk" },
+            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", rarity: "holo", image: "images/xi.png", desc: "グザイ粒子。滅多にデレない。", skill:"Cascade Fall", type:"atk" },
+            { id: 8, name: "H-Dibaryon", symbol: "H", rarity: "holo", image: "images/h_dibaryon.png", desc: "Hダイバリオン。伝説の6クォーク娘。", skill:"Hexa-Quark", type:"def" },
+            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。怒るとすぐ爆発する。", skill:"Resonance", type:"spd" },
+            { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。王者の風格を持つ。", skill:"Strangeness 3", type:"ult" },
+            { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。チャーミングな妹。", skill:"Charm Speed", type:"spd" },
+            { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。隠された魅力を持つ。", skill:"Charmonium", type:"atk" },
+            { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。最も重く、最強の女騎士。", skill:"Truth Smasher", type:"ult" },
+            { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。万物に質量を与える女神。", skill:"God Field", type:"ult" },
+
+            // --- ★新キャラクター (ID 15-19) ---
+            { id: 15, name: "Photon", symbol: "γ", rarity: "common", image: "images/proton.png", desc: "光子。光の速さで情報を届けるアイドル。", skill:"Optical Flash", type:"spd" },
+            { id: 16, name: "Gluon", symbol: "g", rarity: "rare", image: "images/proton.png", desc: "グルーオン。みんなを繋ぐ接着剤の妖精。", skill:"Strong Bond", type:"def" },
+            { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/proton.png", desc: "チャームクォーク。可愛さ全振りの小悪魔。", skill:"Lovely Charm", type:"atk" },
+            { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/proton.png", desc: "ニュートリノ。壁もすり抜ける幽霊少女。", skill:"Ghost Pass", type:"spd" },
+            { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/proton.png", desc: "反陽子。触れると危険なツンデレ双子。", skill:"Annihilation", type:"ult" }
         ];
 
         const materials = [
