@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 11.0 Data Update ===== */
+        /* ===== Hadron Lab 11.0 Complete Style ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -67,7 +67,7 @@
         /* --- ホーム画面 (デッキ表示) --- */
         #view-home { background: transparent; backdrop-filter: none; pointer-events: none; }
         
-        /* メニュー位置 */
+        /* メニュー位置 (左寄せ) */
         .home-menu-container {
             position: absolute; 
             top: 55%; left: 150px; transform: translateY(-50%);
@@ -99,7 +99,7 @@
         .btn-battle { width: 110px; height: 110px; background: #c0392b; color: white; top: 65%; right: 5%; font-size: 0.9rem; border-color: #e74c3c; }
         .btn-craft { width: 100px; height: 100px; background: #7f8c8d; color: white; top: 15%; right: 15%; font-size: 0.9rem; }
 
-        /* デッキ表示エリア */
+        /* デッキ表示エリア (右下) */
         .deck-display-area {
             position: absolute; right: 20px; bottom: 20px; 
             height: 60vh; width: 60vw;
@@ -115,7 +115,7 @@
             pointer-events: auto; cursor: pointer;
             transform-origin: bottom center;
             border: 2px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.5); /* 画像がない場合の背景 */
+            background: rgba(0,0,0,0.5);
         }
         .deck-member:hover { 
             transform: translateY(-30px) scale(1.1); z-index: 100; 
@@ -256,9 +256,8 @@
 
     <script src="script.js"></script>
     <script>
-        // === ★NEW DATA (14 Types) ===
-        // === ★NEW DATA (19 Types) ===
-        const particleDB = [
+        // === ★COMPLETE PARTICLE DATA (19 Types) ===
+        const particles = [
             // --- 既存キャラクター (ID 1-14) ---
             { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。ラボの主人公。前向きな性格。", skill:"Proton Beam", type:"atk" },
             { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。冷静沈着で中立的な立場。", skill:"Neutron Shield", type:"def" },
@@ -275,14 +274,13 @@
             { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。最も重く、最強の女騎士。", skill:"Truth Smasher", type:"ult" },
             { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。万物に質量を与える女神。", skill:"God Field", type:"ult" },
 
-             // --- ★新キャラクター (ID 15-19) ---
+            // --- ★新キャラクター (ID 15-19) ---
             { id: 15, name: "Photon", symbol: "γ", rarity: "common", image: "images/Photon.png", desc: "光子。光の速さで情報を届けるアイドル。", skill:"Optical Flash", type:"spd" },
             { id: 16, name: "Gluon", symbol: "g", rarity: "rare", image: "images/Gluon.png", desc: "グルーオン。みんなを繋ぐ接着剤の妖精。", skill:"Strong Bond", type:"def" },
             { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/Charm_Quark.png", desc: "チャームクォーク。可愛さ全振りの小悪魔。", skill:"Lovely Charm", type:"atk" },
             { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/Neutrino.png", desc: "ニュートリノ。壁もすり抜ける幽霊少女。", skill:"Ghost Pass", type:"spd" },
             { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。触れると危険なツンデレ双子。", skill:"Annihilation", type:"ult" }
-
-            ];
+        ];
 
         const materials = [
             { id: 'm1', name: 'Dry Ice', cost: 500 }, { id: 'm2', name: 'Alcohol', cost: 300 },
