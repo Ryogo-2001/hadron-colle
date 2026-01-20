@@ -3,197 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Hadron Lab Ver 20.0</title>
+    <title>Hadron Lab Ver 20.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
-    
-    <style>
-        /* ===== Hadron Lab 20.0 Style ===== */
-        :root {
-            --hc-bg: #0a0e14;
-            --hc-panel: #151922;
-            --hc-border: #333;
-            --hc-orange: #f39c12;
-            --hc-blue: #3498db;
-            --hc-green: #2ecc71;
-            --hc-purple: #9b59b6;
-            --hc-red: #e74c3c;
-            --hc-text: #ecf0f1;
-        }
-
-        body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 'M PLUS Rounded 1c', sans-serif; overflow: hidden; user-select: none; }
-
-        /* 背景 */
-        .lab-container {
-            width: 100vw; height: 100vh; position: relative;
-            background-image: url('images/lab_bg.png'); 
-            background-size: cover; background-position: center; 
-            background-color: var(--hc-bg);
-        }
-
-        /* トップバー */
-        .top-bar {
-            position: absolute; top: 0; left: 0; width: 100%; height: 50px;
-            background: rgba(0,0,0,0.6); 
-            display: flex; align-items: center; padding: 0 20px; gap: 20px; z-index: 100;
-        }
-        .status-box {
-            background: rgba(40, 50, 60, 0.8); padding: 5px 15px; border-radius: 2px; border: 1px solid #555;
-            display: flex; align-items: center; gap: 10px; font-family: 'Orbitron'; font-size: 0.9rem;
-        }
-
-        /* サイドバー */
-        .sidebar {
-            position: absolute; top: 50px; left: 0; bottom: 0; width: 60px;
-            background: rgba(0,0,0,0.8); border-right: 1px solid #444; 
-            display: flex; flex-direction: column; z-index: 90; transition: 0.2s; overflow: hidden;
-        }
-        .sidebar:hover { width: 220px; }
-        .menu-item {
-            height: 50px; display: flex; align-items: center; padding-left: 15px;
-            color: #aaa; cursor: pointer; white-space: nowrap; transition: 0.2s; border-bottom: 1px solid #222;
-        }
-        .menu-item:hover, .menu-item.active { background: var(--hc-blue); color: white; }
-        .menu-icon { width: 30px; font-size: 1.2rem; text-align: center; margin-right: 10px; }
-
-        /* メインビュー */
-        .main-view {
-            position: absolute; top: 50px; left: 0; right: 0; bottom: 0;
-            padding: 40px; overflow-y: auto; display: none;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s; z-index: 80; padding-left: 80px;
-        }
-        .main-view.active { display: block; }
-
-        /* --- ホーム画面 --- */
-        #view-home { background: transparent; backdrop-filter: none; pointer-events: none; }
-        .home-menu-container {
-            position: absolute; top: 55%; left: 150px; transform: translateY(-50%);
-            width: 450px; height: 450px; pointer-events: auto; z-index: 50;
-        }
-        .gear-btn {
-            position: absolute; border-radius: 50%; 
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            cursor: pointer; transition: 0.2s;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); font-family: 'Orbitron'; font-weight: bold; border: 2px solid rgba(255,255,255,0.2);
-            background-color: rgba(0,0,0,0.8); 
-        }
-        .gear-btn:hover { transform: scale(1.1); z-index: 100; filter: brightness(1.2); border-color: white; }
-        .gear-btn::before {
-            content: ""; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
-            border-radius: 50%; border: 2px dashed rgba(255,255,255,0.3); animation: spin 20s linear infinite; pointer-events: none;
-        }
-        .btn-main { width: 170px; height: 170px; background: radial-gradient(circle, #e67e22, #d35400); border: 4px solid #f1c40f; color: #fff; font-size: 1.4rem; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; }
-        .btn-shop { width: 100px; height: 100px; background: #2ecc71; color: white; top: 15%; left: 15%; font-size: 0.8rem; }
-        .btn-deck { width: 100px; height: 100px; background: #9b59b6; color: white; top: 70%; left: 15%; font-size: 0.8rem; }
-        .btn-office { width: 100px; height: 100px; background: #3498db; color: white; top: 85%; left: 50%; transform: translateX(-50%); font-size: 0.8rem; }
-        .btn-battle { width: 110px; height: 110px; background: #c0392b; color: white; top: 65%; right: 5%; font-size: 0.9rem; border-color: #e74c3c; }
-        .btn-craft { width: 100px; height: 100px; background: #7f8c8d; color: white; top: 15%; right: 15%; font-size: 0.9rem; }
-
-        /* デッキ表示 (ホーム) */
-        .deck-display-area {
-            position: absolute; right: 20px; bottom: 20px; height: 60vh; width: 60vw; pointer-events: none; 
-            display: flex; justify-content: flex-end; align-items: flex-end; z-index: 10;
-        }
-        .deck-member {
-            width: 220px; height: auto; object-fit: contain; margin-right: -120px; border-radius: 10px;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.8); transition: 0.3s; pointer-events: auto; cursor: pointer;
-            transform-origin: bottom center; border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5);
-        }
-        .deck-member.flagship { width: 260px; z-index: 20; border: 2px solid var(--hc-orange); }
-
-        /* 編成・ミッション選択 */
-        .deck-slots { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 30px; }
-        .slot-card {
-            width: 18%; background: #222; border: 2px dashed #555; height: 250px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; border-radius: 10px; position: relative; overflow: hidden;
-        }
-        .slot-card:hover { border-color: var(--hc-green); background: #2a2a2a; }
-        .slot-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.2s; }
-        .slot-card img:hover { opacity: 1; transform: scale(1.1); }
-        .slot-label { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); text-align: center; padding: 5px 0; font-weight: bold; color: var(--hc-orange); pointer-events: none; }
-        .slot-remove { position: absolute; top: 5px; right: 5px; background: red; width: 25px; height: 25px; border-radius: 50%; text-align: center; line-height: 25px; font-weight:bold; cursor: pointer; z-index: 10; border:2px solid white; }
-
-        .mission-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .mission-card { background: linear-gradient(135deg, #222, #111); border: 2px solid #444; border-radius: 10px; padding: 20px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-        .mission-card:hover { transform: translateY(-5px); border-color: var(--hc-blue); box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); }
-        .mission-tag { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 8px; border-radius: 3px; background: #333; }
-        .tag-money { color: #f1c40f; border: 1px solid #f1c40f; }
-        .tag-mat { color: #2ecc71; border: 1px solid #2ecc71; }
-        .tag-boss { color: #e74c3c; border: 1px solid #e74c3c; font-weight: bold; }
-
-        /* 共通グリッド */
-        .shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
-        
-        /* ★改善版 アイテムカード */
-        .item-card { 
-            background: var(--hc-panel); border: 2px solid #444; padding: 10px; 
-            text-align: center; cursor: pointer; border-radius: 8px; transition: 0.2s;
-            position: relative; overflow: hidden;
-        }
-        .item-card:hover { transform: translateY(-3px); }
-
-        /* ★レアリティ別カードスタイル (枠線&発光) */
-        .card-common { border-color: #666; }
-        .card-rare { border-color: #3498db; box-shadow: 0 0 5px rgba(52, 152, 219, 0.2); }
-        .card-holo { border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); background: linear-gradient(135deg, #1a1a1a, #2a2200); }
-        .card-ultra { border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); background: linear-gradient(135deg, #1a1a1a, #2a0000); }
-        .card-genesis { 
-            border-color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.6); 
-            animation: border-rainbow 3s linear infinite;
-            background: linear-gradient(135deg, #000, #222);
-        }
-
-        /* レアリティテキスト色 */
-        .rarity-common { color: #aaa; }
-        .rarity-rare { color: #3498db; font-weight: bold; }
-        .rarity-holo { color: #f1c40f; text-shadow: 0 0 5px #f1c40f; font-weight: bold; }
-        .rarity-ultra { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; font-weight: bold; font-size: 1.05rem; }
-        .rarity-genesis { 
-            background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
-            background-size: 400%; -webkit-background-clip: text; color: transparent; 
-            animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1rem;
-        }
-
-        /* レアリティラベル (カード上部) */
-        .rarity-label { font-size: 0.6rem; font-family: 'Orbitron'; letter-spacing: 1px; margin-bottom: 5px; color: #888; }
-        .label-rare { color: #3498db; }
-        .label-holo { color: #f1c40f; }
-        .label-ultra { color: #e74c3c; }
-        .label-genesis { color: #fff; text-shadow: 0 0 5px #fff; }
-
-        @keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
-        @keyframes border-rainbow { 
-            0%{border-color: #ff0000;} 20%{border-color: #ffff00;} 40%{border-color: #00ff00;} 
-            60%{border-color: #00ffff;} 80%{border-color: #0000ff;} 100%{border-color: #ff00ff;} 
-        }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; justify-content: center; align-items: center; }
-        .modal-content { background: #222; padding: 20px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; border-radius: 10px; border: 1px solid var(--hc-blue); }
-
-        .detail-layout { display: flex; gap: 20px; align-items: flex-start; text-align: left; }
-        .detail-img-box { width: 40%; text-align: center; background: radial-gradient(circle, #333, #000); padding: 20px; border-radius: 10px; border: 1px solid #555; }
-        .detail-img-box img { max-width: 100%; max-height: 300px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
-        .detail-info { width: 60%; }
-        .detail-type { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.8rem; background: #444; margin-bottom: 10px; }
-        .detail-skill-box { margin-top: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-left: 4px solid var(--hc-orange); }
-        .skin-btn-container { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-        .skin-btn { padding: 5px 10px; background: #444; border: 1px solid #666; color: white; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
-        .skin-btn:hover, .skin-btn.active { background: var(--hc-blue); border-color: #fff; }
-
-        .craft-card { background: #1a1a1a; padding: 15px; border: 1px solid #444; text-align: left; position: relative; border-radius: 5px; }
-        .craft-card.owned { border-color: #2ecc71; background: #0f2215; }
-        .craft-req { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
-        .craft-btn { position: absolute; top: 10px; right: 10px; background: var(--hc-blue); border: none; color: white; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-size: 0.8rem; }
-        .craft-btn:disabled { background: #444; cursor: not-allowed; }
-
-        .gacha-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .gacha-item { background: #111; padding: 5px; border-radius: 5px; border: 1px solid #444; }
-        .gacha-item img { width: 100%; height: auto; }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -210,51 +22,25 @@
         </div>
 
         <div class="sidebar">
-            <div class="menu-item active" onclick="showHome()">
-                <div class="menu-icon">🏠</div> <span>HOME PORT</span>
-            </div>
-            <div class="menu-item" onclick="showView('view-deck')">
-                <div class="menu-icon">🔄</div> <span>FORMATION</span>
-            </div>
-            <div class="menu-item" onclick="showView('view-shop')">
-                <div class="menu-icon">🛒</div> <span>SUPPLY</span>
-            </div>
-            <div class="menu-item" onclick="showView('view-craft')">
-                <div class="menu-icon">🛠</div> <span>FACTORY</span>
-            </div>
-            <div class="menu-item" onclick="showView('view-proposal')">
-                <div class="menu-icon">📝</div> <span>PROPOSAL</span>
-            </div>
-            <div class="menu-item" onclick="showView('view-office')">
-                <div class="menu-icon">🎓</div> <span>ARCHIVE</span>
-            </div>
-            <div class="menu-item" onclick="showView('view-mission')">
-                <div class="menu-icon">⚔️</div> <span>MISSION</span>
-            </div>
+            <div class="menu-item active" onclick="showHome()"><div class="menu-icon">🏠</div> <span>HOME PORT</span></div>
+            <div class="menu-item" onclick="showView('view-deck')"><div class="menu-icon">🔄</div> <span>FORMATION</span></div>
+            <div class="menu-item" onclick="showView('view-shop')"><div class="menu-icon">🛒</div> <span>SUPPLY</span></div>
+            <div class="menu-item" onclick="showView('view-craft')"><div class="menu-icon">🛠</div> <span>FACTORY</span></div>
+            <div class="menu-item" onclick="showView('view-proposal')"><div class="menu-icon">📝</div> <span>PROPOSAL</span></div>
+            <div class="menu-item" onclick="showView('view-office')"><div class="menu-icon">🎓</div> <span>ARCHIVE</span></div>
+            <div class="menu-item" onclick="showView('view-mission')"><div class="menu-icon">⚔️</div> <span>MISSION</span></div>
         </div>
         
         <div class="deck-display-area" id="home-deck-display"></div>
 
         <div id="view-home" class="main-view active">
             <div class="home-menu-container">
-                <div class="gear-btn btn-main" onclick="showView('view-proposal')">
-                    <div style="font-size:2.5rem;">⚡</div><div>EXP.</div>
-                </div>
-                <div class="gear-btn btn-shop" onclick="showView('view-shop')">
-                    <div style="font-size:1.5rem;">🛒</div><div>SUPPLY</div>
-                </div>
-                <div class="gear-btn btn-deck" onclick="showView('view-deck')">
-                    <div style="font-size:1.5rem;">🔄</div><div>DECK</div>
-                </div>
-                <div class="gear-btn btn-craft" onclick="showView('view-craft')">
-                    <div style="font-size:1.5rem;">🛠</div><div>CRAFT</div>
-                </div>
-                <div class="gear-btn btn-office" onclick="showView('view-office')">
-                    <div style="font-size:1.5rem;">📂</div><div>DATA</div>
-                </div>
-                <div class="gear-btn btn-battle" onclick="showView('view-mission')">
-                    <div style="font-size:1.5rem;">⚔️</div><div>BATTLE</div>
-                </div>
+                <div class="gear-btn btn-main" onclick="showView('view-proposal')"><div style="font-size:2.5rem;">⚡</div><div>EXP.</div></div>
+                <div class="gear-btn btn-shop" onclick="showView('view-shop')"><div style="font-size:1.5rem;">🛒</div><div>SUPPLY</div></div>
+                <div class="gear-btn btn-deck" onclick="showView('view-deck')"><div style="font-size:1.5rem;">🔄</div><div>DECK</div></div>
+                <div class="gear-btn btn-craft" onclick="showView('view-craft')"><div style="font-size:1.5rem;">🛠</div><div>CRAFT</div></div>
+                <div class="gear-btn btn-office" onclick="showView('view-office')"><div style="font-size:1.5rem;">📂</div><div>DATA</div></div>
+                <div class="gear-btn btn-battle" onclick="showView('view-mission')"><div style="font-size:1.5rem;">⚔️</div><div>BATTLE</div></div>
             </div>
         </div>
 
@@ -268,6 +54,7 @@
         </div>
 
         <div id="view-shop" class="main-view"><h2 style="font-family:'Orbitron'">MATERIAL SHOP</h2><div id="shop-list" class="shop-grid"></div></div>
+        
         <div id="view-craft" class="main-view"><h2 style="font-family:'Orbitron'">WORKSHOP</h2><div id="craft-list" class="craft-grid"></div></div>
         
         <div id="view-proposal" class="main-view">
@@ -311,283 +98,11 @@
     </div>
 
     <div id="select-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>SELECT PARTICLE</h3>
-            <div id="select-list" class="particle-list">
-                </div>
-            <button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button>
-        </div>
+        <div class="modal-content"><h3>SELECT PARTICLE</h3><div id="select-list" class="particle-list"></div><button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button></div>
     </div>
-
     <div id="detail-modal" class="modal-overlay"><div class="modal-content" style="max-width:600px;"><div id="detail-content" class="detail-layout"></div><div style="text-align:center; margin-top:20px;"><button onclick="closeModal('detail-modal')" style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button></div></div></div>
     <div id="result-modal" class="modal-overlay"><div class="modal-content" style="text-align:center;"><h2 style="color:var(--hc-green);">Experiment Result</h2><div id="exp-result-content"></div><button onclick="closeModal('result-modal')" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button></div></div>
 
     <script src="script.js"></script>
-    <script>
-        // === Mission Data ===
-        const missionData = {
-            'm1': { name: "Basic Training", drops: { money: 2000, matChance: 0.3 } },
-            'm2': { name: "Gold Rush", drops: { money: 10000, matChance: 0 } },
-            'm3': { name: "Material Depot", drops: { money: 1000, matChance: 1.0, maxMat: 3 } },
-            'm4': { name: "Antimatter Zone", drops: { money: 5000, matChance: 0.8, rareMat: true } },
-            'm5': { name: "Event Horizon", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } }
-        };
-
-        const particles = [
-            { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。", skill:"Proton Beam", type:"atk" },
-            { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。", skill:"Neutron Shield", type:"def" },
-            { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。", skill:"Yukawa Force", type:"spd" },
-            { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。", skill:"Strange Hit", type:"atk" },
-            { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。", skill:"Hyper Guard", type:"def" },
-            { id: 6, name: "Sigma (-)", symbol: "Σ⁻", rarity: "rare", image: "images/sigma.png", desc: "シグマ粒子。", skill:"Isospin Slash", type:"atk" },
-            { id: 7, name: "Xi (-)", symbol: "Ξ⁻", rarity: "holo", image: "images/xi.png", desc: "グザイ粒子。", skill:"Cascade Fall", type:"atk" },
-            { id: 8, name: "H-Dibaryon", symbol: "H", rarity: "holo", image: "images/h_dibaryon.png", desc: "Hダイバリオン。", skill:"Hexa-Quark", type:"def" },
-            { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。", skill:"Resonance", type:"spd" },
-            { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。", skill:"Strangeness 3", type:"ult" },
-            { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。", skill:"Charm Speed", type:"spd" },
-            { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。", skill:"Charmonium", type:"atk" },
-            { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。", skill:"Truth Smasher", type:"ult" },
-            { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。", skill:"God Field", type:"ult" },
-            { id: 15, name: "Photon", symbol: "γ", rarity: "common", image: "images/Photon.png", desc: "光子。", skill:"Optical Flash", type:"spd" },
-            { id: 16, name: "Gluon", symbol: "g", rarity: "rare", image: "images/Gluon.png", desc: "グルーオン。", skill:"Strong Bond", type:"def" },
-            { id: 17, name: "Charm Quark", symbol: "c", rarity: "holo", image: "images/Charm_Quark.png", desc: "チャームクォーク。", skill:"Lovely Charm", type:"atk" },
-            { id: 18, name: "Neutrino", symbol: "ν", rarity: "rare", image: "images/Neutrino.png", desc: "ニュートリノ。", skill:"Ghost Pass", type:"spd" },
-            { id: 19, name: "Anti-Proton", symbol: "p̄", rarity: "ultra", image: "images/Anti-Proton.png", desc: "反陽子。", skill:"Annihilation", type:"ult" },
-            { id: 20, name: "Positron", symbol: "e⁺", rarity: "rare", image: "images/Positron.png", desc: "陽電子。", skill:"Mirror Dash", type:"spd" },
-            { id: 21, name: "W Boson", symbol: "W", rarity: "holo", image: "images/W_Boson.png", desc: "Wボソン。", skill:"Beta Decay", type:"atk" },
-            { id: 22, name: "Z Boson", symbol: "Z", rarity: "holo", image: "images/Z_Boson.png", desc: "Zボソン。", skill:"Neutral Heavy", type:"def" },
-            { id: 23, name: "Tachyon", symbol: "T", rarity: "ultra", image: "images/Tachyon.png", desc: "タキオン。", skill:"Time Travel", type:"spd" },
-            { id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill:"Event Horizon", type:"ult", skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ] }
-        ];
-
-        const materials = [
-            { id: 'm1', name: 'Dry Ice', cost: 500 }, { id: 'm2', name: 'Alcohol', cost: 300 },
-            { id: 'm3', name: 'PMT', cost: 5000 }, { id: 'm4', name: 'Scintillator', cost: 3000 },
-            { id: 'm5', name: 'Fiber', cost: 2000 }, { id: 'm6', name: 'MPPC', cost: 8000 },
-            { id: 'm7', name: 'Gold Wire', cost: 4000 }, { id: 'm8', name: 'PCB', cost: 1500 }, { id: 'm9', name: 'Liq. Helium', cost: 12000 }
-        ];
-        const lootTable = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
-        const matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC", m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium" };
-
-        const detectors = [
-            { id: 'd0', name: 'Geiger Counter', power: 1, req: {} },
-            { id: 'd1', name: 'Cloud Chamber', power: 2, req: {m1:1, m2:1} },
-            { id: 'd2', name: 'Spark Chamber', power: 5, req: {m7:1, m2:1} },
-            { id: 'd3', name: 'Scinti Counter', power: 8, req: {m3:1, m4:1} },
-            { id: 'd4', name: 'Wire Chamber', power: 12, req: {m7:2, m8:1} },
-            { id: 'd5', name: 'Cherenkov Det', power: 18, req: {m3:2, m1:2} },
-            { id: 'd6', name: 'EM Calorimeter', power: 25, req: {m4:3, m3:2} },
-            { id: 'd7', name: 'Hadron Cal', power: 30, req: {m4:5, m3:3} },
-            { id: 'd8', name: 'Fiber Tracker', power: 45, req: {m6:5, m5:5} },
-            { id: 'd9', name: 'TPC', power: 60, req: {m7:5, m8:2} },
-            { id: 'd10', name: 'Silicon Vertex', power: 80, req: {m6:10, m8:1} },
-            { id: 'd11', name: 'Belle II', power: 120, req: {m6:5, m7:5, m3:5} },
-            { id: 'd12', name: 'Super-K', power: 200, req: {m3:20} }
-        ];
-
-        const beams = [{id:'b1',name:'Cosmic',cost:0,power:1}, {id:'b2',name:'RI',cost:5000,power:3}];
-        const targets = [{id:'t1',name:'Air',cost:0,power:1}, {id:'t2',name:'Gold',cost:10000,power:2}];
-
-        let user = { money: 10000, invMat: {}, invDet: [], invPart: {1:1}, deck: [1, null, null, null, null], equippedSkins: {} };
-        let currentMission = null;
-        let currentSlotIndex = 0;
-
-        window.onload = function() {
-            try { loadGame(); refreshUI(); renderDeckHome(); renderDeckEdit(); initProposalForm(); }
-            catch(e) { console.error("Init Error:", e); }
-        };
-
-        function getImgSrc(p) {
-            if(user.equippedSkins && user.equippedSkins[p.id] && p.skins) {
-                const s = p.skins.find(sk => sk.id === user.equippedSkins[p.id]);
-                if(s) return s.image;
-            }
-            return p.image;
-        }
-
-        function showHome() { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
-        function showView(id) { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-        function refreshUI() {
-            document.getElementById('disp-money').innerText = user.money.toLocaleString();
-            renderShop(); renderCraft(); renderOffice();
-        }
-        function startBattle(missionId) { location.href = `battle.html?mission=${missionId}`; }
-
-        function renderDeckHome() {
-            const el = document.getElementById('home-deck-display'); if(!el) return; el.innerHTML = '';
-            user.deck.forEach((pid, index) => {
-                if(pid) {
-                    const p = particles.find(x => x.id === pid);
-                    if(p) {
-                        const img = document.createElement('img'); img.src = getImgSrc(p);
-                        img.className = 'deck-member' + (index === 0 ? ' flagship' : ''); img.style.zIndex = 50 - index; 
-                        img.onclick = () => showCharDetail(p.id); el.appendChild(img);
-                    }
-                }
-            });
-        }
-        function renderDeckEdit() {
-            const el = document.getElementById('deck-slots-container'); if(!el) return; el.innerHTML = '';
-            for(let i=0; i<5; i++) {
-                const pid = user.deck[i]; const p = pid ? particles.find(x => x.id === pid) : null;
-                let content = `<div style="font-size:2rem; color:#555;">+</div><div style="color:#aaa;">EMPTY</div>`;
-                if(p) {
-                    content = `<img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)"><div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div><div class="slot-remove" onclick="removeMember(${i}, event)">×</div>`;
-                }
-                const div = document.createElement('div'); div.className = 'slot-card'; div.innerHTML = content;
-                div.onclick = (e) => { if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) openSelectModal(i); };
-                el.appendChild(div);
-            }
-        }
-        function showCharDetail(pid, e) {
-            if(e) e.stopPropagation(); const p = particles.find(x => x.id === pid); if(!p) return;
-            let skinBtns = "";
-            if(p.skins) {
-                skinBtns = `<div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;"><div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">COSTUME CHANGE</div><div class="skin-btn-container">`;
-                const currentSkin = (user.equippedSkins && user.equippedSkins[pid]) || 'default';
-                p.skins.forEach(s => { skinBtns += `<div class="skin-btn ${s.id===currentSkin?'active':''}" onclick="changeSkin(${pid}, '${s.id}')">${s.name}</div>`; });
-                skinBtns += `</div></div>`;
-            }
-            const html = `<div class="detail-img-box"><img src="${getImgSrc(p)}" id="detail-img-preview"><div style="margin-top:10px; font-weight:bold; font-family:'Orbitron'" class="rarity-${p.rarity}">${p.rarity.toUpperCase()}</div></div><div class="detail-info"><div style="color:#aaa; font-size:0.9rem;">No.${p.id}</div><h1 style="margin:5px 0;">${p.name} <span style="font-size:1.2rem; color:#888;">(${p.symbol})</span></h1><div class="detail-type">TYPE: ${p.type.toUpperCase()}</div><div class="detail-skill-box"><div style="color:var(--hc-orange); font-weight:bold; font-family:'Orbitron'">SKILL: ${p.skill}</div></div><div style="margin-top:20px; line-height:1.6; color:#ddd;">${p.desc}</div>${skinBtns}</div>`;
-            document.getElementById('detail-content').innerHTML = html; document.getElementById('detail-modal').style.display = 'flex';
-        }
-        function changeSkin(pid, skinId) {
-            if(!user.equippedSkins) user.equippedSkins = {}; user.equippedSkins[pid] = skinId; saveGame();
-            const p = particles.find(x => x.id === pid);
-            if(p) {
-                document.getElementById('detail-img-preview').src = getImgSrc(p);
-                const btns = document.querySelectorAll('.skin-btn');
-                btns.forEach(b => { if(b.innerText === p.skins.find(s=>s.id===skinId).name) b.classList.add('active'); else b.classList.remove('active'); });
-            }
-            renderDeckHome(); renderDeckEdit();
-        }
-        function removeMember(index, e) { e.stopPropagation(); user.deck[index] = null; renderDeckEdit(); renderDeckHome(); saveGame(); }
-        
-        // ★修正版: 選択モーダル (枠線とレアリティラベル追加)
-        function openSelectModal(slotIndex) {
-            currentSlotIndex = slotIndex; const list = document.getElementById('select-list'); list.innerHTML = ''; let hasAny = false;
-            Object.keys(user.invPart).forEach(pidStr => {
-                const pid = parseInt(pidStr);
-                if(user.invPart[pid] > 0) {
-                    hasAny = true; const p = particles.find(x => x.id === pid);
-                    if(p) {
-                        const div = document.createElement('div'); 
-                        div.className = `item-card card-${p.rarity}`; // クラス追加
-                        div.innerHTML = `
-                            <div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div>
-                            <img src="${getImgSrc(p)}" style="width:70px; margin-bottom:5px;">
-                            <div class="rarity-${p.rarity}" style="font-size:0.9rem;">${p.name}</div>
-                        `;
-                        div.onclick = () => { user.deck[currentSlotIndex] = pid; closeModal('select-modal'); renderDeckEdit(); renderDeckHome(); saveGame(); };
-                        list.appendChild(div);
-                    }
-                }
-            });
-            if(!hasAny) list.innerHTML = '<p>所持している粒子がありません。</p>'; document.getElementById('select-modal').style.display = 'flex';
-        }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function saveDeck() { saveGame(); alert("編成を保存しました！"); }
-
-        function initProposalForm() {
-            const b = document.getElementById('sel-beam'), t = document.getElementById('sel-target'), d = document.getElementById('sel-detector');
-            if(b) b.innerHTML = beams.map(x=>`<option value="${x.id}">${x.name} ¥${x.cost}</option>`).join('');
-            if(t) t.innerHTML = targets.map(x=>`<option value="${x.id}">${x.name} ¥${x.cost}</option>`).join('');
-            if(d) {
-                if(!user.invDet || user.invDet.length === 0) d.innerHTML = '<option value="">(No Detector)</option>';
-                else d.innerHTML = user.invDet.map(id => { const det = detectors.find(x=>x.id==id); return det?`<option value="${id}">${det.name} (Pwr:${det.power})</option>`:''; }).join('');
-            }
-            calcProposalCost();
-        }
-        function calcProposalCost(){
-            const b = beams.find(x=>x.id==document.getElementById('sel-beam').value);
-            const t = targets.find(x=>x.id==document.getElementById('sel-target').value);
-            document.getElementById('prop-cost').innerText = ((b?b.cost:0)+(t?t.cost:0)).toLocaleString();
-        }
-        function runExperiment(times = 1){
-            const bVal=document.getElementById('sel-beam').value, tVal=document.getElementById('sel-target').value, dVal=document.getElementById('sel-detector').value;
-            if(!dVal){alert("検出器が必要です");return;}
-            const b=beams.find(x=>x.id==bVal), t=targets.find(x=>x.id==tVal);
-            const totalCost = (b.cost + t.cost) * times;
-            if(user.money < totalCost){alert("資金不足");return;}
-            user.money -= totalCost;
-
-            const det = detectors.find(x => x.id == dVal);
-            const power = b.power * t.power * (det ? det.power : 1);
-            
-            let results = [];
-            for(let i=0; i<times; i++) {
-                const rand=Math.random()*100; let tr="common";
-                if(power > 100) { if(rand<2) tr="genesis"; else if(rand<10) tr="ultra"; else if(rand<30) tr="holo"; else if(rand<60) tr="rare"; }
-                else if(power > 50) { if(rand<1) tr="genesis"; else if(rand<6) tr="ultra"; else if(rand<20) tr="holo"; else if(rand<50) tr="rare"; }
-                else if(power > 10) { if(rand<0.5) tr="genesis"; else if(rand<3) tr="ultra"; else if(rand<15) tr="holo"; else if(rand<40) tr="rare"; }
-                
-                let c=particles.filter(p=>p.rarity===tr); if(c.length===0) c=particles.filter(p=>p.rarity==="common");
-                const p = c[Math.floor(Math.random()*c.length)];
-                user.invPart[p.id] = (user.invPart[p.id]||0)+1; results.push(p);
-            }
-            saveGame(); refreshUI();
-            
-            const resEl = document.getElementById('exp-result-content');
-            if(times === 1) { const p = results[0]; resEl.innerHTML = `<img src="${getImgSrc(p)}" style="width:100px"><br><h3 class="rarity-${p.rarity}">GET: ${p.name}</h3><p>${p.desc}</p>`; }
-            else {
-                let html = '<div class="gacha-grid">'; results.forEach(p => { html += `<div class="gacha-item"><img src="${getImgSrc(p)}"><div class="rarity-${p.rarity}" style="font-size:0.7rem;">${p.name}</div></div>`; }); html += '</div>'; resEl.innerHTML = html;
-            }
-            document.getElementById('result-modal').style.display='block';
-        }
-
-        function renderShop(){
-            const el=document.getElementById('shop-list'); if(!el)return; el.innerHTML='';
-            materials.forEach(m=>{ el.innerHTML+=`<div class="item-card" onclick="buy('${m.id}')"><div>${m.name}</div><div style="color:var(--hc-green)">¥${m.cost}</div><div style="font-size:0.8rem">持: ${user.invMat?user.invMat[m.id]||0:0}</div></div>`; });
-        }
-        function buy(id){
-            const m=materials.find(x=>x.id==id); if(user.money>=m.cost){ user.money-=m.cost; user.invMat[id]=(user.invMat[id]||0)+1; saveGame(); refreshUI(); } else alert("資金不足");
-        }
-        function renderCraft(){
-            const el=document.getElementById('craft-list'); if(!el)return; el.innerHTML='';
-            detectors.forEach(d=>{
-                const own=user.invDet.includes(d.id);
-                let reqHtml = ''; let canCraft = true;
-                if(Object.keys(d.req).length === 0) reqHtml = "FREE (Starter)";
-                else {
-                    Object.keys(d.req).forEach(mid => {
-                        const m = materials.find(x=>x.id==mid);
-                        const need = d.req[mid]; const have = user.invMat[mid]||0;
-                        if(have < need) canCraft = false;
-                        reqHtml += `<div>${m.name}: ${have}/${need}</div>`;
-                    });
-                }
-                const btnState = (own || !canCraft) ? 'disabled' : ''; const btnText = own ? 'OWNED' : 'CRAFT';
-                el.innerHTML += `<div class="craft-card ${own?'owned':''}"><div style="font-weight:bold; color:var(--hc-orange)">${d.name} <span style="font-size:0.8rem; color:#aaa;">(Pw:${d.power})</span></div><div class="craft-req">${reqHtml}</div><button class="craft-btn" ${btnState} onclick="craft('${d.id}')">${btnText}</button></div>`;
-            });
-        }
-        function craft(id){
-            if(user.invDet.includes(id)) return;
-            const d = detectors.find(x=>x.id==id);
-            if(Object.keys(d.req).length > 0) {
-                let ok = true; Object.keys(d.req).forEach(mid => { if((user.invMat[mid]||0) < d.req[mid]) ok=false; }); if(!ok) return;
-                Object.keys(d.req).forEach(mid => { user.invMat[mid] -= d.req[mid]; });
-            }
-            user.invDet.push(id); saveGame(); refreshUI(); initProposalForm();
-        }
-
-        function renderOffice(){
-            const el=document.getElementById('particle-stock-list'); if(!el)return; el.innerHTML='';
-            Object.keys(user.invPart).forEach(pidStr=>{
-                const pid=parseInt(pidStr); if(user.invPart[pid]>0){
-                    const p=particles.find(x=>x.id==pid); if(p){
-                        let pr=1000; if(p.rarity=="rare")pr=3000; if(p.rarity=="holo")pr=10000; if(p.rarity=="ultra")pr=50000; if(p.rarity=="genesis")pr=1000000; 
-                        el.innerHTML+=`<div class="item-card card-${p.rarity}" onclick="sell(${pid},${pr})"><div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div><div class="rarity-${p.rarity}">${p.name}</div><div style="font-size:0.8rem">x${user.invPart[pid]}</div><div style="font-size:0.7rem; color:#aaa; margin-top:5px;">SELL: ¥${pr}</div></div>`;
-                    }
-                }
-            });
-        }
-        function sell(pid,pr){ if(user.invPart[pid]>0){ user.invPart[pid]--; user.money+=pr; saveGame(); refreshUI(); } }
-        function loadGame(){
-            const d=localStorage.getItem('hadron_v8'); if(d){ try{user=JSON.parse(d);}catch(e){user={};} }
-            if(typeof user.money==='undefined')user.money=10000; if(!user.invMat)user.invMat={}; if(!user.invDet) user.invDet=['d0']; if(user.invDet.length === 0) user.invDet=['d0'];
-            if(!user.invPart)user.invPart={1:1}; if(!user.deck)user.deck=[1,null,null,null,null]; if(!user.equippedSkins) user.equippedSkins = {};
-        }
-        function saveGame(){ localStorage.setItem('hadron_v8',JSON.stringify(user)); }
-    </script>
 </body>
 </html>
