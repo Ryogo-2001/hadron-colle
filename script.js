@@ -9,8 +9,8 @@ const missionData = {
 
 // === Particles Data ===
 const particles = [
-    { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。", skill:"Proton Beam", type:"atk" },
-    { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。", skill:"Neutron Shield", type:"def" },
+    { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。ラボの主人公。", skill:"Proton Beam", type:"atk" },
+    { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。冷静沈着。", skill:"Neutron Shield", type:"def" },
     { id: 3, name: "Pion (+)", symbol: "π⁺", rarity: "common", image: "images/pion.png", desc: "パイ中間子。", skill:"Yukawa Force", type:"spd" },
     { id: 4, name: "Kaon (+)", symbol: "K⁺", rarity: "rare", image: "images/kaon.png", desc: "K中間子。", skill:"Strange Hit", type:"atk" },
     { id: 5, name: "Lambda", symbol: "Λ", rarity: "rare", image: "images/lambda.png", desc: "ラムダ粒子。", skill:"Hyper Guard", type:"def" },
@@ -75,6 +75,35 @@ window.onload = function() {
     catch(e) { console.error("Init Error:", e); }
 };
 
+// === ★NEW: Fame Logic with Rarity Slope ===
+function getFameParams(rarity) {
+    // レアリティごとの「必要数」と「ボーナス上昇率」の定義
+    switch(rarity) {
+        case 'genesis': return { req: 5, bonus: 0.10 };    // 5体で+10%
+        case 'ultra':   return { req: 10, bonus: 0.10 };   // 10体で+10%
+        case 'holo':    return { req: 40, bonus: 0.10 };   // 40体で+10%
+        case 'rare':    return { req: 100, bonus: 0.08 };  // 100体で+8%
+        default:        return { req: 1000, bonus: 0.05 }; // 1000体で+5% (Common)
+    }
+}
+
+function getFameInfo(pid) {
+    const p = particles.find(x => x.id === pid);
+    if(!p) return { lv: 0, bonus: 0, next: 0, req: 0 };
+    
+    const count = user.invPart[pid] || 0;
+    const params = getFameParams(p.rarity);
+    const lv = Math.floor(count / params.req);
+    
+    return {
+        lv: lv,
+        bonus: lv * params.bonus, // 割合 (0.1 = 10%)
+        next: params.req - (count % params.req),
+        req: params.req,
+        bonusPerLv: params.bonus
+    };
+}
+
 function getImgSrc(p) {
     if(user.equippedSkins && user.equippedSkins[p.id] && p.skins) {
         const s = p.skins.find(sk => sk.id === user.equippedSkins[p.id]);
@@ -83,6 +112,7 @@ function getImgSrc(p) {
     return p.image;
 }
 
+// --- View Logic ---
 function showHome() { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById('view-home').classList.add('active'); }
 function showView(id) { document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function refreshUI() {
@@ -104,21 +134,47 @@ function renderDeckHome() {
         }
     });
 }
+
 function renderDeckEdit() {
     const el = document.getElementById('deck-slots-container'); if(!el) return; el.innerHTML = '';
     for(let i=0; i<5; i++) {
         const pid = user.deck[i]; const p = pid ? particles.find(x => x.id === pid) : null;
         let content = `<div style="font-size:2rem; color:#555;">+</div><div style="color:#aaa;">EMPTY</div>`;
         if(p) {
-            content = `<img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)"><div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div><div class="slot-remove" onclick="removeMember(${i}, event)">×</div>`;
+            const info = getFameInfo(p.id);
+            const star = info.lv > 0 ? `<div class="fame-badge">★<span>${info.lv}</span></div>` : '';
+            content = `
+                ${star}
+                <img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)">
+                <div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div>
+                <div class="slot-remove" onclick="removeMember(${i}, event)">×</div>
+            `;
         }
         const div = document.createElement('div'); div.className = 'slot-card'; div.innerHTML = content;
         div.onclick = (e) => { if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) openSelectModal(i); };
         el.appendChild(div);
     }
 }
+
+// ★ Updated: Show Detailed Fame Info
 function showCharDetail(pid, e) {
     if(e) e.stopPropagation(); const p = particles.find(x => x.id === pid); if(!p) return;
+    
+    const info = getFameInfo(pid);
+    const count = user.invPart[pid] || 0;
+    
+    let fameHtml = "";
+    if(info.lv > 0) {
+        fameHtml = `<div style="margin-bottom:10px; padding:5px; background:rgba(255, 215, 0, 0.2); border:1px solid gold; border-radius:5px; color:#ffd700; text-align:center;">
+            ★ FAME Lv.${info.lv} (Stats +${Math.round(info.bonus * 100)}%)<br>
+            <span style="font-size:0.7rem; color:#aaa;">Next Lv: ${info.next} more (${info.req} per Lv)</span>
+        </div>`;
+    } else {
+        fameHtml = `<div style="margin-bottom:10px; font-size:0.8rem; color:#555; text-align:center;">
+            Current: ${count} / Next Lv: ${info.next} needed<br>(Need ${info.req} for +${Math.round(info.bonusPerLv*100)}%)
+        </div>`;
+    }
+
     let skinBtns = "";
     if(p.skins) {
         skinBtns = `<div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;"><div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">COSTUME CHANGE</div><div class="skin-btn-container">`;
@@ -126,9 +182,10 @@ function showCharDetail(pid, e) {
         p.skins.forEach(s => { skinBtns += `<div class="skin-btn ${s.id===currentSkin?'active':''}" onclick="changeSkin(${pid}, '${s.id}')">${s.name}</div>`; });
         skinBtns += `</div></div>`;
     }
-    const html = `<div class="detail-img-box"><img src="${getImgSrc(p)}" id="detail-img-preview"><div style="margin-top:10px; font-weight:bold; font-family:'Orbitron'" class="rarity-${p.rarity}">${p.rarity.toUpperCase()}</div></div><div class="detail-info"><div style="color:#aaa; font-size:0.9rem;">No.${p.id}</div><h1 style="margin:5px 0;">${p.name} <span style="font-size:1.2rem; color:#888;">(${p.symbol})</span></h1><div class="detail-type">TYPE: ${p.type.toUpperCase()}</div><div class="detail-skill-box"><div style="color:var(--hc-orange); font-weight:bold; font-family:'Orbitron'">SKILL: ${p.skill}</div></div><div style="margin-top:20px; line-height:1.6; color:#ddd;">${p.desc}</div>${skinBtns}</div>`;
+    const html = `<div class="detail-img-box"><img src="${getImgSrc(p)}" id="detail-img-preview"><div style="margin-top:10px; font-weight:bold; font-family:'Orbitron'" class="rarity-${p.rarity}">${p.rarity.toUpperCase()}</div></div><div class="detail-info"><div style="color:#aaa; font-size:0.9rem;">No.${p.id}</div><h1 style="margin:5px 0;">${p.name} <span style="font-size:1.2rem; color:#888;">(${p.symbol})</span></h1>${fameHtml}<div class="detail-type">TYPE: ${p.type.toUpperCase()}</div><div class="detail-skill-box"><div style="color:var(--hc-orange); font-weight:bold; font-family:'Orbitron'">SKILL: ${p.skill}</div></div><div style="margin-top:20px; line-height:1.6; color:#ddd;">${p.desc}</div>${skinBtns}</div>`;
     document.getElementById('detail-content').innerHTML = html; document.getElementById('detail-modal').style.display = 'flex';
 }
+
 function changeSkin(pid, skinId) {
     if(!user.equippedSkins) user.equippedSkins = {}; user.equippedSkins[pid] = skinId; saveGame();
     const p = particles.find(x => x.id === pid);
@@ -141,7 +198,6 @@ function changeSkin(pid, skinId) {
 }
 function removeMember(index, e) { e.stopPropagation(); user.deck[index] = null; renderDeckEdit(); renderDeckHome(); saveGame(); }
 
-// ★修正版: 選択モーダル (枠線とレアリティラベル追加)
 function openSelectModal(slotIndex) {
     currentSlotIndex = slotIndex; const list = document.getElementById('select-list'); list.innerHTML = ''; let hasAny = false;
     Object.keys(user.invPart).forEach(pidStr => {
@@ -149,12 +205,16 @@ function openSelectModal(slotIndex) {
         if(user.invPart[pid] > 0) {
             hasAny = true; const p = particles.find(x => x.id === pid);
             if(p) {
+                const info = getFameInfo(p.id);
+                const star = info.lv > 0 ? `<div class="fame-badge" style="font-size:1rem;">★${info.lv}</div>` : '';
                 const div = document.createElement('div'); 
-                div.className = `item-card card-${p.rarity}`; // クラス追加
+                div.className = `item-card card-${p.rarity}`;
                 div.innerHTML = `
+                    ${star}
                     <div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div>
                     <img src="${getImgSrc(p)}" style="width:70px; margin-bottom:5px;">
                     <div class="rarity-${p.rarity}" style="font-size:0.9rem;">${p.name}</div>
+                    <div style="font-size:0.7rem; color:#888;">所持: ${user.invPart[pid]}</div>
                 `;
                 div.onclick = () => { user.deck[currentSlotIndex] = pid; closeModal('select-modal'); renderDeckEdit(); renderDeckHome(); saveGame(); };
                 list.appendChild(div);
