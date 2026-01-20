@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Hadron Lab Ver 7.1</title>
+    <title>赤尾 亮伍 | Hadron Lab Ver 8.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 7.1 Fixed Secretary ===== */
+        /* ===== Hadron Lab 8.0 Formation Edition ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -22,7 +22,7 @@
 
         body { margin: 0; background: var(--hc-bg); color: var(--hc-text); font-family: 'M PLUS Rounded 1c', sans-serif; overflow: hidden; user-select: none; }
 
-        /* 背景画像設定 */
+        /* 背景 */
         .lab-container {
             width: 100vw; height: 100vh; position: relative;
             background-image: url('images/lab_bg.png'); 
@@ -30,7 +30,7 @@
             background-color: var(--hc-bg);
         }
 
-        /* --- 1. トップバー (資源) --- */
+        /* トップバー */
         .top-bar {
             position: absolute; top: 0; left: 0; width: 100%; height: 50px;
             background: rgba(0,0,0,0.6); 
@@ -41,129 +41,112 @@
             display: flex; align-items: center; gap: 10px; font-family: 'Orbitron'; font-size: 0.9rem;
         }
 
-        /* --- 2. サイドバー (ウィンドウ表示時のみ使用) --- */
+        /* サイドバー */
         .sidebar {
-            position: absolute; top: 50px; left: 0; bottom: 0; width: 60px; /* 普段は細く */
+            position: absolute; top: 50px; left: 0; bottom: 0; width: 60px;
             background: rgba(0,0,0,0.8); border-right: 1px solid #444; 
-            display: flex; flex-direction: column; z-index: 90; transition: 0.2s;
-            overflow: hidden;
+            display: flex; flex-direction: column; z-index: 90; transition: 0.2s; overflow: hidden;
         }
-        .sidebar:hover { width: 220px; } /* ホバーで広がる */
-        
+        .sidebar:hover { width: 220px; }
         .menu-item {
             height: 50px; display: flex; align-items: center; padding-left: 15px;
-            color: #aaa; cursor: pointer; white-space: nowrap; transition: 0.2s;
-            border-bottom: 1px solid #222;
+            color: #aaa; cursor: pointer; white-space: nowrap; transition: 0.2s; border-bottom: 1px solid #222;
         }
         .menu-item:hover, .menu-item.active { background: var(--hc-blue); color: white; }
         .menu-icon { width: 30px; font-size: 1.2rem; text-align: center; margin-right: 10px; }
 
-        /* --- 3. メインビュー (ウィンドウ) --- */
+        /* メインビュー */
         .main-view {
             position: absolute; top: 50px; left: 0; right: 0; bottom: 0;
             padding: 40px; overflow-y: auto; display: none;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s; z-index: 80; padding-left: 80px; /* サイドバー分空ける */
+            animation: fadeIn 0.3s; z-index: 80; padding-left: 80px;
         }
         .main-view.active { display: block; }
 
-        /* --- 4. ホーム画面 (母港) UI --- */
-        #view-home {
-            background: transparent; backdrop-filter: none; padding: 0;
-            pointer-events: none; /* 背景クリック透過 */
-        }
+        /* --- ホーム画面 (デッキ表示) --- */
+        #view-home { background: transparent; backdrop-filter: none; pointer-events: none; }
         
-        /* ギア型メニューコンテナ */
         .home-menu-container {
-            position: absolute; top: 50%; left: 300px; /* 左寄りに配置 */
-            transform: translateY(-50%);
-            width: 600px; height: 600px;
-            pointer-events: auto;
+            position: absolute; top: 50%; left: 250px; transform: translateY(-50%);
+            width: 500px; height: 500px; pointer-events: auto; z-index: 20;
         }
 
-        /* 共通ボタンタイル */
+        /* ギアボタン */
         .gear-btn {
             position: absolute; border-radius: 50%; 
             display: flex; justify-content: center; align-items: center; flex-direction: column;
             cursor: pointer; transition: 0.2s;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            font-family: 'Orbitron', sans-serif; font-weight: bold;
-            text-shadow: 1px 1px 2px black; border: 2px solid rgba(255,255,255,0.2);
+            font-family: 'Orbitron'; font-weight: bold; border: 2px solid rgba(255,255,255,0.2);
         }
-        .gear-btn:hover { transform: scale(1.1); z-index: 10; filter: brightness(1.2); }
-        .gear-btn:active { transform: scale(0.95); }
-
+        .gear-btn:hover { transform: scale(1.1); z-index: 100; filter: brightness(1.2); }
         .gear-btn::before {
             content: ""; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
             border-radius: 50%; border: 2px dashed rgba(255,255,255,0.3);
             animation: spin 20s linear infinite; pointer-events: none;
         }
-        .gear-btn:hover::before { border-color: rgba(255,255,255,0.8); animation-duration: 5s; }
 
-        .btn-main { width: 180px; height: 180px; background: radial-gradient(circle, #e67e22, #d35400); border: 4px solid #f1c40f; color: #fff; font-size: 1.5rem; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .btn-main { width: 160px; height: 160px; background: radial-gradient(circle, #e67e22, #d35400); border: 4px solid #f1c40f; color: #fff; font-size: 1.4rem; top: 50%; left: 50%; transform: translate(-50%, -50%); }
         .btn-main:hover { transform: translate(-50%, -50%) scale(1.05); }
-        .btn-shop { width: 100px; height: 100px; background: #2ecc71; color: white; top: 25%; left: 25%; font-size: 0.9rem; }
-        .btn-craft { width: 100px; height: 100px; background: #7f8c8d; color: white; top: 60%; left: 25%; font-size: 0.9rem; }
-        .btn-office { width: 100px; height: 100px; background: #3498db; color: white; top: 75%; left: 50%; transform: translateX(-50%); font-size: 0.9rem; }
-        .btn-battle { width: 110px; height: 110px; background: #c0392b; color: white; top: 60%; right: 20%; font-size: 1rem; border-color: #e74c3c; }
+        
+        .btn-shop { width: 90px; height: 90px; background: #2ecc71; color: white; top: 20%; left: 25%; font-size: 0.8rem; }
+        
+        /* 編成ボタン (左下) */
+        .btn-deck { width: 90px; height: 90px; background: #9b59b6; color: white; top: 65%; left: 25%; font-size: 0.8rem; }
+        
+        .btn-office { width: 90px; height: 90px; background: #3498db; color: white; top: 80%; left: 50%; transform: translateX(-50%); font-size: 0.8rem; }
+        .btn-battle { width: 100px; height: 100px; background: #c0392b; color: white; top: 60%; right: 15%; font-size: 0.9rem; border-color: #e74c3c; }
 
-        /* 秘書艦エリア */
-        .secretary-area {
-            position: absolute; right: 0; bottom: 0; height: 100vh; width: 60vw;
-            pointer-events: none; display: flex; align-items: flex-end; justify-content: flex-end;
-            z-index: 10; /* メニューより手前には来ないが、背景よりは前 */
+        /* --- デッキ表示エリア (秘書艦エリアを拡張) --- */
+        .deck-display-area {
+            position: absolute; right: 20px; bottom: 0; height: 85vh; width: 60vw;
+            pointer-events: none; 
+            display: flex; justify-content: flex-end; align-items: flex-end;
+            z-index: 10;
         }
-        .secretary-img {
-            max-height: 90%; max-width: 90%; object-fit: contain;
-            filter: drop-shadow(-10px 0 20px rgba(0,0,0,0.5));
-            pointer-events: auto; cursor: help;
+        .deck-member {
+            height: 100%; width: auto; max-width: 25%; 
+            object-fit: contain;
+            margin-left: -50px; /* 重ねて表示 */
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+            transition: 0.2s; pointer-events: auto; cursor: pointer;
+            position: relative;
+        }
+        .deck-member:hover { transform: scale(1.05); z-index: 20; filter: drop-shadow(0 0 20px rgba(255,255,255,0.5)); }
+        
+        /* 旗艦（1人目）は大きく手前に */
+        .deck-member.flagship {
+            height: 110%; z-index: 15; max-width: 40%;
         }
 
-        .clock-widget {
-            position: absolute; bottom: 20px; left: 20px;
-            font-family: 'Orbitron'; font-size: 3rem; color: rgba(255,255,255,0.8);
-            text-shadow: 0 0 10px rgba(0,0,0,0.8); pointer-events: none;
+        /* --- 編成画面スタイル --- */
+        .deck-slots { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 30px; }
+        .slot-card {
+            width: 18%; background: #222; border: 2px dashed #555; height: 250px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 10px; position: relative; overflow: hidden;
+        }
+        .slot-card:hover { border-color: var(--hc-green); background: #2a2a2a; }
+        .slot-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .slot-label {
+            position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8);
+            text-align: center; padding: 5px 0; font-weight: bold; color: var(--hc-orange);
+        }
+        .slot-remove {
+            position: absolute; top: 5px; right: 5px; background: red; width: 20px; height: 20px;
+            border-radius: 50%; text-align: center; line-height: 20px; font-size: 0.8rem; z-index: 5;
         }
 
         /* 共通 */
-        .proposal-paper, .shop-grid, .paper-list { max-width: 900px; margin: 0 auto; }
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .item-card {
-            background: var(--hc-panel); border: 1px solid var(--hc-border); padding: 15px;
-            border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s;
-        }
-        .item-card:hover { border-color: var(--hc-green); background: #1a2520; }
-        
-        .bubble {
-            position: absolute; right: 350px; top: 150px;
-            background: white; color: #333; padding: 15px; border-radius: 15px;
-            max-width: 250px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            display: none; animation: popIn 0.3s; z-index: 20;
-        }
-        .bubble::after {
-            content: ''; position: absolute; right: -10px; top: 50%;
-            border-width: 10px; border-style: solid; border-color: transparent transparent transparent white;
-        }
-
-        /* モーダル */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 200; display: none;
-            justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: var(--hc-panel); padding: 30px; border: 1px solid var(--hc-blue);
-            border-radius: 10px; max-width: 500px; text-align: center; color: white;
-            box-shadow: 0 0 50px rgba(52, 152, 219, 0.3);
-        }
-
-        .proposal-paper { background: #eee; padding: 30px; border-radius: 5px; color: #333; }
-        select { width: 100%; padding: 10px; margin-bottom: 20px; }
-        .submit-btn { width: 100%; padding: 15px; background: var(--hc-blue); color: white; border: none; font-size: 1.2rem; cursor: pointer; }
+        .shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+        .item-card { background: var(--hc-panel); border: 1px solid #444; padding: 10px; text-align: center; cursor: pointer; border-radius: 5px; }
+        .item-card:hover { background: #333; border-color: #888; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; justify-content: center; align-items: center; }
+        .modal-content { background: #222; padding: 20px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; border-radius: 10px; border: 1px solid var(--hc-blue); }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -172,22 +155,20 @@
         <div class="top-bar">
             <div style="font-family:'Orbitron'; font-weight:bold; color:#aaa; margin-right:20px;">HADRON LAB</div>
             <div class="status-box" style="border-color:var(--hc-green);">
-                <span>💴 BUDGET:</span>
-                <span id="disp-money" style="color:var(--hc-green); font-weight:bold;">0</span>
-            </div>
-            <div class="status-box">
-                <span>📦 MATERIAL</span>
+                <span>💴 BUDGET:</span><span id="disp-money" style="color:var(--hc-green); font-weight:bold;">0</span>
             </div>
             <div style="flex-grow:1;"></div>
             <div class="status-box" style="border-color:var(--hc-orange);">
-                <span>RANK: </span>
-                <span id="disp-rank">Master 1</span>
+                <span>RANK: </span><span id="disp-rank">Master 1</span>
             </div>
         </div>
 
         <div class="sidebar">
             <div class="menu-item active" onclick="showHome()">
                 <div class="menu-icon">🏠</div> <span>HOME PORT</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-deck')">
+                <div class="menu-icon">🔄</div> <span>FORMATION</span>
             </div>
             <div class="menu-item" onclick="showView('view-shop')">
                 <div class="menu-icon">🛒</div> <span>SUPPLY</span>
@@ -203,88 +184,74 @@
             </div>
         </div>
         
-        <div class="bubble" id="secretary-bubble">お待ちしておりました。</div>
-        <div class="secretary-area">
-            <img id="secretary-img" class="secretary-img" src="" onclick="talkSecretary()">
-        </div>
-
-        <div class="clock-widget" id="clock">12:00</div>
+        <div class="deck-display-area" id="home-deck-display">
+            </div>
 
         <div id="view-home" class="main-view active">
             <div class="home-menu-container">
                 <div class="gear-btn btn-main" onclick="showView('view-proposal')">
-                    <div style="font-size:2.5rem;">⚡</div>
-                    <div>EXP. START</div>
+                    <div style="font-size:2.5rem;">⚡</div><div>EXP.</div>
                 </div>
                 <div class="gear-btn btn-shop" onclick="showView('view-shop')">
-                    <div style="font-size:1.5rem;">🛒</div>
-                    <div>SUPPLY</div>
+                    <div style="font-size:1.5rem;">🛒</div><div>SUPPLY</div>
                 </div>
-                <div class="gear-btn btn-craft" onclick="showView('view-craft')">
-                    <div style="font-size:1.5rem;">🛠</div>
-                    <div>CRAFT</div>
+                <div class="gear-btn btn-deck" onclick="showView('view-deck')">
+                    <div style="font-size:1.5rem;">🔄</div><div>DECK</div>
                 </div>
                 <div class="gear-btn btn-office" onclick="showView('view-office')">
-                    <div style="font-size:1.5rem;">📂</div>
-                    <div>ARCHIVE</div>
+                    <div style="font-size:1.5rem;">📂</div><div>DATA</div>
                 </div>
                 <div class="gear-btn btn-battle" onclick="location.href='battle.html'">
-                    <div style="font-size:1.5rem;">⚔️</div>
-                    <div>BATTLE</div>
+                    <div style="font-size:1.5rem;">⚔️</div><div>BATTLE</div>
                 </div>
             </div>
         </div>
 
-        <div id="view-shop" class="main-view"><h2 style="font-family:'Orbitron'; color:var(--hc-green);">MATERIAL SUPPLY</h2><div id="shop-list" class="shop-grid"></div></div>
-        <div id="view-craft" class="main-view"><h2 style="font-family:'Orbitron'; color:#aaa;">DETECTOR WORKSHOP</h2><div id="craft-list" class="shop-grid"></div></div>
-        
+        <div id="view-deck" class="main-view">
+            <h2 style="font-family:'Orbitron'; color:var(--hc-purple);">DECK FORMATION</h2>
+            <p>最大5人の粒子を選択してチームを編成します。</p>
+            <div class="deck-slots" id="deck-slots-container">
+                </div>
+            <div style="text-align:center;">
+                <button onclick="saveDeck()" style="padding:15px 40px; background:var(--hc-green); border:none; color:white; font-size:1.2rem; cursor:pointer;">SAVE FORMATION</button>
+            </div>
+        </div>
+
+        <div id="view-shop" class="main-view"><h2 style="font-family:'Orbitron'">MATERIAL SHOP</h2><div id="shop-list" class="shop-grid"></div></div>
+        <div id="view-craft" class="main-view"><h2 style="font-family:'Orbitron'">WORKSHOP</h2><div id="craft-list" class="craft-grid"></div></div>
         <div id="view-proposal" class="main-view">
-            <div class="proposal-paper">
-                <h1 style="text-align:center; border-bottom:2px solid #333;">Experiment Proposal</h1>
-                <div style="margin-bottom:15px;"><label>1. BEAM SOURCE</label><select id="sel-beam" onchange="calcProposalCost()"></select></div>
-                <div style="margin-bottom:15px;"><label>2. TARGET</label><select id="sel-target" onchange="calcProposalCost()"></select></div>
-                <div style="margin-bottom:15px;"><label>3. DETECTOR</label><select id="sel-detector" onchange="calcProposalCost()"></select></div>
-                <div style="text-align:right; border-top:1px solid #ccc; padding-top:10px;">
-                    <div style="font-size:1.2rem; font-weight:bold; margin-bottom:10px;">COST: ¥<span id="prop-cost">0</span></div>
-                    <button id="btn-start-exp" class="submit-btn" onclick="runExperiment()">SUBMIT PROPOSAL</button>
-                    <div id="exp-error" style="color:red; display:none;">Cost or Equipment Error</div>
-                </div>
+            <div style="background:#eee; padding:30px; border-radius:5px; color:#333; max-width:800px; margin:0 auto;">
+                <h2>Experiment Proposal</h2>
+                <label>1. BEAM</label><select id="sel-beam" style="width:100%; padding:10px; margin-bottom:10px;"></select>
+                <label>2. TARGET</label><select id="sel-target" style="width:100%; padding:10px; margin-bottom:10px;"></select>
+                <label>3. DETECTOR</label><select id="sel-detector" style="width:100%; padding:10px; margin-bottom:10px;"></select>
+                <div style="text-align:right; font-weight:bold; margin-top:20px;">COST: ¥<span id="prop-cost">0</span></div>
+                <button onclick="runExperiment()" style="width:100%; background:var(--hc-blue); color:white; padding:15px; border:none; font-size:1.2rem; margin-top:10px; cursor:pointer;">SUBMIT</button>
             </div>
         </div>
+        <div id="view-office" class="main-view"><h2 style="font-family:'Orbitron'">OFFICE</h2><div id="particle-stock-list" class="shop-grid"></div></div>
 
-        <div id="view-office" class="main-view"><h2 style="font-family:'Orbitron'; color:var(--hc-blue);">ACADEMIC OFFICE</h2><div id="particle-stock-list" class="paper-list"></div></div>
+    </div>
+
+    <div id="select-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>SELECT PARTICLE</h3>
+            <div id="select-list" class="particle-list"></div>
+            <button onclick="closeModal()" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button>
+        </div>
     </div>
 
     <div id="result-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 style="color:var(--hc-green);">Experiment Successful!</h2>
+        <div class="modal-content" style="text-align:center;">
+            <h2 style="color:var(--hc-green);">Experiment Result</h2>
             <div id="exp-result-content"></div>
-            <button onclick="document.getElementById('result-modal').style.display='none'" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CONFIRM</button>
+            <button onclick="document.getElementById('result-modal').style.display='none'" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        const materials = [
-            { id: 'm1', name: 'Dry Ice', icon: '🧊', cost: 500 }, { id: 'm2', name: 'Alcohol', icon: '🧪', cost: 300 },
-            { id: 'm3', name: 'PMT', icon: '💡', cost: 5000 }, { id: 'm4', name: 'Scintillator', icon: '✨', cost: 3000 },
-            { id: 'm5', name: 'Optical Fiber', icon: '➰', cost: 2000 }, { id: 'm6', name: 'MPPC', icon: '🤏', cost: 8000 }
-        ];
-        const detectors = [
-            { id: 'd1', name: 'Cloud Chamber', req: {m1:1, m2:1}, power: 1 },
-            { id: 'd2', name: 'Scintillator Counter', req: {m3:1, m4:1}, power: 3 },
-            { id: 'd3', name: 'Fiber Tracker', req: {m5:5, m6:5}, power: 8 }
-        ];
-        const beams = [
-            { id: 'b1', name: 'Cosmic Ray', cost: 0, power: 1 }, { id: 'b2', name: 'RI Source', cost: 5000, power: 3 },
-            { id: 'b3', name: 'Cyclotron', cost: 50000, power: 10 }, { id: 'b4', name: 'Synchrotron', cost: 200000, power: 50 }
-        ];
-        const targets = [
-            { id: 't1', name: 'Air', cost: 0, power: 1 }, { id: 't2', name: 'Gold Foil', cost: 10000, power: 2 },
-            { id: 't3', name: 'Liq. Hydrogen', cost: 50000, power: 5 }
-        ];
-        
-        // ★修正点：ここに画像のパスをしっかり定義しました！
+        // === DATA ===
         const particles = [
             { id: 1, name: "Muon", rarity: 1, image: "images/proton.png" }, // 仮
             { id: 2, name: "Electron", rarity: 1, image: "images/proton.png" }, // 仮
@@ -293,34 +260,43 @@
             { id: 5, name: "Kaon", rarity: 3, image: "images/kaon.png" },
             { id: 6, name: "J/psi", rarity: 4, image: "images/j-psi.png" },
             { id: 7, name: "Higgs", rarity: 5, image: "images/higgs.png" },
-            { id: 8, name: "Top Quark", rarity: 5, image: "images/top-quark.png" } // 復活！
+            { id: 8, name: "Top Quark", rarity: 5, image: "images/top-quark.png" }
         ];
+        const materials = [
+            { id: 'm1', name: 'Dry Ice', cost: 500 }, { id: 'm2', name: 'Alcohol', cost: 300 },
+            { id: 'm3', name: 'PMT', cost: 5000 }, { id: 'm4', name: 'Scintillator', cost: 3000 },
+            { id: 'm5', name: 'Fiber', cost: 2000 }, { id: 'm6', name: 'MPPC', cost: 8000 }
+        ];
+        const detectors = [
+            { id: 'd1', name: 'Cloud Chamber', req: {m1:1}, power: 1 },
+            { id: 'd2', name: 'Scinti Counter', req: {m3:1}, power: 3 },
+            { id: 'd3', name: 'Fiber Tracker', req: {m6:5}, power: 8 }
+        ];
+        const beams = [{id:'b1',name:'Cosmic',cost:0,power:1}, {id:'b2',name:'RI',cost:5000,power:3}];
+        const targets = [{id:'t1',name:'Air',cost:0,power:1}, {id:'t2',name:'Gold',cost:10000,power:2}];
 
-        let user = { money: 10000, invMat: {}, invDet: [], invPart: {}, secretary: 8 }; // デフォルトをTop Quark(8)に
-
-        window.onload = function() {
-            try {
-                loadGame();
-                refreshUI();
-                initProposalForm();
-                setSecretaryDisplay();
-                updateClock();
-                setInterval(updateClock, 1000);
-            } catch(e) { console.error(e); }
+        let user = { 
+            money: 10000, invMat: {}, invDet: [], invPart: {3:1}, // プロトン1個所持
+            deck: [3, null, null, null, null] // IDの配列 (最大5枠)
         };
 
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        }
+        let currentSlotIndex = 0;
+
+        window.onload = function() {
+            loadGame();
+            refreshUI();
+            renderDeckHome();
+            renderDeckEdit();
+            initProposalForm();
+        };
 
         function showHome() {
-            document.querySelectorAll('.main-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active'));
             document.getElementById('view-home').classList.add('active');
         }
-        function showView(viewId) {
-            document.querySelectorAll('.main-view').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+        function showView(id) {
+            document.querySelectorAll('.main-view').forEach(el=>el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
         function refreshUI() {
@@ -328,102 +304,148 @@
             renderShop(); renderCraft(); renderOffice();
         }
 
-        // ★修正点：IDに基づいて正しい画像を出すように変更
-        function setSecretaryDisplay() {
-            const secId = user.secretary || 8; // デフォルト8
-            const p = particles.find(x => x.id === secId) || particles[7]; // Top Quark fallback
-            document.getElementById('secretary-img').src = p.image;
-        }
-        
-        function talkSecretary() {
-            const bub = document.getElementById('secretary-bubble');
-            bub.style.display = 'block'; setTimeout(()=>bub.style.display='none', 3000);
+        // --- DECK LOGIC ---
+        function renderDeckHome() {
+            const el = document.getElementById('home-deck-display');
+            el.innerHTML = '';
+            user.deck.forEach((pid, index) => {
+                if(pid) {
+                    const p = particles.find(x => x.id === pid);
+                    const img = document.createElement('img');
+                    img.src = p.image;
+                    img.className = 'deck-member' + (index === 0 ? ' flagship' : '');
+                    img.onclick = () => alert(`${p.name}: 準備完了！`);
+                    el.appendChild(img);
+                }
+            });
         }
 
-        // --- Logic ---
+        function renderDeckEdit() {
+            const el = document.getElementById('deck-slots-container');
+            el.innerHTML = '';
+            for(let i=0; i<5; i++) {
+                const pid = user.deck[i];
+                const p = pid ? particles.find(x => x.id === pid) : null;
+                
+                let content = `<div style="font-size:2rem; color:#555;">+</div><div style="color:#aaa;">EMPTY</div>`;
+                if(p) {
+                    content = `<img src="${p.image}"><div class="slot-label">${p.name}</div><div class="slot-remove" onclick="removeMember(${i}, event)">×</div>`;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'slot-card';
+                div.innerHTML = content;
+                div.onclick = (e) => { if(!e.target.classList.contains('slot-remove')) openSelectModal(i); };
+                el.appendChild(div);
+            }
+        }
+
+        function removeMember(index, e) {
+            e.stopPropagation();
+            user.deck[index] = null;
+            renderDeckEdit();
+            renderDeckHome();
+            saveGame();
+        }
+
+        function openSelectModal(slotIndex) {
+            currentSlotIndex = slotIndex;
+            const list = document.getElementById('select-list');
+            list.innerHTML = '';
+            
+            // 所持している粒子一覧を表示
+            let hasAny = false;
+            Object.keys(user.invPart).forEach(pidStr => {
+                const pid = parseInt(pidStr);
+                const count = user.invPart[pid];
+                if(count > 0) {
+                    hasAny = true;
+                    const p = particles.find(x => x.id === pid);
+                    
+                    const div = document.createElement('div');
+                    div.className = 'item-card';
+                    div.innerHTML = `<img src="${p.image}" style="width:50px"><br>${p.name}`;
+                    div.onclick = () => {
+                        user.deck[currentSlotIndex] = pid;
+                        closeModal();
+                        renderDeckEdit();
+                        renderDeckHome();
+                        saveGame();
+                    };
+                    list.appendChild(div);
+                }
+            });
+            
+            if(!hasAny) list.innerHTML = '<p>所持している粒子がありません。</p>';
+            document.getElementById('select-modal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('select-modal').style.display = 'none'; }
+        function saveDeck() { saveGame(); alert("編成を保存しました！"); }
+
+        // --- Other Logic (Simplified) ---
         function renderShop() {
-            const el = document.getElementById('shop-list'); el.innerHTML = '';
-            materials.forEach(m => {
-                const c = user.invMat[m.id]||0;
-                el.innerHTML += `<div class="item-card" onclick="buyMaterial('${m.id}')"><div style="font-size:2rem">${m.icon}</div><div>${m.name}</div><div style="color:var(--hc-green)">¥${m.cost.toLocaleString()}</div><div>Own: ${c}</div></div>`;
+            const el=document.getElementById('shop-list'); el.innerHTML='';
+            materials.forEach(m=>{
+                el.innerHTML+=`<div class="item-card" onclick="buy('${m.id}')"><div>${m.name}</div><div style="color:var(--hc-green)">¥${m.cost}</div></div>`
             });
         }
-        function buyMaterial(id) {
-            const item = materials.find(m => m.id === id);
-            if(user.money >= item.cost) { user.money -= item.cost; user.invMat[id] = (user.invMat[id]||0)+1; saveGame(); refreshUI(); }
-            else alert("資金不足");
+        function buy(id) {
+            const m=materials.find(x=>x.id==id);
+            if(user.money>=m.cost){user.money-=m.cost; user.invMat[id]=(user.invMat[id]||0)+1; saveGame(); refreshUI();}
         }
         function renderCraft() {
-            const el = document.getElementById('craft-list'); el.innerHTML = '';
-            detectors.forEach(d => {
-                const owned = user.invDet.includes(d.id);
-                let reqStr = Object.keys(d.req).map(k => `${materials.find(m=>m.id==k).name} x${d.req[k]}`).join(' ');
-                el.innerHTML += `<div class="item-card" style="border-color:${owned?'var(--hc-blue)':''}" onclick="craftDetector('${d.id}')"><div style="color:var(--hc-orange)">${d.name}</div><div style="font-size:0.8rem">${reqStr}</div><div>${owned?'OWNED':'CRAFT'}</div></div>`;
+            const el=document.getElementById('craft-list'); el.innerHTML='';
+            detectors.forEach(d=>{
+                const own=user.invDet.includes(d.id);
+                el.innerHTML+=`<div class="item-card" onclick="craft('${d.id}')"><div>${d.name}</div><div>${own?'OWNED':'CRAFT'}</div></div>`;
             });
         }
-        function craftDetector(id) {
-            if(user.invDet.includes(id)) { alert("所持済"); return; }
-            const det = detectors.find(d => d.id === id);
-            for(let k in det.req) if((user.invMat[k]||0) < det.req[k]) { alert("素材不足"); return; }
-            for(let k in det.req) user.invMat[k] -= det.req[k];
-            user.invDet.push(id); alert("作成完了"); saveGame(); refreshUI(); initProposalForm();
+        function craft(id){
+            if(user.invDet.includes(id))return;
+            user.invDet.push(id); saveGame(); refreshUI();
         }
         function initProposalForm() {
-            const sb=document.getElementById('sel-beam'), st=document.getElementById('sel-target'), sd=document.getElementById('sel-detector');
-            sb.innerHTML = beams.map(b=>`<option value="${b.id}">${b.name} (¥${b.cost})</option>`).join('');
-            st.innerHTML = targets.map(t=>`<option value="${t.id}">${t.name} (¥${t.cost})</option>`).join('');
-            if(user.invDet.length==0) sd.innerHTML='<option value="">(機材なし)</option>';
-            else sd.innerHTML = user.invDet.map(did=>`<option value="${did}">${detectors.find(x=>x.id==did).name}</option>`).join('');
+            const b=document.getElementById('sel-beam'), t=document.getElementById('sel-target'), d=document.getElementById('sel-detector');
+            b.innerHTML=beams.map(x=>`<option value="${x.id}">${x.name} ¥${x.cost}</option>`).join('');
+            t.innerHTML=targets.map(x=>`<option value="${x.id}">${x.name} ¥${x.cost}</option>`).join('');
+            d.innerHTML=user.invDet.map(id=>`<option value="${id}">${detectors.find(x=>x.id==id).name}</option>`).join('');
             calcProposalCost();
         }
-        function calcProposalCost() {
-            const bId=document.getElementById('sel-beam').value, tId=document.getElementById('sel-target').value;
-            if(!bId||!tId) return;
-            const cost = beams.find(x=>x.id==bId).cost + targets.find(x=>x.id==tId).cost;
-            document.getElementById('prop-cost').innerText = cost.toLocaleString();
-            const btn=document.getElementById('btn-start-exp'), err=document.getElementById('exp-error');
-            if(user.money < cost || user.invDet.length==0) { btn.disabled=true; err.style.display='block'; } else { btn.disabled=false; err.style.display='none'; }
-        }
-        function runExperiment() {
+        function calcProposalCost(){
             const b=beams.find(x=>x.id==document.getElementById('sel-beam').value);
             const t=targets.find(x=>x.id==document.getElementById('sel-target').value);
-            const d=detectors.find(x=>x.id==document.getElementById('sel-detector').value);
-            user.money -= (b.cost + t.cost);
-            const pow = b.power * t.power * d.power;
-            let p = particles[0]; const r = Math.random()*100;
-            if(pow>50 && r<10) p=particles[7]; // Top
-            else if(pow>30 && r<15) p=particles[6]; // Higgs
-            else if(pow>10 && r<20) p=particles[5]; // J/psi
-            else if(r<40) p=particles[4]; 
-            else if(r<60) p=particles[2];
-            
+            if(b&&t) document.getElementById('prop-cost').innerText = (b.cost+t.cost).toLocaleString();
+        }
+        function runExperiment(){
+            const b=beams.find(x=>x.id==document.getElementById('sel-beam').value);
+            const t=targets.find(x=>x.id==document.getElementById('sel-target').value);
+            if(user.money < b.cost+t.cost){alert("資金不足");return;}
+            user.money -= (b.cost+t.cost);
+            // 抽選
+            const p = particles[Math.floor(Math.random()*particles.length)];
             user.invPart[p.id] = (user.invPart[p.id]||0)+1;
-            // 新キャラGETなら秘書にする？(任意)
             saveGame(); refreshUI();
-            document.getElementById('exp-result-content').innerHTML = `<h3>Result: ${p.name}</h3><img src="${p.image}" style="width:100px"><p>${p.rarity>=4?'Rare Discovery!':''}</p>`;
-            document.getElementById('result-modal').style.display='flex';
+            document.getElementById('exp-result-content').innerHTML = `GET: ${p.name}`;
+            document.getElementById('result-modal').style.display='block';
         }
-        function renderOffice() {
+        function renderOffice(){
             const el=document.getElementById('particle-stock-list'); el.innerHTML='';
-            let has=false;
-            particles.forEach(p=>{
-                const c=user.invPart[p.id]||0;
-                if(c>0) { has=true; el.innerHTML+=`<div class="paper-card"><div>${p.name} Data: ${c}</div><button class="publish-btn" onclick="pub(${p.id})">PUBLISH (¥${p.rarity*2000})</button></div>`; }
+            Object.keys(user.invPart).forEach(pid=>{
+                if(user.invPart[pid]>0) {
+                    const p=particles.find(x=>x.id==pid);
+                    el.innerHTML+=`<div class="item-card" onclick="sell(${pid})">${p.name} x${user.invPart[pid]}<br>PUBLISH</div>`;
+                }
             });
-            if(!has) el.innerHTML='<p>データなし</p>';
         }
-        function pub(pid) {
-            if((user.invPart[pid]||0)<=0) return;
-            const p=particles.find(x=>x.id==pid);
-            user.invPart[pid]--; user.money+=p.rarity*2000;
-            alert("資金獲得"); saveGame(); refreshUI();
+        function sell(pid){
+            if(user.invPart[pid]>0){user.invPart[pid]--; user.money+=1000; saveGame(); refreshUI();}
         }
-        function saveGame() { localStorage.setItem('hadron_v6', JSON.stringify(user)); }
+
+        function saveGame() { localStorage.setItem('hadron_v8', JSON.stringify(user)); }
         function loadGame() {
-            const d=localStorage.getItem('hadron_v6'); if(d) user=JSON.parse(d);
-            if(!user.invMat) user.invMat={}; if(!user.invDet) user.invDet=[]; if(!user.invPart) user.invPart={};
-            // 秘書が未設定ならTop Quarkに
-            if(!user.secretary) user.secretary = 8;
+            const d=localStorage.getItem('hadron_v8'); if(d) user=JSON.parse(d);
+            if(!user.deck) user.deck=[3,null,null,null,null]; // 初期デッキ
         }
     </script>
 </body>
