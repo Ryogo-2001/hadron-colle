@@ -61,8 +61,8 @@
         </div>
     </div>
 
-    <div id="result-modal" class="modal-overlay">
-        <div class="modal-content" style="text-align:center;">
+    <div id="result-modal" class="modal-overlay" style="display:none; justify-content:center; align-items:center;">
+        <div class="modal-content" style="text-align:center; margin: auto;">
             <h1 id="res-title" style="color:gold">MISSION ACCOMPLISHED</h1>
             <p id="res-msg">Target Destroyed.</p>
             <div style="margin:20px 0; border-top:1px solid #444; padding-top:20px;">
@@ -81,8 +81,6 @@
         let enemy = { hp: 0, maxHp: 0, atk: 0 };
         let isPlayerTurn = true;
         let activeBuffs = [];
-        
-        // 報酬計算用データ（ローカル定義で安全確保）
         const b_lootTable = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
         const b_matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC", m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium" };
 
@@ -92,11 +90,9 @@
             const params = new URLSearchParams(window.location.search);
             const mid = params.get('mission') || 'm1';
             
-            // script.jsのmissionDataが読み込めていれば使う、なければ安全策
             if(typeof missionData !== 'undefined') {
                 currentMission = missionData[mid] || missionData['m1'];
             } else {
-                // script.js読み込み失敗時の緊急用データ
                 currentMission = { name: "Training", enemy: "Target", symbol:"T", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 1000, matChance: 0 } };
             }
 
@@ -106,12 +102,10 @@
             core.style.background = `radial-gradient(circle, ${currentMission.color}, #000)`;
             core.style.boxShadow = `0 0 60px ${currentMission.color}`;
 
-            // スキル補正
             const atkBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('atk_up') : 0;
             const allBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('all_up') : 0;
             const regenBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('regen_up') : 0;
             
-            // デッキ構築
             const deckIds = user.deck || [1, null, null, null, null];
             const container = document.getElementById('fleet-container');
             
@@ -130,7 +124,6 @@
             flagShip = deckMembers[0]; 
             document.getElementById('skill-name').innerText = flagShip.skill;
 
-            // ステータス計算
             deckMembers.forEach((member, i) => {
                 const img = document.createElement('img');
                 img.src = member.image;
@@ -151,7 +144,6 @@
                 let baseHp = 500 + rVal * 200;
                 let baseAtk = 100 + rVal * 150;
 
-                // 名声ボーナス (script.js依存)
                 let fameMult = 1;
                 if(typeof getFameInfo === 'function') {
                     const info = getFameInfo(member.id);
@@ -282,7 +274,7 @@
             updateUI(); 
             if(enemy.hp <= 0) { 
                 log("<span style='color:gold'>TARGET SILENCED.</span>"); 
-                setTimeout(winGameLocal, 1000); // ★ここを修正（ローカル関数を呼ぶ）
+                setTimeout(winGameLocal, 1000);
             }
         }
 
@@ -305,9 +297,8 @@
 
         function addEp(v) { stats.ep = Math.min(100, stats.ep + v); updateUI(); }
 
-        // ★勝利処理（ローカル定義で確実に実行）
+        // ★勝利処理（強制Flex配置で中央表示）
         function winGameLocal() {
-            // スキル補正
             let missionBonus = 0;
             if(typeof getSkillBonus === 'function') missionBonus = getSkillBonus('mission_bonus');
 
@@ -316,12 +307,10 @@
             user.money += money;
             let msg = `💰 ¥${money.toLocaleString()}`;
 
-            // RP獲得
             const rpGain = Math.floor(money * 0.1);
             user.rp = (user.rp || 0) + rpGain;
             msg += `<br>🧪 ${rpGain} RP`;
 
-            // 素材ドロップ
             if(currentMission && currentMission.drops.matChance > 0) {
                 const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
                 let table = b_lootTable; 
@@ -340,14 +329,22 @@
 
             localStorage.setItem('hadron_v8', JSON.stringify(user));
             document.getElementById('loot-display').innerHTML = msg;
-            document.getElementById('result-modal').style.display = 'flex';
+            
+            // ★重要：強制的にFlexboxを適用し、中央揃えを確実にする
+            const modal = document.getElementById('result-modal');
+            modal.style.display = 'flex';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
         }
 
         function loseGame() {
             document.getElementById('res-title').innerText = "DEFEAT"; 
             document.getElementById('res-title').style.color = "red"; 
             document.getElementById('loot-display').style.display = "none"; 
-            document.getElementById('result-modal').style.display = 'flex';
+            const modal = document.getElementById('result-modal');
+            modal.style.display = 'flex';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
         }
     </script>
 </body>
