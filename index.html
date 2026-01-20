@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hadron Lab Ver 19.0</title>
+    <title> Hadron Lab Ver 20.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 19.0 Style ===== */
+        /* ===== Hadron Lab 20.0 Style ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -99,7 +99,6 @@
             box-shadow: 5px 5px 15px rgba(0,0,0,0.8); transition: 0.3s; pointer-events: auto; cursor: pointer;
             transform-origin: bottom center; border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5);
         }
-        .deck-member:hover { transform: translateY(-30px) scale(1.1); z-index: 100; margin-right: -20px; box-shadow: 0 0 30px rgba(255,255,255,0.4); border-color: white; }
         .deck-member.flagship { width: 260px; z-index: 20; border: 2px solid var(--hc-orange); }
 
         /* 編成・ミッション選択 */
@@ -115,26 +114,59 @@
         .slot-label { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); text-align: center; padding: 5px 0; font-weight: bold; color: var(--hc-orange); pointer-events: none; }
         .slot-remove { position: absolute; top: 5px; right: 5px; background: red; width: 25px; height: 25px; border-radius: 50%; text-align: center; line-height: 25px; font-weight:bold; cursor: pointer; z-index: 10; border:2px solid white; }
 
-        /* ミッションカード */
         .mission-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .mission-card { 
-            background: linear-gradient(135deg, #222, #111); border: 2px solid #444; border-radius: 10px; padding: 20px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
-        }
+        .mission-card { background: linear-gradient(135deg, #222, #111); border: 2px solid #444; border-radius: 10px; padding: 20px; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
         .mission-card:hover { transform: translateY(-5px); border-color: var(--hc-blue); box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); }
-        .mission-card h3 { margin: 0 0 10px 0; font-family: 'Orbitron'; color: var(--hc-blue); }
-        .mission-card p { font-size: 0.8rem; color: #aaa; }
         .mission-tag { position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 8px; border-radius: 3px; background: #333; }
         .tag-money { color: #f1c40f; border: 1px solid #f1c40f; }
         .tag-mat { color: #2ecc71; border: 1px solid #2ecc71; }
         .tag-boss { color: #e74c3c; border: 1px solid #e74c3c; font-weight: bold; }
 
-        /* 共通 */
-        .shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-        .item-card { background: var(--hc-panel); border: 1px solid #444; padding: 10px; text-align: center; cursor: pointer; border-radius: 5px; }
-        .item-card:hover { background: #333; border-color: #888; }
+        /* 共通グリッド */
+        .shop-grid, .craft-grid, .particle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
         
-        .rarity-genesis { background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); background-size: 400%; -webkit-background-clip: text; color: transparent; animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1em; }
+        /* ★改善版 アイテムカード */
+        .item-card { 
+            background: var(--hc-panel); border: 2px solid #444; padding: 10px; 
+            text-align: center; cursor: pointer; border-radius: 8px; transition: 0.2s;
+            position: relative; overflow: hidden;
+        }
+        .item-card:hover { transform: translateY(-3px); }
+
+        /* ★レアリティ別カードスタイル (枠線&発光) */
+        .card-common { border-color: #666; }
+        .card-rare { border-color: #3498db; box-shadow: 0 0 5px rgba(52, 152, 219, 0.2); }
+        .card-holo { border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); background: linear-gradient(135deg, #1a1a1a, #2a2200); }
+        .card-ultra { border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); background: linear-gradient(135deg, #1a1a1a, #2a0000); }
+        .card-genesis { 
+            border-color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.6); 
+            animation: border-rainbow 3s linear infinite;
+            background: linear-gradient(135deg, #000, #222);
+        }
+
+        /* レアリティテキスト色 */
+        .rarity-common { color: #aaa; }
+        .rarity-rare { color: #3498db; font-weight: bold; }
+        .rarity-holo { color: #f1c40f; text-shadow: 0 0 5px #f1c40f; font-weight: bold; }
+        .rarity-ultra { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; font-weight: bold; font-size: 1.05rem; }
+        .rarity-genesis { 
+            background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            background-size: 400%; -webkit-background-clip: text; color: transparent; 
+            animation: rainbow 3s linear infinite; font-weight: bold; font-size: 1.1rem;
+        }
+
+        /* レアリティラベル (カード上部) */
+        .rarity-label { font-size: 0.6rem; font-family: 'Orbitron'; letter-spacing: 1px; margin-bottom: 5px; color: #888; }
+        .label-rare { color: #3498db; }
+        .label-holo { color: #f1c40f; }
+        .label-ultra { color: #e74c3c; }
+        .label-genesis { color: #fff; text-shadow: 0 0 5px #fff; }
+
         @keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+        @keyframes border-rainbow { 
+            0%{border-color: #ff0000;} 20%{border-color: #ffff00;} 40%{border-color: #00ff00;} 
+            60%{border-color: #00ffff;} 80%{border-color: #0000ff;} 100%{border-color: #ff00ff;} 
+        }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #222; padding: 20px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto; border-radius: 10px; border: 1px solid var(--hc-blue); }
@@ -268,68 +300,39 @@
         <div id="view-mission" class="main-view">
             <h2 style="font-family:'Orbitron'; color:var(--hc-red);">MISSION SELECT</h2>
             <div class="mission-grid">
-                <div class="mission-card" onclick="startBattle('m1')">
-                    <h3>Basic Training</h3>
-                    <div class="mission-tag">Normal</div>
-                    <p>基礎訓練用コース。バランスの良い報酬。</p>
-                    <div style="margin-top:10px; font-size:0.9rem; color:#fff;">Target: Standard Nucleus</div>
-                </div>
-
-                <div class="mission-card" onclick="startBattle('m2')">
-                    <h3>Gold Rush</h3>
-                    <div class="mission-tag tag-money">Money</div>
-                    <p>資金稼ぎ特化。敵は弱いが、素材は落ちない。</p>
-                    <div style="margin-top:10px; font-size:0.9rem; color:#f1c40f;">Target: Gold Chunk</div>
-                </div>
-
-                <div class="mission-card" onclick="startBattle('m3')">
-                    <h3>Material Depot</h3>
-                    <div class="mission-tag tag-mat">Material</div>
-                    <p>素材回収特化。多くの素材がドロップする。</p>
-                    <div style="margin-top:10px; font-size:0.9rem; color:#2ecc71;">Target: Carbon Pile</div>
-                </div>
-
-                <div class="mission-card" onclick="startBattle('m4')">
-                    <h3>Antimatter Zone</h3>
-                    <div class="mission-tag tag-boss">Hard</div>
-                    <p>危険地帯。レア素材と高額報酬のチャンス。</p>
-                    <div style="margin-top:10px; font-size:0.9rem; color:#9b59b6;">Target: Anti-H</div>
-                </div>
-
-                <div class="mission-card" onclick="startBattle('m5')">
-                    <h3>Event Horizon</h3>
-                    <div class="mission-tag tag-boss">EX-Hard</div>
-                    <p>事象の地平線。生還率極小。伝説の報酬。</p>
-                    <div style="margin-top:10px; font-size:0.9rem; color:#e74c3c;">Target: Singularity</div>
-                </div>
+                <div class="mission-card" onclick="startBattle('m1')"><h3>Basic Training</h3><div class="mission-tag">Normal</div><p>基礎訓練用コース。</p><div style="margin-top:10px; font-size:0.9rem;">Target: Standard Nucleus</div></div>
+                <div class="mission-card" onclick="startBattle('m2')"><h3>Gold Rush</h3><div class="mission-tag tag-money">Money</div><p>資金稼ぎ特化。</p><div style="margin-top:10px; font-size:0.9rem; color:#f1c40f;">Target: Gold Chunk</div></div>
+                <div class="mission-card" onclick="startBattle('m3')"><h3>Material Depot</h3><div class="mission-tag tag-mat">Material</div><p>素材回収特化。</p><div style="margin-top:10px; font-size:0.9rem; color:#2ecc71;">Target: Carbon Pile</div></div>
+                <div class="mission-card" onclick="startBattle('m4')"><h3>Antimatter Zone</h3><div class="mission-tag tag-boss">Hard</div><p>危険地帯。</p><div style="margin-top:10px; font-size:0.9rem; color:#9b59b6;">Target: Anti-H</div></div>
+                <div class="mission-card" onclick="startBattle('m5')"><h3>Event Horizon</h3><div class="mission-tag tag-boss">EX-Hard</div><p>生還率極小。</p><div style="margin-top:10px; font-size:0.9rem; color:#e74c3c;">Target: Singularity</div></div>
             </div>
         </div>
 
     </div>
 
-    <div id="select-modal" class="modal-overlay"><div class="modal-content"><h3>SELECT PARTICLE</h3><div id="select-list" class="particle-list"></div><button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button></div></div>
+    <div id="select-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>SELECT PARTICLE</h3>
+            <div id="select-list" class="particle-list">
+                </div>
+            <button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button>
+        </div>
+    </div>
+
     <div id="detail-modal" class="modal-overlay"><div class="modal-content" style="max-width:600px;"><div id="detail-content" class="detail-layout"></div><div style="text-align:center; margin-top:20px;"><button onclick="closeModal('detail-modal')" style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button></div></div></div>
     <div id="result-modal" class="modal-overlay"><div class="modal-content" style="text-align:center;"><h2 style="color:var(--hc-green);">Experiment Result</h2><div id="exp-result-content"></div><button onclick="closeModal('result-modal')" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button></div></div>
 
     <script src="script.js"></script>
     <script>
-        // (データ・ロジック部分はVer 18.0を継承しつつ、ミッション遷移用関数を追加)
-        
-        // ... (particles, materials, detectors, beams, targets, user, etc. are same as Ver 18.0)
-        // 省略部分はVer 18.0のコードを使用してください。
-        
-        // === ★NEW: バトル開始処理 ===
-        function startBattle(missionId) {
-            // クエリパラメータでミッションIDを渡す
-            location.href = `battle.html?mission=${missionId}`;
-        }
-        
-        // ... (showHome, showView, refreshUI, etc. same as Ver 18.0)
-        // ... (Deck Logic, Experiment, Shop/Craft Logic same as Ver 18.0)
-        
-        // ここに必要なVer18.0のスクリプト全てを含めます（長くなるので省略せず、Ver18.0の<script>の中身をそのまま使い、startBattleだけ追加してください）
+        // === Mission Data ===
+        const missionData = {
+            'm1': { name: "Basic Training", drops: { money: 2000, matChance: 0.3 } },
+            'm2': { name: "Gold Rush", drops: { money: 10000, matChance: 0 } },
+            'm3': { name: "Material Depot", drops: { money: 1000, matChance: 1.0, maxMat: 3 } },
+            'm4': { name: "Antimatter Zone", drops: { money: 5000, matChance: 0.8, rareMat: true } },
+            'm5': { name: "Event Horizon", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } }
+        };
 
-        // ===== 以下、Ver 18.0 のスクリプトの完全版（startBattle入り） =====
         const particles = [
             { id: 1, name: "Proton", symbol: "p", rarity: "common", image: "images/proton.png", desc: "陽子。", skill:"Proton Beam", type:"atk" },
             { id: 2, name: "Neutron", symbol: "n", rarity: "common", image: "images/neutron.png", desc: "中性子。", skill:"Neutron Shield", type:"def" },
@@ -363,6 +366,8 @@
             { id: 'm5', name: 'Fiber', cost: 2000 }, { id: 'm6', name: 'MPPC', cost: 8000 },
             { id: 'm7', name: 'Gold Wire', cost: 4000 }, { id: 'm8', name: 'PCB', cost: 1500 }, { id: 'm9', name: 'Liq. Helium', cost: 12000 }
         ];
+        const lootTable = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
+        const matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC", m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium" };
 
         const detectors = [
             { id: 'd0', name: 'Geiger Counter', power: 1, req: {} },
@@ -384,6 +389,7 @@
         const targets = [{id:'t1',name:'Air',cost:0,power:1}, {id:'t2',name:'Gold',cost:10000,power:2}];
 
         let user = { money: 10000, invMat: {}, invDet: [], invPart: {1:1}, deck: [1, null, null, null, null], equippedSkins: {} };
+        let currentMission = null;
         let currentSlotIndex = 0;
 
         window.onload = function() {
@@ -405,8 +411,8 @@
             document.getElementById('disp-money').innerText = user.money.toLocaleString();
             renderShop(); renderCraft(); renderOffice();
         }
+        function startBattle(missionId) { location.href = `battle.html?mission=${missionId}`; }
 
-        // --- Deck Logic ---
         function renderDeckHome() {
             const el = document.getElementById('home-deck-display'); if(!el) return; el.innerHTML = '';
             user.deck.forEach((pid, index) => {
@@ -456,6 +462,8 @@
             renderDeckHome(); renderDeckEdit();
         }
         function removeMember(index, e) { e.stopPropagation(); user.deck[index] = null; renderDeckEdit(); renderDeckHome(); saveGame(); }
+        
+        // ★修正版: 選択モーダル (枠線とレアリティラベル追加)
         function openSelectModal(slotIndex) {
             currentSlotIndex = slotIndex; const list = document.getElementById('select-list'); list.innerHTML = ''; let hasAny = false;
             Object.keys(user.invPart).forEach(pidStr => {
@@ -463,8 +471,13 @@
                 if(user.invPart[pid] > 0) {
                     hasAny = true; const p = particles.find(x => x.id === pid);
                     if(p) {
-                        const div = document.createElement('div'); div.className = 'item-card';
-                        div.innerHTML = `<img src="${getImgSrc(p)}" style="width:50px"><br><span class="rarity-${p.rarity}">${p.name}</span>`;
+                        const div = document.createElement('div'); 
+                        div.className = `item-card card-${p.rarity}`; // クラス追加
+                        div.innerHTML = `
+                            <div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div>
+                            <img src="${getImgSrc(p)}" style="width:70px; margin-bottom:5px;">
+                            <div class="rarity-${p.rarity}" style="font-size:0.9rem;">${p.name}</div>
+                        `;
                         div.onclick = () => { user.deck[currentSlotIndex] = pid; closeModal('select-modal'); renderDeckEdit(); renderDeckHome(); saveGame(); };
                         list.appendChild(div);
                     }
@@ -475,7 +488,6 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function saveDeck() { saveGame(); alert("編成を保存しました！"); }
 
-        // --- Experiment ---
         function initProposalForm() {
             const b = document.getElementById('sel-beam'), t = document.getElementById('sel-target'), d = document.getElementById('sel-detector');
             if(b) b.innerHTML = beams.map(x=>`<option value="${x.id}">${x.name} ¥${x.cost}</option>`).join('');
@@ -539,14 +551,12 @@
                 else {
                     Object.keys(d.req).forEach(mid => {
                         const m = materials.find(x=>x.id==mid);
-                        const need = d.req[mid];
-                        const have = user.invMat[mid]||0;
+                        const need = d.req[mid]; const have = user.invMat[mid]||0;
                         if(have < need) canCraft = false;
                         reqHtml += `<div>${m.name}: ${have}/${need}</div>`;
                     });
                 }
-                const btnState = (own || !canCraft) ? 'disabled' : '';
-                const btnText = own ? 'OWNED' : 'CRAFT';
+                const btnState = (own || !canCraft) ? 'disabled' : ''; const btnText = own ? 'OWNED' : 'CRAFT';
                 el.innerHTML += `<div class="craft-card ${own?'owned':''}"><div style="font-weight:bold; color:var(--hc-orange)">${d.name} <span style="font-size:0.8rem; color:#aaa;">(Pw:${d.power})</span></div><div class="craft-req">${reqHtml}</div><button class="craft-btn" ${btnState} onclick="craft('${d.id}')">${btnText}</button></div>`;
             });
         }
@@ -554,9 +564,7 @@
             if(user.invDet.includes(id)) return;
             const d = detectors.find(x=>x.id==id);
             if(Object.keys(d.req).length > 0) {
-                let ok = true;
-                Object.keys(d.req).forEach(mid => { if((user.invMat[mid]||0) < d.req[mid]) ok=false; });
-                if(!ok) return;
+                let ok = true; Object.keys(d.req).forEach(mid => { if((user.invMat[mid]||0) < d.req[mid]) ok=false; }); if(!ok) return;
                 Object.keys(d.req).forEach(mid => { user.invMat[mid] -= d.req[mid]; });
             }
             user.invDet.push(id); saveGame(); refreshUI(); initProposalForm();
@@ -568,7 +576,7 @@
                 const pid=parseInt(pidStr); if(user.invPart[pid]>0){
                     const p=particles.find(x=>x.id==pid); if(p){
                         let pr=1000; if(p.rarity=="rare")pr=3000; if(p.rarity=="holo")pr=10000; if(p.rarity=="ultra")pr=50000; if(p.rarity=="genesis")pr=1000000; 
-                        el.innerHTML+=`<div class="item-card" onclick="sell(${pid},${pr})"><span class="rarity-${p.rarity}">${p.name}</span> x${user.invPart[pid]}<br>PUBLISH (¥${pr})</div>`;
+                        el.innerHTML+=`<div class="item-card card-${p.rarity}" onclick="sell(${pid},${pr})"><div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div><div class="rarity-${p.rarity}">${p.name}</div><div style="font-size:0.8rem">x${user.invPart[pid]}</div><div style="font-size:0.7rem; color:#aaa; margin-top:5px;">SELL: ¥${pr}</div></div>`;
                     }
                 }
             });
@@ -576,12 +584,8 @@
         function sell(pid,pr){ if(user.invPart[pid]>0){ user.invPart[pid]--; user.money+=pr; saveGame(); refreshUI(); } }
         function loadGame(){
             const d=localStorage.getItem('hadron_v8'); if(d){ try{user=JSON.parse(d);}catch(e){user={};} }
-            if(typeof user.money==='undefined')user.money=10000; 
-            if(!user.invMat)user.invMat={}; 
-            if(!user.invDet) user.invDet=['d0']; 
-            if(user.invDet.length === 0) user.invDet=['d0'];
-            if(!user.invPart)user.invPart={1:1}; if(!user.deck)user.deck=[1,null,null,null,null];
-            if(!user.equippedSkins) user.equippedSkins = {};
+            if(typeof user.money==='undefined')user.money=10000; if(!user.invMat)user.invMat={}; if(!user.invDet) user.invDet=['d0']; if(user.invDet.length === 0) user.invDet=['d0'];
+            if(!user.invPart)user.invPart={1:1}; if(!user.deck)user.deck=[1,null,null,null,null]; if(!user.equippedSkins) user.equippedSkins = {};
         }
         function saveGame(){ localStorage.setItem('hadron_v8',JSON.stringify(user)); }
     </script>
