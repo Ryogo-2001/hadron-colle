@@ -1,5 +1,5 @@
 // ==========================================
-//  Hadron Lab Core Script (Ver 22.6 Fixed)
+//  Hadron Lab Core Script (Ver 22.7 Fixed)
 // ==========================================
 
 console.log("Hadron Lab Script Loading...");
