@@ -5,17 +5,23 @@
     <title>Tactical Battle | Hadron Lab</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
 </head>
 <body>
+
     <div id="skill-overlay" class="skill-cutin">LIMIT BREAK!</div>
+    
     <div class="header">
         <div style="font-family:'Orbitron'">MISSION: <span style="color:red" id="mission-name">...</span></div>
         <button class="btn-back" onclick="location.href='index.html'">RETREAT</button>
     </div>
+
     <div class="battle-field">
         <div class="player-side">
             <div class="fleet-stats-box">
-                <div style="display:flex; justify-content:space-between; font-size:0.8rem;"><span>FLEET HP</span> <span id="p-hp-val">1000</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>FLEET HP</span> <span id="p-hp-val">1000</span>
+                </div>
                 <div class="bar-container"><div id="p-hp-bar" class="hp-bar"></div></div>
                 <div class="bar-container" style="height:4px; background:#444;"><div id="p-ep-bar" class="ep-bar"></div></div>
                 <div style="text-align:right; font-size:0.7rem; color:#f1c40f;">TP (Tactical Point)</div>
@@ -23,22 +29,38 @@
             </div>
             <div id="fleet-container" class="fleet-container"></div>
         </div>
+
         <div class="enemy-side">
             <div class="fleet-stats-box" style="position:relative; top:0; left:0; width:200px; border-color:#e74c3c;">
-                <div style="display:flex; justify-content:space-between; font-size:0.8rem;"><span>BOSS HP</span> <span id="e-hp-val">5000</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>BOSS HP</span> <span id="e-hp-val">5000</span>
+                </div>
                 <div class="bar-container"><div id="e-hp-bar" class="hp-bar" style="background:#e74c3c;"></div></div>
             </div>
             <div id="enemy-core" class="enemy-core" style="margin-top:20px;"></div>
         </div>
     </div>
+
     <div class="command-panel">
-        <div class="log-window" id="log">> Fleet formation complete.<br>> Awaiting orders...</div>
+        <div class="log-window" id="log">
+            > Fleet formation complete.<br>> Awaiting orders...
+        </div>
         <div class="command-grid">
-            <button class="cmd-btn" style="--color:#3498db" onclick="playerAction('attack')">🔥 ALL-OUT ATTACK<div style="font-size:0.7rem; color:#aaa;">TP +15</div></button>
-            <button class="cmd-btn" style="--color:#2ecc71" onclick="playerAction('charge')">🛡 RECHARGE<div style="font-size:0.7rem; color:#aaa;">TP +40</div></button>
-            <button id="btn-skill" class="cmd-btn" style="--color:#f1c40f; grid-column: span 2;" onclick="playerAction('skill')" disabled>★ <span id="skill-name">SKILL</span><div style="font-size:0.7rem; color:#aaa;">Cost: 100 TP</div></button>
+            <button class="cmd-btn" style="--color:#3498db" onclick="playerAction('attack')">
+                🔥 ALL-OUT ATTACK
+                <div style="font-size:0.7rem; color:#aaa;">TP +15</div>
+            </button>
+            <button class="cmd-btn" style="--color:#2ecc71" onclick="playerAction('charge')">
+                🛡 RECHARGE
+                <div style="font-size:0.7rem; color:#aaa;">TP +40</div>
+            </button>
+            <button id="btn-skill" class="cmd-btn" style="--color:#f1c40f; grid-column: span 2;" onclick="playerAction('skill')" disabled>
+                ★ <span id="skill-name">SKILL</span>
+                <div style="font-size:0.7rem; color:#aaa;">Cost: 100 TP</div>
+            </button>
         </div>
     </div>
+
     <div id="result-modal" class="modal">
         <div style="background:#222; border:2px solid gold; padding:40px; text-align:center; border-radius:10px; min-width:400px; color:white;">
             <h1 id="res-title" style="color:gold">MISSION ACCOMPLISHED</h1>
@@ -52,52 +74,7 @@
     </div>
 
     <script>
-        // === スキル定義 (JS側と合わせる) ===
-        const skills = [
-            { id: 's4', type: 'atk_up', val: 0.1 },
-            { id: 's6', type: 'mission_bonus', val: 0.2 },
-            { id: 's7', type: 'regen_up', val: 0.5 },
-            { id: 's8', type: 'all_up', val: 0.2 }
-        ];
-
-        // 共通データ等は script.js と同じ内容が必要だが、ここでは省略せずに必要なものを記述
-        const missionData = {
-            'm1': { name: "Basic Training", enemy: "Nucleus", symbol:"N", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 2000, matChance: 0.3 } },
-            'm2': { name: "Gold Rush", enemy: "Gold Chunk", symbol:"Au", hpMult: 2, atkMult: 0.5, color: "#f1c40f", drops: { money: 10000, matChance: 0 } },
-            'm3': { name: "Material Depot", enemy: "Carbon", symbol:"C", hpMult: 1.5, atkMult: 1, color: "#2ecc71", drops: { money: 1000, matChance: 1.0, maxMat: 3 } },
-            'm4': { name: "Antimatter Zone", enemy: "Anti-H", symbol:"H̄", hpMult: 3, atkMult: 2, color: "#9b59b6", drops: { money: 5000, matChance: 0.8, rareMat: true } },
-            'm5': { name: "Event Horizon", enemy: "Singularity", symbol:"⚫", hpMult: 10, atkMult: 5, color: "#fff", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } }
-        };
-        const particles = [
-            { id: 1, name: "Proton", rarity: "common", image: "images/proton.png", skill:"Proton Beam", type:"atk" },
-            { id: 2, name: "Neutron", rarity: "common", image: "images/neutron.png", skill:"Neutron Shield", type:"def" },
-            { id: 3, name: "Pion (+)", rarity: "common", image: "images/pion.png", skill:"Yukawa Force", type:"spd" },
-            { id: 4, name: "Kaon (+)", rarity: "rare", image: "images/kaon.png", skill:"Strange Hit", type:"atk" },
-            { id: 5, name: "Lambda", rarity: "rare", image: "images/lambda.png", skill:"Hyper Guard", type:"def" },
-            { id: 6, name: "Sigma (-)", rarity: "rare", image: "images/sigma.png", skill:"Isospin Slash", type:"atk" },
-            { id: 7, name: "Xi (-)", rarity: "holo", image: "images/xi.png", skill:"Cascade Fall", type:"atk" },
-            { id: 8, name: "H-Dibaryon", rarity: "holo", image: "images/h_dibaryon.png", skill:"Hexa-Quark", type:"def" },
-            { id: 9, name: "Delta (++)", rarity: "common", image: "images/delta.png", skill:"Resonance", type:"spd" },
-            { id: 10, name: "Omega (-)", rarity: "holo", image: "images/omega.png", skill:"Strangeness 3", type:"ult" },
-            { id: 11, name: "D Meson", rarity: "rare", image: "images/d-meson.png", skill:"Charm Speed", type:"spd" },
-            { id: 12, name: "J/psi", rarity: "holo", image: "images/j-psi.png", skill:"Charmonium", type:"atk" },
-            { id: 13, name: "Top Quark", rarity: "ultra", image: "images/top-quark.png", skill:"Truth Smasher", type:"ult" },
-            { id: 14, name: "Higgs Boson", rarity: "ultra", image: "images/higgs.png", skill:"God Field", type:"ult" },
-            { id: 15, name: "Photon", rarity: "common", image: "images/Photon.png", skill:"Optical Flash", type:"spd" },
-            { id: 16, name: "Gluon", rarity: "rare", image: "images/Gluon.png", skill:"Strong Bond", type:"def" },
-            { id: 17, name: "Charm Quark", rarity: "holo", image: "images/Charm_Quark.png", skill:"Lovely Charm", type:"atk" },
-            { id: 18, name: "Neutrino", rarity: "rare", image: "images/Neutrino.png", skill:"Ghost Pass", type:"spd" },
-            { id: 19, name: "Anti-Proton", rarity: "ultra", image: "images/Anti-Proton.png", skill:"Annihilation", type:"ult" },
-            { id: 20, name: "Positron", rarity: "rare", image: "images/Positron.png", skill:"Mirror Dash", type:"spd" },
-            { id: 21, name: "W Boson", rarity: "holo", image: "images/W_Boson.png", skill:"Beta Decay", type:"atk" },
-            { id: 22, name: "Z Boson", rarity: "holo", image: "images/Z_Boson.png", skill:"Neutral Heavy", type:"def" },
-            { id: 23, name: "Tachyon", rarity: "ultra", image: "images/Tachyon.png", skill:"Time Travel", type:"spd" },
-            { id: 24, name: "Graviton", rarity: "genesis", image: "images/Graviton.png", skill:"Event Horizon", type:"ult", skins: [ { id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' } ] }
-        ];
-        const lootTable = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
-        const matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC", m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium" };
-
-        let user = {};
+        // === バトル固有の変数定義 ===
         let deckMembers = [];
         let flagShip = null;
         let stats = { hp: 0, maxHp: 0, ep: 0, atk: 0, regen: 0, critRate: 0.1, dmgRed: 0 };
@@ -106,56 +83,51 @@
         let activeBuffs = [];
         let currentMission = null;
 
-        function getSkillBonus(type) {
-            let bonus = 0;
-            if(!user.skills) return 0;
-            user.skills.forEach(sid => {
-                const s = skills.find(x => x.id === sid);
-                if(s && s.type === type) bonus += s.val;
-            });
-            return bonus;
-        }
-
+        // script.jsの読み込み完了後に実行
         window.onload = function() {
+            // script.jsのloadGameを呼んで最新データをuserに入れる
+            if(typeof loadGame === 'function') {
+                loadGame(); 
+            } else {
+                console.error("script.js not loaded correctly");
+                return;
+            }
+
+            // ミッションIDの取得
             const params = new URLSearchParams(window.location.search);
             const mid = params.get('mission') || 'm1';
             currentMission = missionData[mid] || missionData['m1'];
 
+            // UI反映
             document.getElementById('mission-name').innerText = currentMission.name;
             const core = document.getElementById('enemy-core');
             core.innerText = currentMission.symbol;
             core.style.background = `radial-gradient(circle, ${currentMission.color}, #000)`;
             core.style.boxShadow = `0 0 60px ${currentMission.color}`;
 
-            const d = localStorage.getItem('hadron_v8');
-            if(d) user = JSON.parse(d);
-            if(!user.equippedSkins) user.equippedSkins = {};
-            if(!user.skills) user.skills = [];
-
-            // ★スキル補正計算
+            // ★スキル補正計算 (script.jsの関数を使用)
             const atkBonus = getSkillBonus('atk_up');
             const allBonus = getSkillBonus('all_up');
             const regenBonus = getSkillBonus('regen_up');
             
+            // デッキ構築
             const deckIds = user.deck || [1, null, null, null, null];
             const container = document.getElementById('fleet-container');
             
             deckIds.forEach((pid, index) => {
                 if(pid) {
                     const p = particles.find(x => x.id === pid) || particles[0]; 
-                    let currentImg = p.image;
-                    if(user.equippedSkins[pid] && p.skins) {
-                        const s = p.skins.find(sk => sk.id === user.equippedSkins[pid]);
-                        if(s) currentImg = s.image;
-                    }
+                    // script.jsのgetImgSrcを使用（着せ替え反映）
+                    let currentImg = getImgSrc(p);
                     deckMembers.push({ ...p, index: index, image: currentImg });
                 }
             });
-            if(deckMembers.length === 0) deckMembers.push({ ...particles[0], index: 0 });
+            if(deckMembers.length === 0) deckMembers.push({ ...particles[0], index: 0, image: particles[0].image });
 
             flagShip = deckMembers[0]; 
             document.getElementById('skill-name').innerText = flagShip.skill;
 
+            // ステータス計算 & 表示
             deckMembers.forEach((member, i) => {
                 const img = document.createElement('img');
                 img.src = member.image;
@@ -176,15 +148,11 @@
                 let baseHp = 500 + rVal * 200;
                 let baseAtk = 100 + rVal * 150;
 
-                // 名声ボーナス
-                let req = 1000; let bonusPerLv = 0.05;
-                if(member.rarity === 'rare') { req = 100; bonusPerLv = 0.08; }
-                if(member.rarity === 'holo') { req = 40; bonusPerLv = 0.10; }
-                if(member.rarity === 'ultra') { req = 10; bonusPerLv = 0.10; }
-                if(member.rarity === 'genesis') { req = 5; bonusPerLv = 0.10; }
+                // ★名声ボーナス計算 (script.jsの関数を使用)
+                const fameParams = getFameParams(member.rarity);
                 const count = user.invPart ? (user.invPart[member.id] || 1) : 1;
-                const fameLv = Math.floor(count / req);
-                const fameMult = 1 + (fameLv * bonusPerLv);
+                const fameLv = Math.floor(count / fameParams.req);
+                const fameMult = 1 + (fameLv * fameParams.bonus);
 
                 // ★スキル補正適用
                 let skillMultAtk = 1 + atkBonus + allBonus;
@@ -192,6 +160,8 @@
 
                 stats.maxHp += baseHp * fameMult * skillMultHp;
                 stats.atk += baseAtk * fameMult * skillMultAtk;
+                
+                if(fameLv > 0) console.log(`${member.name} Fame Lv.${fameLv} (x${fameMult.toFixed(2)})`);
             });
 
             // 自動回復スキル
@@ -199,6 +169,7 @@
 
             applyFleetBuffs();
             
+            // 敵ステータスの補正
             enemy.maxHp = Math.floor(stats.atk * 10 * currentMission.hpMult);
             enemy.hp = enemy.maxHp;
             enemy.atk = Math.floor(stats.maxHp / 8 * currentMission.atkMult);
@@ -207,6 +178,8 @@
             updateUI();
             log(`Mission Start: ${currentMission.name}`);
         };
+
+        // --- バトルロジック ---
 
         function applyFleetBuffs() {
             let types = { atk:0, def:0, spd:0, ult:0 };
@@ -217,6 +190,7 @@
             if(types.def >= 3) { stats.maxHp *= 1.2; addBuff("🛡 FORTRESS: HP+20%"); }
             if(types.spd >= 3) { stats.ep += 30; addBuff("⚡ RAPID: Start TP+30"); }
 
+            // Combo Bonus
             if(ids.includes(1) && ids.includes(2)) { stats.maxHp *= 1.15; addBuff("⚛️ Nucleus: HP+15%"); }
             if(ids.includes(13) && ids.includes(14)) { stats.atk *= 1.30; addBuff("⚖️ God Particle: Atk+30%"); }
             if(ids.includes(17) && ids.includes(12)) { stats.atk *= 1.15; addBuff("💖 Charm: Atk+15%"); }
@@ -240,10 +214,10 @@
         function updateUI() {
             if(stats.hp <= 0 && stats.maxHp > 0 && isPlayerTurn && enemy.hp == enemy.maxHp) stats.hp = stats.maxHp; 
             document.getElementById('p-hp-val').innerText = Math.floor(stats.hp);
-            document.getElementById('p-hp-bar').style.width = (stats.hp/stats.maxHp*100) + "%";
+            document.getElementById('p-hp-bar').style.width = Math.min(100, (stats.hp/stats.maxHp*100)) + "%";
             document.getElementById('p-ep-bar').style.width = stats.ep + "%";
             document.getElementById('e-hp-val').innerText = Math.floor(enemy.hp);
-            document.getElementById('e-hp-bar').style.width = (enemy.hp/enemy.maxHp*100) + "%";
+            document.getElementById('e-hp-bar').style.width = Math.min(100, (enemy.hp/enemy.maxHp*100)) + "%";
             document.getElementById('btn-skill').disabled = (stats.ep < 100 || !isPlayerTurn);
             const btns = document.querySelectorAll('.cmd-btn');
             btns.forEach(b => { if(b.id!=='btn-skill') b.disabled = !isPlayerTurn; });
@@ -264,18 +238,23 @@
                 log("Fleet recharging energy..."); addEp(40); setTimeout(endTurn, 800);
             } else if(type === 'skill') { useSkill(); }
         }
+
         function useSkill() {
             stats.ep = 0; updateUI();
             const overlay = document.getElementById('skill-overlay'); overlay.innerText = flagShip.skill + "!!"; overlay.classList.add('active');
             setTimeout(() => {
                 overlay.classList.remove('active'); animFleetAttack();
-                let multiplier = 2.5; if(flagShip.rarity === 'ultra') multiplier = 4.0; if(flagShip.rarity === 'genesis') multiplier = 10.0;
+                let multiplier = 2.5; 
+                if(flagShip.rarity === 'ultra') multiplier = 4.0; 
+                if(flagShip.rarity === 'genesis') multiplier = 10.0;
                 const dmg = stats.atk * multiplier;
                 log(`<span style="color:gold">FLAGSHIP SKILL FIRE!</span>`);
                 setTimeout(() => { dealDamageToEnemy(Math.floor(dmg), true); endTurn(); }, 600);
             }, 1500);
         }
+
         function endTurn() { if(enemy.hp <= 0) return; log("Enemy Turn..."); setTimeout(enemyAction, 1000); }
+
         function enemyAction() {
             const elm = document.getElementById('enemy-core'); elm.style.transform = 'scale(1.2)';
             setTimeout(() => {
@@ -286,67 +265,54 @@
                 if(stats.hp > 0) { applyRegen(); isPlayerTurn = true; updateUI(); log("Command Phase."); }
             }, 500);
         }
+
         function applyRegen() {
-            if(stats.regen > 0 && stats.hp < stats.maxHp) { stats.hp = Math.min(stats.maxHp, stats.hp + stats.regen); showHeal(stats.regen, 'fleet-container'); log(`<span style='color:#2ecc71'>Auto-Repair: +${Math.floor(stats.regen)} HP</span>`); updateUI(); }
+            if(stats.regen > 0 && stats.hp < stats.maxHp) { 
+                stats.hp = Math.min(stats.maxHp, stats.hp + stats.regen); 
+                showHeal(stats.regen, 'fleet-container'); 
+                log(`<span style='color:#2ecc71'>Auto-Repair: +${Math.floor(stats.regen)} HP</span>`); 
+                updateUI(); 
+            }
         }
+
         function animFleetAttack() { const mems = document.querySelectorAll('.fleet-member'); mems.forEach((img, i) => { setTimeout(() => { img.classList.add('attack'); setTimeout(()=>img.classList.remove('attack'), 300); }, i * 50); }); }
+
         function dealDamageToEnemy(amount, isCrit) {
             enemy.hp -= amount; if(enemy.hp < 0) enemy.hp = 0; showDamage(amount, 'enemy-core', isCrit);
             const elm = document.getElementById('enemy-core'); elm.classList.add('damage'); setTimeout(()=>elm.classList.remove('damage'), 300);
-            updateUI(); if(enemy.hp <= 0) { log("<span style='color:gold'>TARGET SILENCED.</span>"); setTimeout(winGame, 1000); }
+            updateUI(); if(enemy.hp <= 0) { log("<span style='color:gold'>TARGET SILENCED.</span>"); setTimeout(winGame_Battle, 1000); }
         }
+
         function dealDamageToPlayer(amount) {
             stats.hp -= amount; if(stats.hp < 0) stats.hp = 0; updateUI();
             const mems = document.querySelectorAll('.fleet-member'); mems.forEach(img => { img.classList.add('damage'); setTimeout(()=>img.classList.remove('damage'), 400); });
             showDamage(amount, 'fleet-container', false); if(stats.hp <= 0) { log("<span style='color:red'>FLEET CRITICAL...</span>"); setTimeout(loseGame, 1000); }
         }
+
         function showDamage(val, targetId, isCrit) {
             const target = document.getElementById(targetId); const rect = target.getBoundingClientRect(); const el = document.createElement('div'); el.className = 'damage-pop'; el.innerText = val;
             if(isCrit) { el.style.color = 'gold'; el.style.fontSize = '4rem'; }
             el.style.left = (rect.left + rect.width/2 - 20) + 'px'; el.style.top = (rect.top) + 'px'; document.body.appendChild(el); setTimeout(()=>el.remove(), 800);
         }
+
         function showHeal(val, targetId) {
             const target = document.getElementById(targetId); const rect = target.getBoundingClientRect(); const el = document.createElement('div'); el.className = 'heal-pop'; el.innerText = "+" + val;
             el.style.left = (rect.left + rect.width/2) + 'px'; el.style.top = (rect.top) + 'px'; document.body.appendChild(el); setTimeout(()=>el.remove(), 800);
         }
+
         function addEp(v) { stats.ep = Math.min(100, stats.ep + v); updateUI(); }
 
-        // ★RP獲得追加
-        function winGame() {
-            // Money
-            const missionBonus = getSkillBonus('mission_bonus');
-            const money = Math.floor(currentMission.drops.money * (1 + missionBonus));
-            user.money += money;
-            let msg = `💰 ¥${money.toLocaleString()}`;
-
-            // ★RP獲得 (資金の10%程度)
-            const rpGain = Math.floor(money * 0.1);
-            user.rp = (user.rp || 0) + rpGain;
-            msg += `<br>🧪 ${rpGain} RP`;
-
-            // Material
-            if(currentMission.drops.matChance > 0) {
-                const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
-                let table = lootTable; 
-                if(!currentMission.drops.rareMat) {
-                    table = ['m1','m2','m3','m4','m5','m6'];
-                }
-                
-                for(let i=0; i<count; i++) {
-                    if(Math.random() < currentMission.drops.matChance) {
-                        const loot = table[Math.floor(Math.random()*table.length)];
-                        user.invMat[loot] = (user.invMat[loot]||0) + 1;
-                        msg += `<br>📦 ${matNames[loot]}`;
-                    }
-                }
+        // script.jsのwinGameと名前が被るため別名で定義
+        function winGame_Battle() {
+            // winGame関数はscript.jsにあるものを再利用する
+            if(typeof winGame === 'function') {
+                winGame(); // script.jsのwinGameを呼ぶ
+            } else {
+                console.error("winGame function not found in script.js");
+                // フォールバック（念のため）
+                document.getElementById('res-title').innerText = "WIN (Error: script.js missing)";
+                document.getElementById('result-modal').style.display = 'flex';
             }
-
-            localStorage.setItem('hadron_v8', JSON.stringify(user));
-            document.getElementById('loot-display').innerHTML = msg;
-            document.getElementById('result-modal').style.display = 'flex';
-        }
-        function loseGame() {
-            document.getElementById('res-title').innerText = "DEFEAT"; document.getElementById('res-title').style.color = "red"; document.getElementById('loot-display').style.display = "none"; document.getElementById('result-modal').style.display = 'flex';
         }
     </script>
 </body>
