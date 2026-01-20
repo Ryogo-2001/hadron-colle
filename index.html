@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>赤尾 亮伍 | Hadron Lab Ver 8.0</title>
+    <title>赤尾 亮伍 | Hadron Lab Ver 8.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     
     <style>
-        /* ===== Hadron Lab 8.0 Formation Edition ===== */
+        /* ===== Hadron Lab 8.1 Layout Fix ===== */
         :root {
             --hc-bg: #0a0e14;
             --hc-panel: #151922;
@@ -67,9 +67,14 @@
         /* --- ホーム画面 (デッキ表示) --- */
         #view-home { background: transparent; backdrop-filter: none; pointer-events: none; }
         
+        /* ★修正：メニュー位置を左側に固定 */
         .home-menu-container {
-            position: absolute; top: 50%; left: 250px; transform: translateY(-50%);
-            width: 500px; height: 500px; pointer-events: auto; z-index: 20;
+            position: absolute; 
+            top: 55%; 
+            left: 150px; /* 左端から150pxの位置 */
+            transform: translateY(-50%);
+            width: 450px; height: 450px; 
+            pointer-events: auto; z-index: 50;
         }
 
         /* ギアボタン */
@@ -79,45 +84,56 @@
             cursor: pointer; transition: 0.2s;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             font-family: 'Orbitron'; font-weight: bold; border: 2px solid rgba(255,255,255,0.2);
+            background-color: rgba(0,0,0,0.8); /* 背景を少し暗くして読みやすく */
         }
-        .gear-btn:hover { transform: scale(1.1); z-index: 100; filter: brightness(1.2); }
+        .gear-btn:hover { transform: scale(1.1); z-index: 100; filter: brightness(1.2); border-color: white; }
         .gear-btn::before {
             content: ""; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
             border-radius: 50%; border: 2px dashed rgba(255,255,255,0.3);
             animation: spin 20s linear infinite; pointer-events: none;
         }
 
-        .btn-main { width: 160px; height: 160px; background: radial-gradient(circle, #e67e22, #d35400); border: 4px solid #f1c40f; color: #fff; font-size: 1.4rem; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .btn-main:hover { transform: translate(-50%, -50%) scale(1.05); }
-        
-        .btn-shop { width: 90px; height: 90px; background: #2ecc71; color: white; top: 20%; left: 25%; font-size: 0.8rem; }
-        
-        /* 編成ボタン (左下) */
-        .btn-deck { width: 90px; height: 90px; background: #9b59b6; color: white; top: 65%; left: 25%; font-size: 0.8rem; }
-        
-        .btn-office { width: 90px; height: 90px; background: #3498db; color: white; top: 80%; left: 50%; transform: translateX(-50%); font-size: 0.8rem; }
-        .btn-battle { width: 100px; height: 100px; background: #c0392b; color: white; top: 60%; right: 15%; font-size: 0.9rem; border-color: #e74c3c; }
+        /* ボタン配置の微調整 */
+        .btn-main { width: 170px; height: 170px; background: radial-gradient(circle, #e67e22, #d35400); border: 4px solid #f1c40f; color: #fff; font-size: 1.4rem; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; }
+        .btn-shop { width: 100px; height: 100px; background: #2ecc71; color: white; top: 15%; left: 15%; font-size: 0.8rem; }
+        .btn-deck { width: 100px; height: 100px; background: #9b59b6; color: white; top: 70%; left: 15%; font-size: 0.8rem; }
+        .btn-office { width: 100px; height: 100px; background: #3498db; color: white; top: 85%; left: 50%; transform: translateX(-50%); font-size: 0.8rem; }
+        .btn-battle { width: 110px; height: 110px; background: #c0392b; color: white; top: 65%; right: 5%; font-size: 0.9rem; border-color: #e74c3c; }
+        .btn-craft { width: 100px; height: 100px; background: #7f8c8d; color: white; top: 15%; right: 15%; font-size: 0.9rem; } /* 工廠を右上に移動 */
 
-        /* --- デッキ表示エリア (秘書艦エリアを拡張) --- */
+        /* ★修正：デッキ表示エリア (右下に配置・重なり調整) */
         .deck-display-area {
-            position: absolute; right: 20px; bottom: 0; height: 85vh; width: 60vw;
+            position: absolute; right: 20px; bottom: 20px; 
+            height: 60vh; width: 60vw;
             pointer-events: none; 
             display: flex; justify-content: flex-end; align-items: flex-end;
             z-index: 10;
         }
         .deck-member {
-            height: 100%; width: auto; max-width: 25%; 
+            width: 220px; /* カード幅固定 */
+            height: auto; 
             object-fit: contain;
-            margin-left: -50px; /* 重ねて表示 */
-            filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
-            transition: 0.2s; pointer-events: auto; cursor: pointer;
-            position: relative;
+            margin-right: -120px; /* カードを重ねる */
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.8); /* 影をつけて立体感 */
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            pointer-events: auto; cursor: pointer;
+            transform-origin: bottom center;
+            border: 2px solid rgba(255,255,255,0.1);
         }
-        .deck-member:hover { transform: scale(1.05); z-index: 20; filter: drop-shadow(0 0 20px rgba(255,255,255,0.5)); }
+        .deck-member:hover { 
+            transform: translateY(-30px) scale(1.1); /* ホバーで持ち上がる */
+            z-index: 100; 
+            margin-right: -20px; /* 横の間隔を広げる */
+            box-shadow: 0 0 30px rgba(255,255,255,0.4);
+            border-color: white;
+        }
         
-        /* 旗艦（1人目）は大きく手前に */
+        /* 旗艦（一番右または一番手前）の特別扱い */
         .deck-member.flagship {
-            height: 110%; z-index: 15; max-width: 40%;
+            width: 260px; /* 少し大きく */
+            z-index: 20;
+            border: 2px solid var(--hc-orange);
         }
 
         /* --- 編成画面スタイル --- */
@@ -198,6 +214,9 @@
                 <div class="gear-btn btn-deck" onclick="showView('view-deck')">
                     <div style="font-size:1.5rem;">🔄</div><div>DECK</div>
                 </div>
+                <div class="gear-btn btn-craft" onclick="showView('view-craft')">
+                    <div style="font-size:1.5rem;">🛠</div><div>CRAFT</div>
+                </div>
                 <div class="gear-btn btn-office" onclick="showView('view-office')">
                     <div style="font-size:1.5rem;">📂</div><div>DATA</div>
                 </div>
@@ -210,8 +229,7 @@
         <div id="view-deck" class="main-view">
             <h2 style="font-family:'Orbitron'; color:var(--hc-purple);">DECK FORMATION</h2>
             <p>最大5人の粒子を選択してチームを編成します。</p>
-            <div class="deck-slots" id="deck-slots-container">
-                </div>
+            <div class="deck-slots" id="deck-slots-container"></div>
             <div style="text-align:center;">
                 <button onclick="saveDeck()" style="padding:15px 40px; background:var(--hc-green); border:none; color:white; font-size:1.2rem; cursor:pointer;">SAVE FORMATION</button>
             </div>
@@ -253,8 +271,8 @@
     <script>
         // === DATA ===
         const particles = [
-            { id: 1, name: "Muon", rarity: 1, image: "images/proton.png" }, // 仮
-            { id: 2, name: "Electron", rarity: 1, image: "images/proton.png" }, // 仮
+            { id: 1, name: "Muon", rarity: 1, image: "images/proton.png" },
+            { id: 2, name: "Electron", rarity: 1, image: "images/proton.png" },
             { id: 3, name: "Proton", rarity: 1, image: "images/proton.png" },
             { id: 4, name: "Pion", rarity: 2, image: "images/pion.png" },
             { id: 5, name: "Kaon", rarity: 3, image: "images/kaon.png" },
@@ -277,7 +295,7 @@
 
         let user = { 
             money: 10000, invMat: {}, invDet: [], invPart: {3:1}, // プロトン1個所持
-            deck: [3, null, null, null, null] // IDの配列 (最大5枠)
+            deck: [3, null, null, null, null] // 初期デッキ
         };
 
         let currentSlotIndex = 0;
@@ -304,17 +322,33 @@
             renderShop(); renderCraft(); renderOffice();
         }
 
-        // --- DECK LOGIC ---
+        // --- DECK LOGIC (修正版) ---
         function renderDeckHome() {
             const el = document.getElementById('home-deck-display');
             el.innerHTML = '';
+            
+            // デッキを逆順に処理して、手前（index 0）が最後にレンダリングされるようにする
+            // ではなく、右端に寄せるなら、index 0を一番右（一番上）にしたい。
+            // CSSの重なり順は後から追加したものが上になる。
+            // なので、index 4 (後ろ) -> index 0 (旗艦・手前) の順で追加。
+            
+            const reverseDeck = [...user.deck].reverse(); 
+            // しかしCSSのFlexbox (justify-content: flex-end) なので、
+            // DOM順序: [Member 1] [Member 2] ... [Member 5 (Flagship?)] 
+            // いや、通常は左から1番艦。
+            // 画面右側に配置したいので、左から 5番艦, 4番艦 ... 1番艦 と並べれば、1番艦が一番右に来る。
+            
+            // 配列をそのまま回す (0:旗艦 -> 4:随伴)
             user.deck.forEach((pid, index) => {
                 if(pid) {
                     const p = particles.find(x => x.id === pid);
                     const img = document.createElement('img');
                     img.src = p.image;
+                    // クラス付与
                     img.className = 'deck-member' + (index === 0 ? ' flagship' : '');
-                    img.onclick = () => alert(`${p.name}: 準備完了！`);
+                    // z-index調整: 若い番号ほど手前(大きく)したい
+                    img.style.zIndex = 50 - index; 
+                    img.onclick = () => alert(`${p.name}: 出撃準備完了！`);
                     el.appendChild(img);
                 }
             });
@@ -353,15 +387,12 @@
             const list = document.getElementById('select-list');
             list.innerHTML = '';
             
-            // 所持している粒子一覧を表示
             let hasAny = false;
             Object.keys(user.invPart).forEach(pidStr => {
                 const pid = parseInt(pidStr);
-                const count = user.invPart[pid];
-                if(count > 0) {
+                if(user.invPart[pid] > 0) {
                     hasAny = true;
                     const p = particles.find(x => x.id === pid);
-                    
                     const div = document.createElement('div');
                     div.className = 'item-card';
                     div.innerHTML = `<img src="${p.image}" style="width:50px"><br>${p.name}`;
@@ -375,7 +406,6 @@
                     list.appendChild(div);
                 }
             });
-            
             if(!hasAny) list.innerHTML = '<p>所持している粒子がありません。</p>';
             document.getElementById('select-modal').style.display = 'flex';
         }
@@ -383,7 +413,7 @@
         function closeModal() { document.getElementById('select-modal').style.display = 'none'; }
         function saveDeck() { saveGame(); alert("編成を保存しました！"); }
 
-        // --- Other Logic (Simplified) ---
+        // --- Other Logic ---
         function renderShop() {
             const el=document.getElementById('shop-list'); el.innerHTML='';
             materials.forEach(m=>{
@@ -422,7 +452,6 @@
             const t=targets.find(x=>x.id==document.getElementById('sel-target').value);
             if(user.money < b.cost+t.cost){alert("資金不足");return;}
             user.money -= (b.cost+t.cost);
-            // 抽選
             const p = particles[Math.floor(Math.random()*particles.length)];
             user.invPart[p.id] = (user.invPart[p.id]||0)+1;
             saveGame(); refreshUI();
@@ -445,7 +474,7 @@
         function saveGame() { localStorage.setItem('hadron_v8', JSON.stringify(user)); }
         function loadGame() {
             const d=localStorage.getItem('hadron_v8'); if(d) user=JSON.parse(d);
-            if(!user.deck) user.deck=[3,null,null,null,null]; // 初期デッキ
+            if(!user.deck) user.deck=[3,null,null,null,null];
         }
     </script>
 </body>
