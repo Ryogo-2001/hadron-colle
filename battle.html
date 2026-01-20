@@ -17,12 +17,11 @@
         /* バトルフィールド */
         .battle-field { height: 55vh; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
         
-        /* ★ プレイヤー艦隊 (5人表示) */
+        /* ★ プレイヤー艦隊 */
         .player-side { 
             width: 50%; height: 100%; position: relative;
             display: flex; align-items: center; 
         }
-        /* 斜行陣コンテナ */
         .fleet-container {
             position: relative; width: 100%; height: 300px;
         }
@@ -32,15 +31,13 @@
             filter: drop-shadow(0 0 10px rgba(0,243,255,0.3));
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        /* 旗艦は大きく */
         .fleet-member.flagship {
             height: 280px; z-index: 50 !important; filter: drop-shadow(0 0 20px rgba(255,215,0,0.6));
         }
-        /* アニメーション用クラス */
         .fleet-member.attack { transform: translateX(100px) !important; filter: brightness(1.5); }
         .fleet-member.damage { animation: shake 0.4s; filter: sepia(1) hue-rotate(-50deg) saturate(3); }
 
-        /* ステータスバー (艦隊合計) */
+        /* ステータスバー */
         .fleet-stats-box {
             position: absolute; top: -40px; left: 20px; width: 300px;
             background: rgba(0,0,0,0.7); border: 1px solid #3498db; padding: 10px; border-radius: 5px; z-index: 100;
@@ -124,8 +121,7 @@
                 <div style="text-align:right; font-size:0.7rem; color:#f1c40f;">TP (Tactical Point)</div>
             </div>
             
-            <div id="fleet-container" class="fleet-container">
-                </div>
+            <div id="fleet-container" class="fleet-container"></div>
         </div>
 
         <div class="enemy-side">
@@ -177,7 +173,6 @@
     <script>
         // === ★UPDATED DATA (全19種) ===
         const particles = [
-            // ID 1-14
             { id: 1, name: "Proton", rarity: "common", image: "images/proton.png", skill:"Proton Beam", type:"atk" },
             { id: 2, name: "Neutron", rarity: "common", image: "images/neutron.png", skill:"Neutron Shield", type:"def" },
             { id: 3, name: "Pion (+)", rarity: "common", image: "images/pion.png", skill:"Yukawa Force", type:"spd" },
@@ -205,7 +200,7 @@
 
         // === State ===
         let user = {};
-        let deckMembers = []; // Object array
+        let deckMembers = []; 
         let flagShip = null;
         let stats = { hp: 0, maxHp: 0, ep: 0, atk: 0 };
         let enemy = { hp: 5000, maxHp: 5000, atk: 100 };
@@ -220,37 +215,34 @@
             const deckIds = user.deck || [1, null, null, null, null];
             const container = document.getElementById('fleet-container');
             
-            // 5人分のデータを構築
+            // 安全にデッキ構築
             deckIds.forEach((pid, index) => {
                 if(pid) {
-                    const p = particles.find(x => x.id === pid) || particles[0]; // 見つからなければProton
+                    const p = particles.find(x => x.id === pid) || particles[0]; 
                     deckMembers.push({ ...p, index: index });
                 }
             });
             // デッキが空ならプロトン単騎
             if(deckMembers.length === 0) deckMembers.push({ ...particles[0], index: 0 });
 
-            flagShip = deckMembers[0]; // 0番目が旗艦
+            flagShip = deckMembers[0]; 
             document.getElementById('skill-name').innerText = flagShip.skill;
 
-            // Render Fleet (Diagonal Formation)
+            // Render & Stats Calc
             deckMembers.forEach((member, i) => {
                 const img = document.createElement('img');
                 img.src = member.image;
                 img.className = 'fleet-member';
                 img.id = `member-${i}`;
                 
-                // 斜行陣配置 (手前が大きく、奥が小さく、重なり順を制御)
                 const offset = i * 60;
                 img.style.left = `${offset}px`;
-                img.style.top = `${-offset * 0.3}px`; // 少し上にずらす
+                img.style.top = `${-offset * 0.3}px`;
                 img.style.zIndex = 50 - i;
-                
                 if(i === 0) img.classList.add('flagship');
-                
                 container.appendChild(img);
                 
-                // Stats Add (Rarity Bonus)
+                // Stats Add
                 let rVal = 1;
                 if(member.rarity=="rare") rVal=2;
                 if(member.rarity=="holo") rVal=4;
@@ -264,6 +256,9 @@
             enemy.maxHp = stats.atk * 10;
             enemy.hp = enemy.maxHp;
             enemy.atk = stats.maxHp / 8;
+            
+            // ★最重要修正: HPを最大値にセット
+            stats.hp = stats.maxHp;
 
             updateUI();
             log(`Fleet Formed. Members: ${deckMembers.length}`);
@@ -271,10 +266,15 @@
         };
 
         function updateUI() {
-            document.getElementById('p-hp-val').innerText = stats.hp;
+            // ★安全装置: 万が一HPが0で最大HPがあるなら回復させる
+            if(stats.hp <= 0 && stats.maxHp > 0 && isPlayerTurn && enemy.hp == enemy.maxHp) {
+                stats.hp = stats.maxHp; 
+            }
+
+            document.getElementById('p-hp-val').innerText = Math.floor(stats.hp);
             document.getElementById('p-hp-bar').style.width = (stats.hp/stats.maxHp*100) + "%";
             document.getElementById('p-ep-bar').style.width = stats.ep + "%";
-            document.getElementById('e-hp-val').innerText = enemy.hp;
+            document.getElementById('e-hp-val').innerText = Math.floor(enemy.hp);
             document.getElementById('e-hp-bar').style.width = (enemy.hp/enemy.maxHp*100) + "%";
             
             document.getElementById('btn-skill').disabled = (stats.ep < 100 || !isPlayerTurn);
@@ -289,7 +289,6 @@
         }
 
         // === Battle Actions ===
-
         function playerAction(type) {
             if(!isPlayerTurn) return;
             isPlayerTurn = false;
@@ -297,7 +296,7 @@
 
             if(type === 'attack') {
                 log("Fleet All-Out Attack!");
-                animFleetAttack(); // 全員突撃
+                animFleetAttack(); 
                 setTimeout(() => {
                     const dmg = stats.atk * (0.9 + Math.random()*0.2);
                     dealDamageToEnemy(Math.floor(dmg));
@@ -324,7 +323,7 @@
             
             setTimeout(() => {
                 overlay.classList.remove('active');
-                animFleetAttack(); // スキルも全員で撃つ
+                animFleetAttack(); 
                 
                 let multiplier = 2.5;
                 if(flagShip.rarity === 'ultra') multiplier = 4.0;
@@ -363,7 +362,7 @@
                 setTimeout(() => {
                     img.classList.add('attack');
                     setTimeout(()=>img.classList.remove('attack'), 300);
-                }, i * 50); // 少しずらして突撃
+                }, i * 50);
             });
         }
 
@@ -380,7 +379,6 @@
             stats.hp -= amount; if(stats.hp < 0) stats.hp = 0;
             updateUI();
             
-            // 全員揺れる
             const mems = document.querySelectorAll('.fleet-member');
             mems.forEach(img => {
                 img.classList.add('damage');
