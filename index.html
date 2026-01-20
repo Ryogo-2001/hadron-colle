@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hadron Lab Ver 20.0</title>
+    <title>Hadron Lab Ver 22.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -14,6 +14,9 @@
             <div style="font-family:'Orbitron'; font-weight:bold; color:#aaa; margin-right:20px;">HADRON LAB</div>
             <div class="status-box" style="border-color:var(--hc-green);">
                 <span>💴 BUDGET:</span><span id="disp-money" style="color:var(--hc-green); font-weight:bold;">0</span>
+            </div>
+            <div class="status-box" style="border-color:var(--hc-blue); margin-left:10px;">
+                <span>🧪 RP:</span><span id="disp-rp" style="color:var(--hc-blue); font-weight:bold;">0</span>
             </div>
             <div style="flex-grow:1;"></div>
             <div class="status-box" style="border-color:var(--hc-orange);">
@@ -29,6 +32,7 @@
             <div class="menu-item" onclick="showView('view-proposal')"><div class="menu-icon">📝</div> <span>PROPOSAL</span></div>
             <div class="menu-item" onclick="showView('view-office')"><div class="menu-icon">🎓</div> <span>ARCHIVE</span></div>
             <div class="menu-item" onclick="showView('view-mission')"><div class="menu-icon">⚔️</div> <span>MISSION</span></div>
+            <div class="menu-item" onclick="showView('view-lab')"><div class="menu-icon">🔬</div> <span>LABORATORY</span></div>
         </div>
         
         <div class="deck-display-area" id="home-deck-display"></div>
@@ -52,11 +56,8 @@
                 <button onclick="saveDeck()" style="padding:15px 40px; background:var(--hc-green); border:none; color:white; font-size:1.2rem; cursor:pointer;">SAVE FORMATION</button>
             </div>
         </div>
-
         <div id="view-shop" class="main-view"><h2 style="font-family:'Orbitron'">MATERIAL SHOP</h2><div id="shop-list" class="shop-grid"></div></div>
-        
         <div id="view-craft" class="main-view"><h2 style="font-family:'Orbitron'">WORKSHOP</h2><div id="craft-list" class="craft-grid"></div></div>
-        
         <div id="view-proposal" class="main-view">
             <div style="background:#eee; padding:30px; border-radius:5px; color:#333; max-width:800px; margin:0 auto;">
                 <h2>Experiment Proposal</h2>
@@ -73,7 +74,7 @@
                     <select id="sel-detector" style="width:100%; padding:10px; margin-bottom:10px;" onchange="calcProposalCost()"></select>
                 </div>
                 <div style="text-align:right; font-weight:bold; margin-top:20px;">
-                    COST (x1): ¥<span id="prop-cost">0</span>
+                    COST (x1): ¥<span id="prop-cost">0</span> <span id="cost-discount" style="font-size:0.8rem; color:red;"></span>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:10px;">
                     <button onclick="runExperiment(1)" style="flex:1; background:var(--hc-blue); color:white; padding:15px; border:none; font-size:1.2rem; cursor:pointer;">SUBMIT (x1)</button>
@@ -81,18 +82,18 @@
                 </div>
             </div>
         </div>
-        
-        <div id="view-office" class="main-view"><h2 style="font-family:'Orbitron'">OFFICE</h2><div id="particle-stock-list" class="shop-grid"></div></div>
-
+        <div id="view-office" class="main-view"><h2 style="font-family:'Orbitron'">OFFICE</h2><p>粒子データを売却して、予算とRP(研究ポイント)を獲得します。</p><div id="particle-stock-list" class="shop-grid"></div></div>
         <div id="view-mission" class="main-view">
             <h2 style="font-family:'Orbitron'; color:var(--hc-red);">MISSION SELECT</h2>
-            <div class="mission-grid">
-                <div class="mission-card" onclick="startBattle('m1')"><h3>Basic Training</h3><div class="mission-tag">Normal</div><p>基礎訓練用コース。</p><div style="margin-top:10px; font-size:0.9rem;">Target: Standard Nucleus</div></div>
-                <div class="mission-card" onclick="startBattle('m2')"><h3>Gold Rush</h3><div class="mission-tag tag-money">Money</div><p>資金稼ぎ特化。</p><div style="margin-top:10px; font-size:0.9rem; color:#f1c40f;">Target: Gold Chunk</div></div>
-                <div class="mission-card" onclick="startBattle('m3')"><h3>Material Depot</h3><div class="mission-tag tag-mat">Material</div><p>素材回収特化。</p><div style="margin-top:10px; font-size:0.9rem; color:#2ecc71;">Target: Carbon Pile</div></div>
-                <div class="mission-card" onclick="startBattle('m4')"><h3>Antimatter Zone</h3><div class="mission-tag tag-boss">Hard</div><p>危険地帯。</p><div style="margin-top:10px; font-size:0.9rem; color:#9b59b6;">Target: Anti-H</div></div>
-                <div class="mission-card" onclick="startBattle('m5')"><h3>Event Horizon</h3><div class="mission-tag tag-boss">EX-Hard</div><p>生還率極小。</p><div style="margin-top:10px; font-size:0.9rem; color:#e74c3c;">Target: Singularity</div></div>
-            </div>
+            <div class="mission-grid" id="mission-list-container">
+                </div>
+        </div>
+
+        <div id="view-lab" class="main-view">
+            <h2 style="font-family:'Orbitron'; color:var(--hc-blue);">RESEARCH LABORATORY</h2>
+            <p>RP (Research Points) を消費して、研究所の機能を恒久的にアップグレードします。</p>
+            <div id="skill-tree-container" class="skill-tree-grid">
+                </div>
         </div>
 
     </div>
