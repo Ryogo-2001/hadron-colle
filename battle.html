@@ -29,49 +29,57 @@
 
         /* バトルフィールド */
         .battle-container {
-            display: flex; justify-content: space-around; align-items: center;
-            height: 60vh; padding: 20px; position: relative;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 60vh; padding: 0 5%; position: relative;
         }
 
-        /* プレイヤー側（加速器） */
-        .player-side { text-align: center; width: 30%; }
-        .cannon-img {
-            width: 150px; filter: drop-shadow(0 0 20px #3498db);
-            transition: transform 0.1s;
+        /* プレイヤー側（娘＋加速器） */
+        .player-side { 
+            text-align: center; width: 40%; 
+            display: flex; flex-direction: column; align-items: center;
+            position: relative;
         }
-        .cannon-img.shoot { transform: translateX(20px) scale(0.9); }
+        /* 娘の画像 */
+        .daughter-img {
+            height: 350px; object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(52, 152, 219, 0.6));
+            animation: breathe 3s ease-in-out infinite;
+            z-index: 2;
+        }
+        .cannon-base {
+            margin-top: -50px; font-size: 1.5rem; color: #aaa; z-index: 1;
+        }
 
         /* 敵側（原子核） */
-        .enemy-side { text-align: center; width: 30%; position: relative; }
+        .enemy-side { text-align: center; width: 40%; position: relative; }
         .enemy-img {
-            width: 180px; height: 180px; border-radius: 50%;
+            width: 200px; height: 200px; border-radius: 50%; margin: 0 auto;
             background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b);
-            box-shadow: 0 0 30px #b8860b;
+            box-shadow: 0 0 50px #b8860b;
             display: flex; justify-content: center; align-items: center;
             font-size: 3rem; font-weight: bold; text-shadow: 2px 2px 5px black;
             position: relative; animation: float 3s ease-in-out infinite;
             border: 4px solid #fff;
         }
         .enemy-hp-bar {
-            width: 200px; height: 10px; background: #333; margin: 20px auto;
-            border-radius: 5px; overflow: hidden;
+            width: 300px; height: 15px; background: #333; margin: 20px auto;
+            border-radius: 10px; overflow: hidden; border: 1px solid #555;
         }
         .enemy-hp-fill {
-            width: 100%; height: 100%; background: #e74c3c;
+            width: 100%; height: 100%; background: linear-gradient(90deg, #e74c3c, #c0392b);
             transition: width 0.2s;
         }
 
-        /* エフェクト */
+        /* ビームエフェクト */
         .beam-effect {
-            position: absolute; top: 50%; left: 25%; width: 0%; height: 10px;
-            background: linear-gradient(90deg, #3498db, #fff, #3498db);
-            box-shadow: 0 0 20px #3498db;
-            transform: translateY(-50%); z-index: 10;
-            opacity: 0;
+            position: absolute; top: 45%; left: 300px; width: 0%; height: 20px;
+            background: linear-gradient(90deg, #fff, #3498db, #fff);
+            box-shadow: 0 0 30px #3498db;
+            border-radius: 10px; opacity: 0; pointer-events: none;
         }
         .damage-pop {
-            position: absolute; color: #ff3333; font-family: 'Orbitron'; font-size: 2rem; font-weight: bold;
-            animation: popUp 0.8s forwards;
+            position: absolute; color: #ff3333; font-family: 'Orbitron'; font-size: 3rem; font-weight: bold;
+            animation: popUp 0.8s forwards; text-shadow: 0 0 10px black;
         }
 
         /* コントロールパネル */
@@ -80,8 +88,8 @@
             display: flex; padding: 20px; box-sizing: border-box; gap: 20px;
         }
         .log-window {
-            flex: 2; background: #000; border: 1px solid #444; padding: 10px;
-            overflow-y: auto; font-family: monospace; color: #2ecc71; font-size: 0.9rem;
+            flex: 2; background: #000; border: 1px solid #444; padding: 15px;
+            overflow-y: auto; font-family: monospace; color: #2ecc71; font-size: 1rem; line-height: 1.5;
         }
         .action-area {
             flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center;
@@ -93,7 +101,7 @@
             transition: 0.2s;
         }
         .btn-fire:active { transform: scale(0.95); }
-        .btn-fire:disabled { background: #333; cursor: not-allowed; box-shadow: none; }
+        .btn-fire:disabled { background: #333; cursor: not-allowed; box-shadow: none; filter: grayscale(100%); }
 
         /* 結果モーダル */
         .modal {
@@ -102,17 +110,18 @@
             justify-content: center; align-items: center; flex-direction: column; z-index: 100;
         }
         .loot-box {
-            background: #222; border: 2px solid #ffd700; padding: 30px; border-radius: 10px;
-            text-align: center; animation: popIn 0.5s;
+            background: #222; border: 2px solid #ffd700; padding: 40px; border-radius: 10px;
+            text-align: center; animation: popIn 0.5s; min-width: 400px;
         }
 
+        @keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        @keyframes popUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-50px); opacity: 0; } }
+        @keyframes popUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-80px); opacity: 0; } }
         @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes beamShoot { 
-            0% { width: 0%; opacity: 1; left: 25%; } 
-            50% { width: 50%; opacity: 1; left: 25%; } 
-            100% { width: 0%; opacity: 0; left: 75%; } 
+            0% { width: 0%; opacity: 1; left: 350px; } 
+            50% { width: 60%; opacity: 1; left: 350px; } 
+            100% { width: 0%; opacity: 0; left: 900px; } 
         }
 
     </style>
@@ -120,17 +129,21 @@
 <body>
 
     <div class="header">
-        <div style="font-family:'Orbitron'; font-size:1.5rem;">TARGET: <span style="color:#ffd700;">Au-197 (Gold)</span></div>
-        <button class="btn-back" onclick="location.href='index.html'">RETURN TO LAB</button>
+        <div style="font-family:'Orbitron'; font-size:1.5rem;">
+            MISSION: <span style="color:#e74c3c;">Target Destruction</span>
+        </div>
+        <button class="btn-back" onclick="location.href='index.html'">RETREAT</button>
     </div>
 
     <div class="battle-container">
         <div id="beam" class="beam-effect"></div>
 
         <div class="player-side">
-            <h3 style="color:#3498db;">ACCELERATOR</h3>
-            <div id="cannon" class="cannon-img" style="font-size:5rem;">🔫</div>
-            <div style="margin-top:10px; color:#aaa;">Beam Power: <span id="atk-pow">100</span></div>
+            <img id="daughter-img" class="daughter-img" src="images/proton.png">
+            <div class="cannon-base">
+                <div style="font-size:1.2rem; font-weight:bold; color:#3498db;" id="daughter-name">Proton</div>
+                <div style="font-size:0.9rem;">Power: <span id="atk-pow">100</span> GeV</div>
+            </div>
         </div>
 
         <div class="enemy-side">
@@ -142,43 +155,60 @@
 
     <div class="control-panel">
         <div class="log-window" id="log">
-            > Target acquired: Gold Nucleus<br>
-            > Accelerator ready.<br>
-            > Waiting for beam injection...
+            > System Online.<br>
+            > Partner particle connected.<br>
+            > Ready for collision.
         </div>
         <div class="action-area">
-            <button id="btn-fire" class="btn-fire" onclick="fireBeam()">FIRE BEAM</button>
+            <button id="btn-fire" class="btn-fire" onclick="fireBeam()">COLLIDE (FIRE)</button>
         </div>
     </div>
 
     <div id="result-modal" class="modal">
         <div class="loot-box">
-            <h2 style="color:#ffd700;">TARGET DESTROYED!</h2>
+            <h2 style="color:#ffd700; margin-top:0;">VICTORY!</h2>
             <div style="margin:20px 0; font-size:1.2rem;">
-                <div>LAB RANK EXP: <span style="color:#2ecc71;">+100</span></div>
-                <div style="margin-top:10px;">LOOT DROPPED:</div>
-                <div id="loot-item" style="font-size:2rem; margin:10px;">📦 ???</div>
+                <div style="color:#aaa;">Target analysis complete.</div>
+                <div style="margin-top:20px; border:1px solid #444; padding:15px; border-radius:5px; background:#111;">
+                    <div style="color:#2ecc71; font-size:0.9rem;">REWARD</div>
+                    <div id="loot-item" style="font-size:2rem; margin-top:10px;">📦 ???</div>
+                </div>
             </div>
-            <button class="btn-back" onclick="location.href='index.html'" style="background:#333; color:white; border:none;">RETURN</button>
-            <button class="btn-back" onclick="location.reload()" style="background:#e67e22; color:white; border:none; margin-top:10px;">NEXT BATTLE</button>
+            <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+                <button class="btn-back" onclick="location.href='index.html'" style="background:#333; color:white; border:none;">RETURN</button>
+                <button class="btn-back" onclick="location.reload()" style="background:#e67e22; color:white; border:none;">NEXT BATTLE</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // === Ver 6.0 準拠データ ===
-        let user = { money: 0, invMat: {}, invDet: [], invPart: {}, rankExp: 0 };
+        // === Ver 6.0 共通データ ===
+        let user = { money: 0, invMat: {}, invDet: [], invPart: {}, secretary: 1 };
         
-        // 素材ID (index.htmlと合わせる)
-        const lootTable = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'];
+        // 粒子データ (index.htmlと同期)
+        const particles = [
+            { id: 1, name: "Muon", rarity: 1, image: "images/proton.png" }, // 仮
+            { id: 2, name: "Electron", rarity: 1, image: "images/proton.png" }, // 仮
+            { id: 3, name: "Proton", rarity: 1, image: "images/proton.png" },
+            { id: 4, name: "Pion", rarity: 2, image: "images/pion.png" },
+            { id: 5, name: "Kaon", rarity: 3, image: "images/kaon.png" },
+            { id: 6, name: "J/psi", rarity: 4, image: "images/j-psi.png" },
+            { id: 7, name: "Higgs", rarity: 5, image: "images/higgs.png" },
+            { id: 8, name: "Top Quark", rarity: 5, image: "images/top-quark.png" }
+        ];
+        
+        // 素材名
         const matNames = {
             m1: "Dry Ice", m2: "Alcohol", m3: "PMT", 
             m4: "Scintillator", m5: "Optical Fiber", m6: "MPPC"
         };
+        const lootTable = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'];
 
-        // バトルステータス
+        // バトル変数
         let enemyMaxHp = 1000;
         let enemyHp = 1000;
-        let playerAtk = 150; // 基本攻撃力
+        let playerAtk = 100;
+        let currentPartner = null;
 
         window.onload = function() {
             loadGame();
@@ -189,17 +219,27 @@
             const d = localStorage.getItem('hadron_v6');
             if(d) user = JSON.parse(d);
             
-            // 攻撃力計算：所持している検出器が多いほど強い (研究力=攻撃力)
-            // invDetの数 * 100 + 50
-            const detCount = (user.invDet || []).length;
-            playerAtk = 50 + (detCount * 150);
+            // 秘書粒子（娘）のロード
+            // 未設定なら初期キャラ(Top Quark or Proton)
+            const secId = user.secretary || 8; 
+            currentPartner = particles.find(p => p.id === secId) || particles[7];
+
+            // 画面反映
+            document.getElementById('daughter-img').src = currentPartner.image;
+            document.getElementById('daughter-name').innerText = currentPartner.name;
             
+            // 攻撃力計算式: (検出器数 * 100) + (娘のレア度 * 200)
+            const detCount = (user.invDet || []).length;
+            playerAtk = (detCount * 100) + (currentPartner.rarity * 200);
+
             document.getElementById('atk-pow').innerText = playerAtk;
+            
+            // ログ
+            addLog(`Partner: <b>${currentPartner.name}</b> (Rarity ${currentPartner.rarity}) engaged.`);
         }
 
         function initBattle() {
-            // 敵の強さをランダムに変動
-            enemyMaxHp = 800 + Math.floor(Math.random() * 500);
+            enemyMaxHp = 1000 + (playerAtk * 3); // 自分の強さに合わせて敵も強くなる
             enemyHp = enemyMaxHp;
             updateHp();
         }
@@ -220,36 +260,33 @@
             btn.disabled = true;
 
             // アニメーション
-            document.getElementById('cannon').classList.add('shoot');
             const beam = document.getElementById('beam');
             beam.style.animation = 'none';
-            beam.offsetHeight; /* trigger reflow */
-            beam.style.animation = 'beamShoot 0.3s linear';
+            beam.offsetHeight; 
+            beam.style.animation = 'beamShoot 0.4s linear';
+
+            // 娘の応援メッセージ（簡易ランダム）
+            const quotes = ["いけーっ！", "照準固定、発射！", "データ取得開始！", "逃しません！"];
+            const q = quotes[Math.floor(Math.random() * quotes.length)];
+            addLog(`<span style="color:#3498db">${currentPartner.name}:</span> 「${q}」`);
 
             setTimeout(() => {
-                document.getElementById('cannon').classList.remove('shoot');
-                
-                // ダメージ計算 (クリティカルあり)
+                // ダメージ計算
                 let dmg = Math.floor(playerAtk * (0.9 + Math.random() * 0.2));
                 let isCrit = Math.random() > 0.8;
-                if(isCrit) {
-                    dmg *= 2;
-                    addLog(`<span style="color:orange">CRITICAL HIT!</span>`);
-                }
+                if(isCrit) { dmg *= 1.5; addLog(`<span style="color:orange">CRITICAL HIT!</span>`); }
 
                 enemyHp -= dmg;
                 if(enemyHp < 0) enemyHp = 0;
                 updateHp();
                 
-                // ダメージポップアップ
-                showDamage(dmg, isCrit);
-                addLog(`Beam hit! Dealt ${dmg} damage.`);
+                showDamage(Math.floor(dmg), isCrit);
+                addLog(`Target takes ${Math.floor(dmg)} damage.`);
 
                 if(enemyHp <= 0) {
-                    setTimeout(winBattle, 500);
+                    setTimeout(winBattle, 800);
                 } else {
-                    // クールダウン後に再発射可能
-                    setTimeout(() => { btn.disabled = false; }, 500);
+                    setTimeout(() => { btn.disabled = false; }, 600);
                 }
             }, 300);
         }
@@ -259,41 +296,33 @@
             const div = document.createElement('div');
             div.className = 'damage-pop';
             div.innerText = val;
-            div.style.left = '50%';
-            div.style.top = '0';
-            if(isCrit) {
-                div.style.fontSize = '3rem';
-                div.style.color = '#ffd700';
-            }
+            div.style.left = '50%'; div.style.top = '0';
+            div.style.transform = 'translate(-50%, 0)';
+            if(isCrit) { div.style.color = '#ffd700'; div.style.fontSize = '4rem'; }
             area.appendChild(div);
             setTimeout(() => div.remove(), 800);
         }
 
         function winBattle() {
-            addLog("Target Destroyed. Mission Complete.");
+            addLog("Target destroyed. Collecting debris...");
             
-            // 報酬処理
+            // 報酬抽選
             const lootId = lootTable[Math.floor(Math.random() * lootTable.length)];
-            
-            // レア素材(m6: MPPC)は確率低めにする補正
             let finalLoot = lootId;
-            if(lootId === 'm6' && Math.random() > 0.3) finalLoot = 'm1'; // 外れならドライアイス
+            // レア素材補正（レアな娘がいるとMPPCが出やすい、とかも可）
+            if(lootId === 'm6' && Math.random() > 0.3) finalLoot = 'm1'; 
 
-            // 獲得処理
             user.invMat[finalLoot] = (user.invMat[finalLoot] || 0) + 1;
-            user.rankExp = (user.rankExp || 0) + 100; // 経験値
-            
             saveGame();
 
-            // 表示
             const lootName = matNames[finalLoot];
-            document.getElementById('loot-item').innerText = `📦 ${lootName} x1`;
+            const lootIcon = (finalLoot==='m6'?'🤏': (finalLoot==='m3'?'💡':'📦'));
+            
+            document.getElementById('loot-item').innerText = `${lootIcon} ${lootName} x1`;
             document.getElementById('result-modal').style.display = 'flex';
         }
 
-        function saveGame() {
-            localStorage.setItem('hadron_v6', JSON.stringify(user));
-        }
+        function saveGame() { localStorage.setItem('hadron_v6', JSON.stringify(user)); }
     </script>
 </body>
 </html>
