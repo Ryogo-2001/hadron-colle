@@ -1,5 +1,5 @@
 // ==========================================
-//  Hadron Lab Core Script (Ver 22.7 Fixed)
+//  Hadron Lab Core Script (Ver 22.10 Deck Update)
 // ==========================================
 
 console.log("Hadron Lab Script Loading...");
@@ -191,18 +191,33 @@ function renderDeckHome() {
     });
 }
 
+// ★修正: 縦長カード対応＆レアリティ枠色対応
 function renderDeckEdit() {
     const el = document.getElementById('deck-slots-container'); if(!el) return; el.innerHTML = '';
     for(let i=0; i<5; i++) {
         const pid = user.deck[i]; const p = pid ? particles.find(x => x.id === pid) : null;
+        
+        // レアリティクラスを付与
+        const rarityClass = p ? `card-${p.rarity}` : '';
+        
+        const div = document.createElement('div'); 
+        div.className = `slot-card ${rarityClass}`;
+        
         let content = `<div style="font-size:2rem; color:#555;">+</div><div style="color:#aaa;">EMPTY</div>`;
         if(p) {
             const info = getFameInfo(p.id);
             const star = info.lv > 0 ? `<div class="fame-badge">★<span>${info.lv}</span></div>` : '';
-            content = `<div style="position:relative;">${star}<img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)"></div><div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div><div class="slot-remove" onclick="removeMember(${i}, event)">×</div>`;
+            content = `
+                ${star}
+                <img src="${getImgSrc(p)}" onclick="showCharDetail(${p.id}, event)">
+                <div class="slot-label ${'rarity-'+p.rarity}">${p.name}</div>
+                <div class="slot-remove" onclick="removeMember(${i}, event)">×</div>
+            `;
         }
-        const div = document.createElement('div'); div.className = 'slot-card'; div.innerHTML = content;
-        div.onclick = (e) => { if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) openSelectModal(i); };
+        div.innerHTML = content;
+        div.onclick = (e) => { 
+            if(e.target.tagName !== 'IMG' && !e.target.classList.contains('slot-remove')) openSelectModal(i); 
+        };
         el.appendChild(div);
     }
 }
