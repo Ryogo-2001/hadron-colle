@@ -45,7 +45,7 @@
                 <div class="gear-btn btn-craft" onclick="showView('view-craft')"><div style="font-size:1.5rem;">🛠</div><div>CRAFT</div></div>
                 <div class="gear-btn btn-office" onclick="showView('view-office')"><div style="font-size:1.5rem;">📂</div><div>DATA</div></div>
                 <div class="gear-btn btn-battle" onclick="showView('view-mission')"><div style="font-size:1.5rem;">⚔️</div><div>BATTLE</div></div>
-                <div class="gear-btn btn-lab" onclick="showView('view-lab')"><div style="font-size:1.5rem;">🔬</div><div>LAB</div>
+                <div class="gear-btn btn-lab" onclick="showView('view-lab')"><div style="font-size:1.5rem;">🔬</div><div>LAB</div></div>
             </div>
         </div>
 
@@ -57,8 +57,17 @@
                 <button onclick="saveDeck()" style="padding:15px 40px; background:var(--hc-green); border:none; color:white; font-size:1.2rem; cursor:pointer;">SAVE FORMATION</button>
             </div>
         </div>
-        <div id="view-shop" class="main-view"><h2 style="font-family:'Orbitron'">MATERIAL SHOP</h2><div id="shop-list" class="shop-grid"></div></div>
-        <div id="view-craft" class="main-view"><h2 style="font-family:'Orbitron'">WORKSHOP</h2><div id="craft-list" class="craft-grid"></div></div>
+
+        <div id="view-shop" class="main-view">
+            <h2 style="font-family:'Orbitron'">MATERIAL SHOP</h2>
+            <div id="shop-list" class="shop-grid"></div>
+        </div>
+
+        <div id="view-craft" class="main-view">
+            <h2 style="font-family:'Orbitron'">WORKSHOP</h2>
+            <div id="craft-list" class="craft-grid"></div>
+        </div>
+
         <div id="view-proposal" class="main-view">
             <div style="background:#eee; padding:30px; border-radius:5px; color:#333; max-width:800px; margin:0 auto;">
                 <h2>Experiment Proposal</h2>
@@ -83,27 +92,50 @@
                 </div>
             </div>
         </div>
-        <div id="view-office" class="main-view"><h2 style="font-family:'Orbitron'">OFFICE</h2><p>粒子データを売却して、予算とRP(研究ポイント)を獲得します。</p><div id="particle-stock-list" class="shop-grid"></div></div>
+        
+        <div id="view-office" class="main-view">
+            <h2 style="font-family:'Orbitron'">OFFICE</h2>
+            <p>粒子データを売却して、予算とRP(研究ポイント)を獲得します。</p>
+            <div id="particle-stock-list" class="shop-grid"></div>
+        </div>
+
         <div id="view-mission" class="main-view">
             <h2 style="font-family:'Orbitron'; color:var(--hc-red);">MISSION SELECT</h2>
-            <div class="mission-grid" id="mission-list-container">
-                </div>
+            <div class="mission-grid" id="mission-list-container"></div>
         </div>
 
         <div id="view-lab" class="main-view">
             <h2 style="font-family:'Orbitron'; color:var(--hc-blue);">RESEARCH LABORATORY</h2>
             <p>RP (Research Points) を消費して、研究所の機能を恒久的にアップグレードします。</p>
-            <div id="skill-tree-container" class="skill-tree-grid">
-                </div>
+            <div id="skill-tree-container" class="skill-tree-grid"></div>
         </div>
 
     </div>
 
     <div id="select-modal" class="modal-overlay">
-        <div class="modal-content"><h3>SELECT PARTICLE</h3><div id="select-list" class="particle-list"></div><button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button></div>
+        <div class="modal-content">
+            <h3>SELECT PARTICLE</h3>
+            <div id="select-list" class="particle-list"></div>
+            <button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button>
+        </div>
     </div>
-    <div id="detail-modal" class="modal-overlay"><div class="modal-content" style="max-width:600px;"><div id="detail-content" class="detail-layout"></div><div style="text-align:center; margin-top:20px;"><button onclick="closeModal('detail-modal')" style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button></div></div></div>
-    <div id="result-modal" class="modal-overlay"><div class="modal-content" style="text-align:center;"><h2 style="color:var(--hc-green);">Experiment Result</h2><div id="exp-result-content"></div><button onclick="closeModal('result-modal')" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button></div></div>
+    
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width:600px;">
+            <div id="detail-content" class="detail-layout"></div>
+            <div style="text-align:center; margin-top:20px;">
+                <button onclick="closeModal('detail-modal')" style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="result-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align:center;">
+            <h2 style="color:var(--hc-green);">Experiment Result</h2>
+            <div id="exp-result-content"></div>
+            <button onclick="closeModal('result-modal')" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
