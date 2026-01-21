@@ -38,7 +38,7 @@ const particles = [
     { id: 9, name: "Delta (++)", symbol: "Δ⁺⁺", rarity: "common", image: "images/delta.png", desc: "デルタ粒子。", skill:"Resonance", type:"spd" },
     { id: 10, name: "Omega (-)", symbol: "Ω⁻", rarity: "holo", image: "images/omega.png", desc: "オメガ粒子。", skill:"Strangeness 3", type:"ult" },
     { id: 11, name: "D Meson", symbol: "D⁰", rarity: "rare", image: "images/d-meson.png", desc: "D中間子。", skill:"Charm Speed", type:"spd" },
-    { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。", skill:"Charmonium", type:"atk" },
+    { id: 12, name: "J/psi", symbol: "J/ψ", rarity: "holo", image: "images/j-psi.png", desc: "J/ψ粒子。", skill:"Charmonium", type:"atk" ,skins: [ { id: 'default', name: 'Default', image: 'images/j-psi.png' }, { id: 'china', name: 'China Dress', image: 'images/j-psi_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/j-psi_Pajama.png' } ]},
     { id: 13, name: "Top Quark", symbol: "t", rarity: "ultra", image: "images/top-quark.png", desc: "トップクォーク。", skill:"Truth Smasher", type:"ult" },
     { id: 14, name: "Higgs Boson", symbol: "H⁰", rarity: "ultra", image: "images/higgs.png", desc: "ヒッグス粒子。", skill:"God Field", type:"ult" },
     { id: 15, name: "Photon", symbol: "γ", rarity: "common", image: "images/Photon.png", desc: "光子。", skill:"Optical Flash", type:"spd" },
