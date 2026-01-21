@@ -394,6 +394,7 @@ body {
     overflow-y: auto; 
 }
 
+/* 詳細モーダルの画像エリア（修正版） */
 .detail-img-box { 
     width: 40%; 
     flex-shrink: 0; 
@@ -403,16 +404,18 @@ body {
     border-radius: 10px; 
     border: 1px solid #555; 
     
-    /* 画像を中央に配置 */
+    /* 画像と文字を縦に並べて中央配置 */
     display: flex;
+    flex-direction: column; /* ★重要：これを追加して縦並びにする */
     justify-content: center;
     align-items: center;
 }
 
+/* 画像サイズ制限（念のため再確認） */
 .detail-img-box img { 
     max-width: 100%; 
-    max-height: 400px; /* ★高さ制限を追加して画面からはみ出さないように */
-    width: auto;       /* アスペクト比を維持 */
+    max-height: 400px; 
+    width: auto; 
     object-fit: contain; 
     filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); 
 }
