@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>Tactical Battle | Hadron Lab</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=M+PLUS+Rounded+1c:wght@700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
 </head>
+
 <body>
 
     <div id="skill-overlay" class="skill-cutin">LIMIT BREAK!</div>
-    
+
     <div class="header">
         <div style="font-family:'Orbitron'">MISSION: <span style="color:red" id="mission-name">Loading...</span></div>
         <button class="btn-back" onclick="location.href='index.html'">RETREAT</button>
     </div>
+
+    <div id="field-warning" class="field-warning">WARNING: MAGNETIC STORM DETECTED</div>
 
     <div class="battle-field">
         <div class="player-side">
@@ -22,8 +28,12 @@
                 <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
                     <span>FLEET HP</span> <span id="p-hp-val">0</span>
                 </div>
-                <div class="bar-container"><div id="p-hp-bar" class="hp-bar" style="width:100%"></div></div>
-                <div class="bar-container" style="height:4px; background:#444;"><div id="p-ep-bar" class="ep-bar"></div></div>
+                <div class="bar-container">
+                    <div id="p-hp-bar" class="hp-bar" style="width:100%"></div>
+                </div>
+                <div class="bar-container" style="height:4px; background:#444;">
+                    <div id="p-ep-bar" class="ep-bar"></div>
+                </div>
                 <div style="text-align:right; font-size:0.7rem; color:#f1c40f;">TP (Tactical Point)</div>
                 <div id="buff-container" class="buff-list"></div>
             </div>
@@ -35,7 +45,9 @@
                 <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
                     <span>BOSS HP</span> <span id="e-hp-val">0</span>
                 </div>
-                <div class="bar-container"><div id="e-hp-bar" class="hp-bar" style="background:#e74c3c; width:100%"></div></div>
+                <div class="bar-container">
+                    <div id="e-hp-bar" class="hp-bar" style="background:#e74c3c; width:100%"></div>
+                </div>
             </div>
             <div id="enemy-core" class="enemy-core" style="margin-top:20px;"></div>
         </div>
@@ -54,25 +66,30 @@
                 🛡 RECHARGE
                 <div style="font-size:0.7rem; color:#aaa;">TP +40</div>
             </button>
-            <button id="btn-skill" class="cmd-btn" style="--color:#f1c40f; grid-column: span 2;" onclick="playerAction('skill')" disabled>
+            <button id="btn-skill" class="cmd-btn" style="--color:#f1c40f; grid-column: span 2;"
+                onclick="playerAction('skill')" disabled>
                 ★ <span id="skill-name">SKILL</span>
                 <div style="font-size:0.7rem; color:#aaa;">Cost: 100 TP</div>
             </button>
         </div>
     </div>
 
-    <div id="result-modal" class="modal-overlay" style="display:none; justify-content:center; align-items:center; z-index:9999;">
-        <div class="modal-content" style="text-align:center; position:relative; transform: translateY(-20%); margin: 0 auto;">
+    <div id="result-modal" class="modal-overlay"
+        style="display:none; justify-content:center; align-items:center; z-index:9999;">
+        <div class="modal-content"
+            style="text-align:center; position:relative; transform: translateY(-20%); margin: 0 auto;">
             <h1 id="res-title" style="color:gold">MISSION ACCOMPLISHED</h1>
             <p id="res-msg">Target Destroyed.</p>
             <div style="margin:20px 0; border-top:1px solid #444; padding-top:20px;">
                 <div>LOOT ACQUIRED:</div>
                 <div id="loot-display" style="font-size:1.5rem; margin:10px 0; line-height:1.5;"></div>
             </div>
-            <button class="btn-back" onclick="location.href='index.html'" style="background:#333; margin-top:10px;">RETURN</button>
+            <button class="btn-back" onclick="location.href='index.html'"
+                style="background:#333; margin-top:10px;">RETURN</button>
         </div>
     </div>
 
+    <script src="script.js"></script>
     <script>
         // === バトル用変数 ===
         let deckMembers = [];
@@ -81,20 +98,24 @@
         let enemy = { hp: 0, maxHp: 0, atk: 0 };
         let isPlayerTurn = true;
         let activeBuffs = [];
-        
-        const b_lootTable = ['m1','m2','m3','m4','m5','m6','m7','m8','m9'];
-        const b_matNames = { m1:"Dry Ice", m2:"Alcohol", m3:"PMT", m4:"Scintillator", m5:"Fiber", m6:"MPPC", m7:"Gold Wire", m8:"PCB", m9:"Liq. Helium" };
 
-        window.onload = function() {
-            if(typeof loadGame === 'function') loadGame();
-            
+        // ★Gimmick Variables
+
+        let currentField = null;
+
+        const b_lootTable = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9'];
+        const b_matNames = { m1: "Dry Ice", m2: "Alcohol", m3: "PMT", m4: "Scintillator", m5: "Fiber", m6: "MPPC", m7: "Gold Wire", m8: "PCB", m9: "Liq. Helium" };
+
+        window.onload = function () {
+            if (typeof loadGame === 'function') loadGame();
+
             const params = new URLSearchParams(window.location.search);
             const mid = params.get('mission') || 'm1';
-            
-            if(typeof missionData !== 'undefined') {
+
+            if (typeof missionData !== 'undefined') {
                 currentMission = missionData[mid] || missionData['m1'];
             } else {
-                currentMission = { name: "Training", enemy: "Target", symbol:"T", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 1000, matChance: 0 } };
+                currentMission = { name: "Training", enemy: "Target", symbol: "T", hpMult: 1, atkMult: 1, color: "#e74c3c", drops: { money: 1000, matChance: 0 } };
             }
 
             document.getElementById('mission-name').innerText = currentMission.name;
@@ -106,50 +127,64 @@
             const atkBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('atk_up') : 0;
             const allBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('all_up') : 0;
             const regenBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('regen_up') : 0;
-            
+
             const deckIds = user.deck || [1, null, null, null, null];
             const container = document.getElementById('fleet-container');
-            
+
             deckIds.forEach((pid, index) => {
-                if(pid) {
-                    const p = particles.find(x => x.id === pid) || particles[0]; 
+                if (pid) {
+                    const p = particles.find(x => x.id === pid) || particles[0];
                     let currentImg = (typeof getImgSrc === 'function') ? getImgSrc(p) : p.image;
                     deckMembers.push({ ...p, index: index, image: currentImg });
                 }
             });
-            if(deckMembers.length === 0) {
+            if (deckMembers.length === 0) {
                 const p = particles[0];
                 deckMembers.push({ ...p, index: 0, image: p.image });
             }
 
-            flagShip = deckMembers[0]; 
+            flagShip = deckMembers[0];
             document.getElementById('skill-name').innerText = flagShip.skill;
 
             deckMembers.forEach((member, i) => {
+                // コンテナ作成
+                const unit = document.createElement('div');
+                unit.className = 'battle-unit';
+                if (i === 0) {
+                    unit.classList.add('flagship');
+                    // フラッグシップの発光色を設定
+                    let glow = '#f39c12';
+                    if (member.rarity === 'ultra') glow = '#e74c3c';
+                    if (member.rarity === 'genesis') glow = '#fff';
+                    unit.style.setProperty('--unit-glow', glow);
+                }
+
+                // カード枠作成
+                const card = document.createElement('div');
+                card.className = `unit-card card-${member.rarity}`;
+
+                // 画像作成
                 const img = document.createElement('img');
                 img.src = member.image;
-                img.className = 'fleet-member';
-                const offset = i * 60;
-                img.style.left = `${offset}px`;
-                img.style.top = `${-offset * 0.3}px`;
-                img.style.zIndex = 50 - i;
-                if(i === 0) img.classList.add('flagship');
-                container.appendChild(img);
-                
+
+                card.appendChild(img);
+                unit.appendChild(card);
+                container.appendChild(unit);
+
                 let rVal = 1;
-                if(member.rarity=="rare") rVal=2;
-                if(member.rarity=="holo") rVal=4;
-                if(member.rarity=="ultra") rVal=8;
-                if(member.rarity=="genesis") rVal=20; 
+                if (member.rarity == "rare") rVal = 2;
+                if (member.rarity == "holo") rVal = 4;
+                if (member.rarity == "ultra") rVal = 8;
+                if (member.rarity == "genesis") rVal = 20;
 
                 let baseHp = 500 + rVal * 200;
                 let baseAtk = 100 + rVal * 150;
 
                 let fameMult = 1;
-                if(typeof getFameInfo === 'function') {
+                if (typeof getFameInfo === 'function') {
                     const info = getFameInfo(member.id);
                     fameMult = 1 + info.bonus;
-                    if(info.lv > 0) console.log(`${member.name} Fame Lv.${info.lv}`);
+                    if (info.lv > 0) console.log(`${member.name} Fame Lv.${info.lv}`);
                 }
 
                 let skillMultAtk = 1 + atkBonus + allBonus;
@@ -159,39 +194,41 @@
                 stats.atk += baseAtk * fameMult * skillMultAtk;
             });
 
-            if(regenBonus > 0) stats.regen += Math.floor(stats.maxHp * 0.03 * (1+regenBonus));
+            if (regenBonus > 0) stats.regen += Math.floor(stats.maxHp * 0.03 * (1 + regenBonus));
 
             applyFleetBuffs();
-            
+
             enemy.maxHp = Math.floor(Math.max(1000, stats.atk * 10 * currentMission.hpMult));
             enemy.hp = enemy.maxHp;
             enemy.atk = Math.floor(Math.max(50, stats.maxHp / 8 * currentMission.atkMult));
-            
+
             stats.hp = stats.maxHp;
             updateUI();
-            
+
             const l = document.getElementById('log');
             l.innerHTML = `> Mission Start: ${currentMission.name}<br>> Hostile Detected.<br>> Awaiting orders...`;
+
+            // ★ Gimmick Init
+            initField();
         };
 
         function applyFleetBuffs() {
-            let types = { atk:0, def:0, spd:0, ult:0 };
-            let ids = deckMembers.map(m => m.id);
-            deckMembers.forEach(m => { if(types[m.type] !== undefined) types[m.type]++; });
+            if (typeof calculateActiveBuffs !== 'function') return;
+            const buffs = calculateActiveBuffs(deckMembers.map(m => m.id));
 
-            if(types.atk >= 3) { stats.atk *= 1.2; addBuff("⚔️ ASSAULT: Atk+20%"); }
-            if(types.def >= 3) { stats.maxHp *= 1.2; addBuff("🛡 FORTRESS: HP+20%"); }
-            if(types.spd >= 3) { stats.ep += 30; addBuff("⚡ RAPID: Start TP+30"); }
+            buffs.forEach(b => {
+                const eff = b.effects;
+                if (eff.atkMult) stats.atk *= eff.atkMult;
+                if (eff.hpMult) stats.maxHp *= eff.hpMult;
+                if (eff.startEp) stats.ep += eff.startEp;
+                if (eff.regen) stats.regen += Math.floor(stats.maxHp * eff.regen);
+                // crit/dmgRedは加算
+                if (eff.crit) stats.critRate += eff.crit;
+                if (eff.dmgRed) stats.dmgRed += eff.dmgRed;
+                if (eff.enemyAtkMult) enemy.atk *= eff.enemyAtkMult;
 
-            if(ids.includes(1) && ids.includes(2)) { stats.maxHp *= 1.15; addBuff("⚛️ Nucleus: HP+15%"); }
-            if(ids.includes(13) && ids.includes(14)) { stats.atk *= 1.30; addBuff("⚖️ God Particle: Atk+30%"); }
-            if(ids.includes(17) && ids.includes(12)) { stats.atk *= 1.15; addBuff("💖 Charm: Atk+15%"); }
-            if(ids.includes(19)) { stats.atk *= 1.25; stats.maxHp *= 0.9; addBuff("⚫ Antimatter: Atk UP/HP DOWN"); }
-
-            if(ids.includes(21) && ids.includes(22)) { stats.regen += Math.floor(stats.maxHp * 0.05); addBuff("♻️ Weak Force: Regen 5%"); }
-            if(ids.includes(20) && ids.includes(15)) { stats.critRate += 0.2; addBuff("💥 Gamma Burst: Crit+20%"); }
-            if(ids.includes(23)) { stats.dmgRed += 0.15; addBuff("🔮 Future Sight: Dmg Cut 15%"); }
-            if(ids.includes(24)) { stats.atk *= 1.4; enemy.atk *= 0.8; addBuff("🌌 Gravity Well: Atk+40%/E.Atk-20%"); }
+                addBuff(`${b.name}: ${b.desc}`);
+            });
         }
 
         function addBuff(name) {
@@ -204,31 +241,31 @@
         }
 
         function updateUI() {
-            if(stats.hp <= 0 && stats.maxHp > 0 && isPlayerTurn && enemy.hp == enemy.maxHp) stats.hp = stats.maxHp; 
+            if (stats.hp <= 0 && stats.maxHp > 0 && isPlayerTurn && enemy.hp == enemy.maxHp) stats.hp = stats.maxHp;
             document.getElementById('p-hp-val').innerText = Math.floor(stats.hp);
-            document.getElementById('p-hp-bar').style.width = Math.min(100, (stats.hp/stats.maxHp*100)) + "%";
+            document.getElementById('p-hp-bar').style.width = Math.min(100, (stats.hp / stats.maxHp * 100)) + "%";
             document.getElementById('p-ep-bar').style.width = stats.ep + "%";
             document.getElementById('e-hp-val').innerText = Math.floor(enemy.hp);
-            document.getElementById('e-hp-bar').style.width = Math.min(100, (enemy.hp/enemy.maxHp*100)) + "%";
+            document.getElementById('e-hp-bar').style.width = Math.min(100, (enemy.hp / enemy.maxHp * 100)) + "%";
             document.getElementById('btn-skill').disabled = (stats.ep < 100 || !isPlayerTurn);
             const btns = document.querySelectorAll('.cmd-btn');
-            btns.forEach(b => { if(b.id!=='btn-skill') b.disabled = !isPlayerTurn; });
+            btns.forEach(b => { if (b.id !== 'btn-skill') b.disabled = !isPlayerTurn; });
         }
         function log(msg) { const l = document.getElementById('log'); l.innerHTML += `> ${msg}<br>`; l.scrollTop = l.scrollHeight; }
 
         function playerAction(type) {
-            if(!isPlayerTurn) return; isPlayerTurn = false; updateUI();
-            if(type === 'attack') {
+            if (!isPlayerTurn) return; isPlayerTurn = false; updateUI();
+            if (type === 'attack') {
                 log("Fleet All-Out Attack!"); animFleetAttack();
                 setTimeout(() => {
                     let isCrit = Math.random() < stats.critRate;
-                    let dmg = stats.atk * (0.9 + Math.random()*0.2);
-                    if(isCrit) { dmg *= 1.5; log("<span style='color:gold'>CRITICAL HIT!</span>"); }
+                    let dmg = stats.atk * (0.9 + Math.random() * 0.2);
+                    if (isCrit) { dmg *= 1.5; log("<span style='color:gold'>CRITICAL HIT!</span>"); }
                     dealDamageToEnemy(Math.floor(dmg), isCrit); addEp(15); endTurn();
                 }, 600);
-            } else if(type === 'charge') {
+            } else if (type === 'charge') {
                 log("Fleet recharging energy..."); addEp(40); setTimeout(endTurn, 800);
-            } else if(type === 'skill') { useSkill(); }
+            } else if (type === 'skill') { useSkill(); }
         }
 
         function useSkill() {
@@ -236,64 +273,64 @@
             const overlay = document.getElementById('skill-overlay'); overlay.innerText = flagShip.skill + "!!"; overlay.classList.add('active');
             setTimeout(() => {
                 overlay.classList.remove('active'); animFleetAttack();
-                let multiplier = 2.5; 
-                if(flagShip.rarity === 'ultra') multiplier = 4.0; 
-                if(flagShip.rarity === 'genesis') multiplier = 10.0;
+                let multiplier = 2.5;
+                if (flagShip.rarity === 'ultra') multiplier = 4.0;
+                if (flagShip.rarity === 'genesis') multiplier = 10.0;
                 const dmg = stats.atk * multiplier;
                 log(`<span style="color:gold">FLAGSHIP SKILL FIRE!</span>`);
                 setTimeout(() => { dealDamageToEnemy(Math.floor(dmg), true); endTurn(); }, 600);
             }, 1500);
         }
 
-        function endTurn() { if(enemy.hp <= 0) return; log("Enemy Turn..."); setTimeout(enemyAction, 1000); }
+        function endTurn() { if (enemy.hp <= 0) return; log("Enemy Turn..."); setTimeout(enemyAction, 1000); }
 
         function enemyAction() {
             const elm = document.getElementById('enemy-core'); elm.style.transform = 'scale(1.2)';
             setTimeout(() => {
                 elm.style.transform = 'scale(1)';
-                let rawDmg = enemy.atk * (0.8 + Math.random()*0.4);
-                if(stats.dmgRed > 0) { rawDmg *= (1.0 - stats.dmgRed); log(`(Buff protected ${Math.floor(stats.dmgRed*100)}% damage)`); }
+                let rawDmg = enemy.atk * (0.8 + Math.random() * 0.4);
+                if (stats.dmgRed > 0) { rawDmg *= (1.0 - stats.dmgRed); log(`(Buff protected ${Math.floor(stats.dmgRed * 100)}% damage)`); }
                 log("Enemy counter-attack!"); dealDamageToPlayer(Math.floor(rawDmg));
-                if(stats.hp > 0) { applyRegen(); isPlayerTurn = true; updateUI(); log("Command Phase."); }
+                if (stats.hp > 0) { applyRegen(); isPlayerTurn = true; updateUI(); log("Command Phase."); }
             }, 500);
         }
 
         function applyRegen() {
-            if(stats.regen > 0 && stats.hp < stats.maxHp) { 
-                stats.hp = Math.min(stats.maxHp, stats.hp + stats.regen); 
-                showHeal(stats.regen, 'fleet-container'); 
-                log(`<span style='color:#2ecc71'>Auto-Repair: +${Math.floor(stats.regen)} HP</span>`); 
-                updateUI(); 
+            if (stats.regen > 0 && stats.hp < stats.maxHp) {
+                stats.hp = Math.min(stats.maxHp, stats.hp + stats.regen);
+                showHeal(stats.regen, 'fleet-container');
+                log(`<span style='color:#2ecc71'>Auto-Repair: +${Math.floor(stats.regen)} HP</span>`);
+                updateUI();
             }
         }
 
-        function animFleetAttack() { const mems = document.querySelectorAll('.fleet-member'); mems.forEach((img, i) => { setTimeout(() => { img.classList.add('attack'); setTimeout(()=>img.classList.remove('attack'), 300); }, i * 50); }); }
+        function animFleetAttack() { const mems = document.querySelectorAll('.battle-unit'); mems.forEach((unit, i) => { setTimeout(() => { unit.classList.add('attack'); setTimeout(() => unit.classList.remove('attack'), 300); }, i * 50); }); }
 
         function dealDamageToEnemy(amount, isCrit) {
-            enemy.hp -= amount; if(enemy.hp < 0) enemy.hp = 0; showDamage(amount, 'enemy-core', isCrit);
-            const elm = document.getElementById('enemy-core'); elm.classList.add('damage'); setTimeout(()=>elm.classList.remove('damage'), 300);
-            updateUI(); 
-            if(enemy.hp <= 0) { 
-                log("<span style='color:gold'>TARGET SILENCED.</span>"); 
+            enemy.hp -= amount; if (enemy.hp < 0) enemy.hp = 0; showDamage(amount, 'enemy-core', isCrit);
+            const elm = document.getElementById('enemy-core'); elm.classList.add('damage'); setTimeout(() => elm.classList.remove('damage'), 300);
+            updateUI();
+            if (enemy.hp <= 0) {
+                log("<span style='color:gold'>TARGET SILENCED.</span>");
                 setTimeout(winGameLocal, 1000);
             }
         }
 
         function dealDamageToPlayer(amount) {
-            stats.hp -= amount; if(stats.hp < 0) stats.hp = 0; updateUI();
-            const mems = document.querySelectorAll('.fleet-member'); mems.forEach(img => { img.classList.add('damage'); setTimeout(()=>img.classList.remove('damage'), 400); });
-            showDamage(amount, 'fleet-container', false); if(stats.hp <= 0) { log("<span style='color:red'>FLEET CRITICAL...</span>"); setTimeout(loseGame, 1000); }
+            stats.hp -= amount; if (stats.hp < 0) stats.hp = 0; updateUI();
+            const mems = document.querySelectorAll('.battle-unit'); mems.forEach(unit => { unit.classList.add('damage'); setTimeout(() => unit.classList.remove('damage'), 400); });
+            showDamage(amount, 'fleet-container', false); if (stats.hp <= 0) { log("<span style='color:red'>FLEET CRITICAL...</span>"); setTimeout(loseGame, 1000); }
         }
 
         function showDamage(val, targetId, isCrit) {
             const target = document.getElementById(targetId); const rect = target.getBoundingClientRect(); const el = document.createElement('div'); el.className = 'damage-pop'; el.innerText = val;
-            if(isCrit) { el.style.color = 'gold'; el.style.fontSize = '4rem'; }
-            el.style.left = (rect.left + rect.width/2 - 20) + 'px'; el.style.top = (rect.top) + 'px'; document.body.appendChild(el); setTimeout(()=>el.remove(), 800);
+            if (isCrit) { el.style.color = 'gold'; el.style.fontSize = '4rem'; }
+            el.style.left = (rect.left + rect.width / 2 - 20) + 'px'; el.style.top = (rect.top) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 800);
         }
 
         function showHeal(val, targetId) {
             const target = document.getElementById(targetId); const rect = target.getBoundingClientRect(); const el = document.createElement('div'); el.className = 'heal-pop'; el.innerText = "+" + val;
-            el.style.left = (rect.left + rect.width/2) + 'px'; el.style.top = (rect.top) + 'px'; document.body.appendChild(el); setTimeout(()=>el.remove(), 800);
+            el.style.left = (rect.left + rect.width / 2) + 'px'; el.style.top = (rect.top) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 800);
         }
 
         function addEp(v) { stats.ep = Math.min(100, stats.ep + v); updateUI(); }
@@ -301,7 +338,7 @@
         // ★勝利処理（強制Flex配置で中央表示）
         function winGameLocal() {
             let missionBonus = 0;
-            if(typeof getSkillBonus === 'function') missionBonus = getSkillBonus('mission_bonus');
+            if (typeof getSkillBonus === 'function') missionBonus = getSkillBonus('mission_bonus');
 
             const baseMoney = currentMission ? currentMission.drops.money : 1000;
             const money = Math.floor(baseMoney * (1 + missionBonus));
@@ -312,17 +349,17 @@
             user.rp = (user.rp || 0) + rpGain;
             msg += `<br>🧪 ${rpGain} RP`;
 
-            if(currentMission && currentMission.drops.matChance > 0) {
+            if (currentMission && currentMission.drops.matChance > 0) {
                 const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
-                let table = b_lootTable; 
-                if(!currentMission.drops.rareMat) {
-                    table = ['m1','m2','m3','m4','m5','m6'];
+                let table = b_lootTable;
+                if (!currentMission.drops.rareMat) {
+                    table = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'];
                 }
-                
-                for(let i=0; i<count; i++) {
-                    if(Math.random() < currentMission.drops.matChance) {
-                        const loot = table[Math.floor(Math.random()*table.length)];
-                        user.invMat[loot] = (user.invMat[loot]||0) + 1;
+
+                for (let i = 0; i < count; i++) {
+                    if (Math.random() < currentMission.drops.matChance) {
+                        const loot = table[Math.floor(Math.random() * table.length)];
+                        user.invMat[loot] = (user.invMat[loot] || 0) + 1;
                         msg += `<br>📦 ${b_matNames[loot]}`;
                     }
                 }
@@ -330,7 +367,7 @@
 
             localStorage.setItem('hadron_v8', JSON.stringify(user));
             document.getElementById('loot-display').innerHTML = msg;
-            
+
             // ★重要：強制的にFlexboxを適用し、中央揃えを確実にする
             const modal = document.getElementById('result-modal');
             modal.style.display = 'flex';
@@ -339,14 +376,65 @@
         }
 
         function loseGame() {
-            document.getElementById('res-title').innerText = "DEFEAT"; 
-            document.getElementById('res-title').style.color = "red"; 
-            document.getElementById('loot-display').style.display = "none"; 
+            document.getElementById('res-title').innerText = "DEFEAT";
+            document.getElementById('res-title').style.color = "red";
+            document.getElementById('loot-display').style.display = "none";
             const modal = document.getElementById('result-modal');
             modal.style.display = 'flex';
             modal.style.justifyContent = 'center';
             modal.style.alignItems = 'center';
         }
+
+        // ============================
+        // ★ GIMMICKS IMPLEMENTATION
+        // ============================
+        function initField() {
+            if (typeof getFieldEffect === 'function' && typeof fieldAnomalies !== 'undefined') {
+                // Randomly select field
+                const rand = Math.random();
+                let acc = 0;
+                let selected = fieldAnomalies[0];
+                for (let f of fieldAnomalies) {
+                    acc += f.rate || 0;
+                    if (rand < acc) { selected = f; break; }
+                }
+                currentField = selected;
+
+                // UI Update
+                const warnEl = document.getElementById('field-warning');
+                if (currentField.id !== 'f_norm') {
+                    warnEl.innerText = `WARNING: ${currentField.name} DETECTED`;
+                    warnEl.style.color = currentField.color || 'red';
+                    warnEl.style.textShadow = `0 0 10px ${currentField.color}`;
+                    warnEl.style.display = 'block';
+
+                    // Add Field Tag to buffs
+                    addBuff(`⚠️ ${currentField.name}: ${currentField.desc}`);
+
+                    // Apply Global Stats Changes
+                    if (currentField.global) {
+                        if (currentField.global.eva) stats.eva = (stats.eva || 0) + currentField.global.eva;
+                        if (currentField.global.acc) stats.acc = (stats.acc || 0) + currentField.global.acc;
+                        // CritDmg etc handled in calculations (if implemented)
+                    }
+                    // Type Buffs handled in specific checks or loop
+                    if (currentField.typeBuff) {
+                        // Iterate deck and boost? Or just boost stats
+                        // We will boost stats directly here for simplicity
+                        // But we need to know which units are that type.
+                        deckMembers.forEach(m => {
+                            if (m.type === currentField.typeBuff.type) {
+                                // Simple global stat boost for simplicity
+                                stats.atk *= 1.1; // modest boost as approximation
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+
     </script>
 </body>
+
 </html>
