@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hadron Lab Ver 22.7</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@700&family=Orbitron:wght@700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <div class="lab-container">
@@ -24,38 +28,128 @@
             </div>
         </div>
 
-        <div class="sidebar">
-            <div class="menu-item active" onclick="showHome()"><div class="menu-icon">🏠</div> <span>HOME PORT</span></div>
-            <div class="menu-item" onclick="showView('view-deck')"><div class="menu-icon">🔄</div> <span>FORMATION</span></div>
-            <div class="menu-item" onclick="showView('view-shop')"><div class="menu-icon">🛒</div> <span>SUPPLY</span></div>
-            <div class="menu-item" onclick="showView('view-craft')"><div class="menu-icon">🛠</div> <span>FACTORY</span></div>
-            <div class="menu-item" onclick="showView('view-proposal')"><div class="menu-icon">📝</div> <span>PROPOSAL</span></div>
-            <div class="menu-item" onclick="showView('view-office')"><div class="menu-icon">🎓</div> <span>ARCHIVE</span></div>
-            <div class="menu-item" onclick="showView('view-mission')"><div class="menu-icon">⚔️</div> <span>MISSION</span></div>
-            <div class="menu-item" onclick="showView('view-lab')"><div class="menu-icon">🔬</div> <span>LABORATORY</span></div>
+        <!-- 司令官統計パネル -->
+        <div id="stats-panel" class="stats-panel" style="display:none;">
+            <!-- will be populated by script.js -->
         </div>
-        
+
+        <div class="sidebar">
+            <div class="menu-item active" onclick="showHome()">
+                <div class="menu-icon">🏠</div> <span>HOME PORT</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-deck')">
+                <div class="menu-icon">🔄</div> <span>FORMATION</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-shop')">
+                <div class="menu-icon">🛒</div> <span>SUPPLY</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-craft')">
+                <div class="menu-icon">🛠</div> <span>FACTORY</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-proposal')">
+                <div class="menu-icon">📝</div> <span>PROPOSAL</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-office')">
+                <div class="menu-icon">🎓</div> <span>ARCHIVE</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-buffs')">
+                <div class="menu-icon">📚</div> <span>DATABASE</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-mission')">
+                <div class="menu-icon">⚔️</div> <span>MISSION</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-lab')">
+                <div class="menu-icon">🔬</div> <span>LABORATORY</span>
+            </div>
+        </div>
+
         <div class="deck-display-area" id="home-deck-display"></div>
 
         <div id="view-home" class="main-view active">
-            <div class="home-menu-container">
-                <div class="gear-btn btn-main" onclick="showView('view-proposal')"><div style="font-size:2.5rem;">⚡</div><div>EXP.</div></div>
-                <div class="gear-btn btn-shop" onclick="showView('view-shop')"><div style="font-size:1.5rem;">🛒</div><div>SUPPLY</div></div>
-                <div class="gear-btn btn-deck" onclick="showView('view-deck')"><div style="font-size:1.5rem;">🔄</div><div>DECK</div></div>
-                <div class="gear-btn btn-craft" onclick="showView('view-craft')"><div style="font-size:1.5rem;">🛠</div><div>CRAFT</div></div>
-                <div class="gear-btn btn-office" onclick="showView('view-office')"><div style="font-size:1.5rem;">📂</div><div>DATA</div></div>
-                <div class="gear-btn btn-battle" onclick="showView('view-mission')"><div style="font-size:1.5rem;">⚔️</div><div>BATTLE</div></div>
-                <div class="gear-btn btn-lab" onclick="showView('view-lab')"><div style="font-size:1.5rem;">🔬</div><div>LAB</div></div>
+            <div class="dashboard-container">
+                <div class="dashboard-title">COMMAND CENTER</div>
+                <div class="dashboard-grid">
+                    <!-- Proposal (Gacha) -->
+                    <div class="dashboard-card" style="--card-color: var(--hc-orange); grid-row: span 2;"
+                        onclick="showView('view-proposal')">
+                        <div class="card-icon">⚡</div>
+                        <div class="card-label">Proposal</div>
+                        <div class="card-sub">Run Experiments</div>
+                    </div>
+
+                    <!-- Supply (Shop) -->
+                    <div class="dashboard-card" style="--card-color: var(--hc-green);" onclick="showView('view-shop')">
+                        <div class="card-icon">🛒</div>
+                        <div class="card-label">Supply</div>
+                        <div class="card-sub">Materials</div>
+                    </div>
+
+                    <!-- Factory (Craft) -->
+                    <div class="dashboard-card" style="--card-color: #95a5a6;" onclick="showView('view-craft')">
+                        <div class="card-icon">🛠</div>
+                        <div class="card-label">Factory</div>
+                        <div class="card-sub">Craft Equipment</div>
+                    </div>
+
+                    <!-- Deck (Formation) -->
+                    <div class="dashboard-card" style="--card-color: var(--hc-purple);" onclick="showView('view-deck')">
+                        <div class="card-icon">🔄</div>
+                        <div class="card-label">Formation</div>
+                        <div class="card-sub">Edit Fleet</div>
+                    </div>
+
+                    <!-- Mission (Battle) -->
+                    <div class="dashboard-card" style="--card-color: var(--hc-red);" onclick="showView('view-mission')">
+                        <div class="card-icon">⚔️</div>
+                        <div class="card-label">Mission</div>
+                        <div class="card-sub">Sortie</div>
+                    </div>
+
+                    <!-- Lab (Research) -->
+                    <div class="dashboard-card"
+                        style="--card-color: var(--hc-blue); grid-column: span 2; height: 100px; flex-direction: row; gap: 20px;"
+                        onclick="showView('view-lab')">
+                        <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 0;">🔬</div>
+                        <div style="text-align: left;">
+                            <div class="card-label">Laboratory</div>
+                            <div class="card-sub">Upgrade Facilities</div>
+                        </div>
+                    </div>
+
+                    <!-- Database -->
+                    <div class="dashboard-card" style="--card-color: #f39c12; height: 100px;"
+                        onclick="showView('view-buffs')">
+                        <div class="card-icon" style="font-size: 2rem; margin-bottom: 0;">📚</div>
+                        <div class="card-label" style="font-size: 1rem;">DATABASE</div>
+                    </div>
+
+                    <!-- Office (Data) - Hidden or moved elsewhere if needed, but let's keep it accessible -->
+                    <div class="dashboard-card"
+                        style="--card-color: #3498db; position:absolute; bottom: -120px; right: 0; width: 150px; height: 100px;"
+                        onclick="showView('view-office')">
+                        <div class="card-icon" style="font-size: 1.5rem; margin-bottom: 5px;">📂</div>
+                        <div class="card-label" style="font-size: 0.9rem;">Archive</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="view-deck" class="main-view">
             <h2 style="font-family:'Orbitron'; color:var(--hc-purple);">DECK FORMATION</h2>
             <p>画像をクリックで詳細・着せ替え、背景クリックで入れ替え。</p>
+            <div id="deck-buff-container"></div>
             <div class="deck-slots" id="deck-slots-container"></div>
             <div style="text-align:center;">
-                <button onclick="saveDeck()" style="padding:15px 40px; background:var(--hc-green); border:none; color:white; font-size:1.2rem; cursor:pointer;">SAVE FORMATION</button>
+                <button onclick="saveDeck()"
+                    style="padding:15px 40px; background:var(--hc-green); border:none; color:white; font-size:1.2rem; cursor:pointer;">SAVE
+                    FORMATION</button>
             </div>
+        </div>
+
+        <div id="view-buffs" class="main-view">
+            <h2 style="font-family:'Orbitron'; color:var(--hc-orange);">SYNERGY DATABASE</h2>
+            <p>発動可能なシナジー効果の一覧（緑色は現在発動中）</p>
+            <div id="buff-list-container" class="buff-grid"></div>
         </div>
 
         <div id="view-shop" class="main-view">
@@ -73,26 +167,34 @@
                 <h2>Experiment Proposal</h2>
                 <div style="margin-bottom:15px;">
                     <label style="font-weight:bold; display:block;">1. BEAM</label>
-                    <select id="sel-beam" style="width:100%; padding:10px; margin-bottom:10px;" onchange="calcProposalCost()"></select>
+                    <select id="sel-beam" style="width:100%; padding:10px; margin-bottom:10px;"
+                        onchange="calcProposalCost()"></select>
                 </div>
                 <div style="margin-bottom:15px;">
                     <label style="font-weight:bold; display:block;">2. TARGET</label>
-                    <select id="sel-target" style="width:100%; padding:10px; margin-bottom:10px;" onchange="calcProposalCost()"></select>
+                    <select id="sel-target" style="width:100%; padding:10px; margin-bottom:10px;"
+                        onchange="calcProposalCost()"></select>
                 </div>
                 <div style="margin-bottom:15px;">
                     <label style="font-weight:bold; display:block;">3. DETECTOR</label>
-                    <select id="sel-detector" style="width:100%; padding:10px; margin-bottom:10px;" onchange="calcProposalCost()"></select>
+                    <select id="sel-detector" style="width:100%; padding:10px; margin-bottom:10px;"
+                        onchange="calcProposalCost()"></select>
                 </div>
                 <div style="text-align:right; font-weight:bold; margin-top:20px;">
-                    COST (x1): ¥<span id="prop-cost">0</span> <span id="cost-discount" style="font-size:0.8rem; color:red;"></span>
+                    COST (x1): ¥<span id="prop-cost">0</span> <span id="cost-discount"
+                        style="font-size:0.8rem; color:red;"></span>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button onclick="runExperiment(1)" style="flex:1; background:var(--hc-blue); color:white; padding:15px; border:none; font-size:1.2rem; cursor:pointer;">SUBMIT (x1)</button>
-                    <button onclick="runExperiment(10)" style="flex:1; background:var(--hc-purple); color:white; padding:15px; border:none; font-size:1.2rem; cursor:pointer;">SUBMIT (x10)</button>
+                    <button onclick="runExperiment(1)"
+                        style="flex:1; background:var(--hc-blue); color:white; padding:15px; border:none; font-size:1.2rem; cursor:pointer;">SUBMIT
+                        (x1)</button>
+                    <button onclick="runExperiment(10)"
+                        style="flex:1; background:var(--hc-purple); color:white; padding:15px; border:none; font-size:1.2rem; cursor:pointer;">SUBMIT
+                        (x10)</button>
                 </div>
             </div>
         </div>
-        
+
         <div id="view-office" class="main-view">
             <h2 style="font-family:'Orbitron'">OFFICE</h2>
             <p>粒子データを売却して、予算とRP(研究ポイント)を獲得します。</p>
@@ -116,27 +218,31 @@
         <div class="modal-content">
             <h3>SELECT PARTICLE</h3>
             <div id="select-list" class="particle-list"></div>
-            <button onclick="closeModal('select-modal')" style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button>
+            <button onclick="closeModal('select-modal')"
+                style="margin-top:20px; padding:10px; background:#555; color:white; border:none; cursor:pointer;">CANCEL</button>
         </div>
     </div>
-    
+
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-content" style="max-width:600px;">
             <div id="detail-content" class="detail-layout"></div>
             <div style="text-align:center; margin-top:20px;">
-                <button onclick="closeModal('detail-modal')" style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button>
+                <button onclick="closeModal('detail-modal')"
+                    style="padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">CLOSE</button>
             </div>
         </div>
     </div>
-    
+
     <div id="result-modal" class="modal-overlay">
         <div class="modal-content" style="text-align:center;">
             <h2 style="color:var(--hc-green);">Experiment Result</h2>
             <div id="exp-result-content"></div>
-            <button onclick="closeModal('result-modal')" style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button>
+            <button onclick="closeModal('result-modal')"
+                style="margin-top:20px; padding:10px 30px; background:var(--hc-blue); border:none; color:white; cursor:pointer;">OK</button>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
