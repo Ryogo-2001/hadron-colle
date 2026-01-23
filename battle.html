@@ -121,8 +121,24 @@
             document.getElementById('mission-name').innerText = currentMission.name;
             const core = document.getElementById('enemy-core');
             core.innerText = currentMission.symbol;
-            core.style.background = `radial-gradient(circle, ${currentMission.color}, #000)`;
-            core.style.boxShadow = `0 0 60px ${currentMission.color}`;
+
+            // Character Boss Image Support
+            if (currentMission.enemyImage) {
+                core.innerHTML = `<img src="${currentMission.enemyImage}" class="boss-image" style="width:100%; height:100%; object-fit:contain; border-radius:50%; box-shadow:0 0 20px ${currentMission.color};">`;
+                core.style.background = 'transparent';
+                core.style.boxShadow = 'none';
+                core.style.border = 'none';
+                // Remove text if image is there (innerText was set above, implementing logic to clear it)
+                core.innerText = '';
+                core.appendChild(Object.assign(document.createElement('img'), {
+                    src: currentMission.enemyImage,
+                    className: 'boss-image',
+                    style: `width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 0 10px ${currentMission.color});`
+                }));
+            } else {
+                core.style.background = `radial-gradient(circle, ${currentMission.color}, #000)`;
+                core.style.boxShadow = `0 0 60px ${currentMission.color}`;
+            }
 
             const atkBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('atk_up') : 0;
             const allBonus = (typeof getSkillBonus === 'function') ? getSkillBonus('all_up') : 0;
