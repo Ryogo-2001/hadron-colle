@@ -352,6 +352,11 @@
             user.rp = (user.rp || 0) + rpGain;
             msg += `<br>🧪 ${rpGain} RP`;
 
+            if (currentMission && currentMission.drops.bp) {
+                user.bp = (user.bp || 0) + currentMission.drops.bp;
+                msg += `<br>⚔️ ${currentMission.drops.bp} BP`;
+            }
+
             if (currentMission && currentMission.drops.matChance > 0) {
                 const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
                 let table = b_lootTable;
