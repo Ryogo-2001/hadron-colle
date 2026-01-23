@@ -1630,3 +1630,156 @@ body {
         opacity: 0.5;
     }
 }
+
+/* ==============================
+   Mobile Responsiveness (Smartphone)
+   ============================== */
+@media (max-width: 768px) {
+    .dashboard-container {
+        width: 90%;
+        left: 50%;
+        top: 55%;
+        transform: translate(-50%, -50%);
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns for mobile */
+        grid-template-rows: auto;
+        gap: 10px;
+    }
+
+    /* Adjust Dashboard Cards for mobile */
+    .dashboard-card {
+        height: 100px !important;
+        /* Force smaller height */
+        grid-column: span 1 !important;
+        /* Reset spans */
+    }
+
+    /* Top Bar adjustments */
+    .top-bar {
+        padding: 0 10px;
+        height: auto;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding-bottom: 5px;
+    }
+
+    .status-box {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+
+    /* Sidebar adjustments (Bottom Navigation for mobile) */
+    .sidebar {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 60px;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-top: 0;
+        background: rgba(10, 14, 20, 0.95);
+        border-right: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar:hover {
+        width: 100%;
+    }
+
+    .menu-item {
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 15px;
+        font-size: 0.7rem;
+        height: 100%;
+    }
+
+    .menu-item:hover {
+        padding-left: 15px;
+        /* Disable hover shift */
+        padding-bottom: 5px;
+    }
+
+    .menu-icon {
+        margin-right: 0;
+        margin-bottom: 2px;
+        font-size: 1.2rem;
+    }
+
+    .menu-item span {
+        display: block;
+        /* Show text on mobile nav */
+    }
+
+    /* Deck Display (Hide deck on mobile dashboard to save space) */
+    .deck-display-area {
+        display: none;
+    }
+
+    /* Main View adjustments */
+    .main-view {
+        padding: 20px 10px;
+        padding-bottom: 80px;
+        /* Space for bottom nav */
+        top: 100px;
+        /* Below wrapped top bar */
+        left: 0;
+    }
+
+    /* Battle Screen adjustments */
+    .battle-field {
+        flex-direction: column;
+        height: auto;
+        padding-top: 20px;
+    }
+
+    .player-side,
+    .enemy-side {
+        width: 100%;
+        height: auto;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    .fleet-container {
+        height: auto;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding-top: 0;
+    }
+
+    .battle-unit {
+        width: 80px;
+        height: 120px;
+    }
+
+    .battle-unit.flagship {
+        width: 90px;
+        height: 130px;
+    }
+
+    .command-panel {
+        position: relative;
+        height: auto;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .log-window {
+        width: 100%;
+        height: 100px;
+        margin-bottom: 10px;
+    }
+
+    .action-buttons {
+        width: 100%;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
+}
