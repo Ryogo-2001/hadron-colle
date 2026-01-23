@@ -198,9 +198,12 @@
 
             applyFleetBuffs();
 
-            enemy.maxHp = Math.floor(Math.max(1000, stats.atk * 10 * currentMission.hpMult));
+            const BASE_ENEMY_HP = 10000;
+            const BASE_ENEMY_ATK = 400;
+
+            enemy.maxHp = Math.floor(Math.max(1000, BASE_ENEMY_HP * currentMission.hpMult));
             enemy.hp = enemy.maxHp;
-            enemy.atk = Math.floor(Math.max(50, stats.maxHp / 8 * currentMission.atkMult));
+            enemy.atk = Math.floor(Math.max(50, BASE_ENEMY_ATK * currentMission.atkMult));
 
             stats.hp = stats.maxHp;
             updateUI();
