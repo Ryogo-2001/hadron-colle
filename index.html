@@ -22,6 +22,9 @@
             <div class="status-box" style="border-color:var(--hc-blue); margin-left:10px;">
                 <span>🧪 RP:</span><span id="disp-rp" style="color:var(--hc-blue); font-weight:bold;">0</span>
             </div>
+            <div class="status-box" style="border-color:var(--hc-purple); margin-left:10px;">
+                <span>⚔️ BP:</span><span id="disp-bp" style="color:var(--hc-purple); font-weight:bold;">0</span>
+            </div>
             <div style="flex-grow:1;"></div>
             <div class="status-box" style="border-color:var(--hc-orange);">
                 <span>RANK: </span><span id="disp-rank">Master 1</span>
@@ -60,6 +63,9 @@
             </div>
             <div class="menu-item" onclick="showView('view-lab')">
                 <div class="menu-icon">🔬</div> <span>LABORATORY</span>
+            </div>
+            <div class="menu-item" onclick="showView('view-bpshop')">
+                <div class="menu-icon">🌌</div> <span>VOID SHOP</span>
             </div>
         </div>
 
@@ -116,6 +122,14 @@
                         </div>
                     </div>
 
+                    <!-- Void Shop (BP) -->
+                    <div class="dashboard-card" style="--card-color: #34495e; grid-column: span 1;"
+                        onclick="showView('view-bpshop')">
+                        <div class="card-icon">🌌</div>
+                        <div class="card-label">Void Shop</div>
+                        <div class="card-sub">Spend BP</div>
+                    </div>
+
                     <!-- Database -->
                     <div class="dashboard-card" style="--card-color: #f39c12; height: 100px;"
                         onclick="showView('view-buffs')">
@@ -160,6 +174,12 @@
         <div id="view-craft" class="main-view">
             <h2 style="font-family:'Orbitron'">WORKSHOP</h2>
             <div id="craft-list" class="craft-grid"></div>
+        </div>
+
+        <div id="view-bpshop" class="main-view">
+            <h2 style="font-family:'Orbitron'; color:var(--hc-purple)">VOID EXCHANGE (BP SHOP)</h2>
+            <p>バトルで獲得したBPで禁断の物質や粒子を交換します。</p>
+            <div id="bp-shop-list" class="shop-grid"></div>
         </div>
 
         <div id="view-proposal" class="main-view">
