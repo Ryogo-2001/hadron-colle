@@ -58,6 +58,9 @@
             <div class="menu-item" onclick="showView('view-buffs')">
                 <div class="menu-icon">📚</div> <span>DATABASE</span>
             </div>
+            <div class="menu-item" onclick="showView('view-dictionary')">
+                <div class="menu-icon">📖</div> <span>DICTIONARY</span>
+            </div>
             <div class="menu-item" onclick="showView('view-mission')">
                 <div class="menu-icon">⚔️</div> <span>MISSION</span>
             </div>
@@ -123,26 +126,32 @@
                     </div>
 
                     <!-- Void Shop (BP) -->
-                    <div class="dashboard-card" style="--card-color: #34495e; grid-column: span 1;"
+                    <div class="dashboard-card" style="--card-color: #34495e; grid-column: span 1; height: 100px;"
                         onclick="showView('view-bpshop')">
-                        <div class="card-icon">🌌</div>
-                        <div class="card-label">Void Shop</div>
-                        <div class="card-sub">Spend BP</div>
+                        <div class="card-icon" style="font-size: 2rem; margin-bottom: 5px;">🌌</div>
+                        <div class="card-label" style="font-size: 1rem;">Void Shop</div>
+                        <div class="card-sub" style="font-size: 0.7rem;">Spend BP</div>
                     </div>
 
                     <!-- Database -->
                     <div class="dashboard-card" style="--card-color: #f39c12; height: 100px;"
                         onclick="showView('view-buffs')">
-                        <div class="card-icon" style="font-size: 2rem; margin-bottom: 0;">📚</div>
+                        <div class="card-icon" style="font-size: 2rem; margin-bottom: 5px;">📚</div>
                         <div class="card-label" style="font-size: 1rem;">DATABASE</div>
                     </div>
 
-                    <!-- Office (Data) - Hidden or moved elsewhere if needed, but let's keep it accessible -->
-                    <div class="dashboard-card"
-                        style="--card-color: #3498db; position:absolute; bottom: -120px; right: 0; width: 150px; height: 100px;"
+                    <!-- Archive -->
+                    <div class="dashboard-card" style="--card-color: #3498db; height: 100px;"
                         onclick="showView('view-office')">
-                        <div class="card-icon" style="font-size: 1.5rem; margin-bottom: 5px;">📂</div>
-                        <div class="card-label" style="font-size: 0.9rem;">Archive</div>
+                        <div class="card-icon" style="font-size: 2rem; margin-bottom: 5px;">📂</div>
+                        <div class="card-label" style="font-size: 1rem;">Archive</div>
+                    </div>
+
+                    <!-- Dictionary -->
+                    <div class="dashboard-card" style="--card-color: #2c3e50; height: 100px;"
+                        onclick="showView('view-dictionary')">
+                        <div class="card-icon" style="font-size: 2rem; margin-bottom: 5px;">📖</div>
+                        <div class="card-label" style="font-size: 1rem;">Dictionary</div>
                     </div>
                 </div>
             </div>
@@ -164,6 +173,14 @@
             <h2 style="font-family:'Orbitron'; color:var(--hc-orange);">SYNERGY DATABASE</h2>
             <p>発動可能なシナジー効果の一覧（緑色は現在発動中）</p>
             <div id="buff-list-container" class="buff-grid"></div>
+        </div>
+
+        <div id="view-dictionary" class="main-view">
+            <h2 style="font-family:'Orbitron'; color:#e67e22;">CHARACTER DICTIONARY</h2>
+            <div style="text-align:right; margin-bottom:10px; font-family:'Orbitron';">Collected: <span
+                    id="dict-count">0</span> / <span id="dict-total">0</span></div>
+            <div id="dictionary-list" class="shop-grid"
+                style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));"></div>
         </div>
 
         <div id="view-shop" class="main-view">
