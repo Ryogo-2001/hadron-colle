@@ -409,6 +409,11 @@
                 msg += `<br>⚔️ ${currentMission.drops.bp} BP`;
             }
 
+            if (currentMission && currentMission.drops.ep) {
+                user.ep = (user.ep || 0) + currentMission.drops.ep;
+                msg += `<br>🎫 ${currentMission.drops.ep} EP`;
+            }
+
             if (currentMission && currentMission.drops.matChance > 0) {
                 const count = Math.ceil(Math.random() * (currentMission.drops.maxMat || 1));
                 let table = b_lootTable;
