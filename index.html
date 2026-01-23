@@ -25,6 +25,9 @@
             <div class="status-box" style="border-color:var(--hc-purple); margin-left:10px;">
                 <span>⚔️ BP:</span><span id="disp-bp" style="color:var(--hc-purple); font-weight:bold;">0</span>
             </div>
+            <div class="status-box" style="border-color:var(--hc-red); margin-left:10px;">
+                <span>🎫 EP:</span><span id="disp-ep" style="color:var(--hc-red); font-weight:bold;">0</span>
+            </div>
             <div style="flex-grow:1;"></div>
             <div class="status-box" style="border-color:var(--hc-orange);">
                 <span>RANK: </span><span id="disp-rank">Master 1</span>
@@ -133,6 +136,14 @@
                         <div class="card-sub" style="font-size: 0.7rem;">Spend BP</div>
                     </div>
 
+                    <!-- Event Shop -->
+                    <div class="dashboard-card" style="--card-color: #c0392b; grid-column: span 1; height: 100px;"
+                        onclick="showView('view-event')">
+                        <div class="card-icon" style="font-size: 2rem; margin-bottom: 5px;">🎫</div>
+                        <div class="card-label" style="font-size: 1rem;">EVENT</div>
+                        <div class="card-sub" style="font-size: 0.7rem;">Exchange</div>
+                    </div>
+
                     <!-- Database -->
                     <div class="dashboard-card" style="--card-color: #f39c12; height: 100px;"
                         onclick="showView('view-buffs')">
@@ -197,6 +208,12 @@
             <h2 style="font-family:'Orbitron'; color:var(--hc-purple)">VOID EXCHANGE (BP SHOP)</h2>
             <p>バトルで獲得したBPで禁断の物質や粒子を交換します。</p>
             <div id="bp-shop-list" class="shop-grid"></div>
+        </div>
+
+        <div id="view-event" class="main-view">
+            <h2 style="font-family:'Orbitron'; color:var(--hc-red)">EVENT EXCHANGE</h2>
+            <p>イベントポイント(EP)を使って、限定デコレーションやアイテムを入手しましょう。</p>
+            <div id="event-shop-list" class="shop-grid"></div>
         </div>
 
         <div id="view-proposal" class="main-view">
