@@ -13,7 +13,8 @@ const missionData = {
     'm5': { name: "Event Horizon", enemy: "Singularity", symbol: "⚫", hpMult: 10, atkMult: 5, color: "#fff", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } },
     'm6': { name: "Void Rift", enemy: "Dark Energy", symbol: "DE", hpMult: 4, atkMult: 3, color: "#2c3e50", drops: { money: 3000, bp: 100, matChance: 0.5 } },
     'm7': { name: "Chaos Dimension", enemy: "Chaos", symbol: "🌀", hpMult: 15, atkMult: 8, color: "#c0392b", drops: { money: 20000, bp: 500, matChance: 1.0, rareMat: true } },
-    'm8': { name: "The Void Dungeon (Deep Abyss)", enemy: "Void Core", symbol: "🕳️", hpMult: 30, atkMult: 15, color: "#000", drops: { money: 50000, bp: 2000, matChance: 1.0, maxMat: 10, rareMat: true } }
+    'm8': { name: "The Void Dungeon (Deep Abyss)", enemy: "Void Core", symbol: "🕳️", hpMult: 30, atkMult: 15, color: "#000", drops: { money: 50000, bp: 2000, matChance: 1.0, maxMat: 10, rareMat: true } },
+    'm_event': { name: "Dark Energy Invasion", enemy: "Dark Energy", symbol: "DE", hpMult: 10, atkMult: 5, color: "#8e44ad", enemyImage: "images/dark_energy.png", drops: { money: 10000, ep: 100, matChance: 0.5 } }
 };
 
 // === Skill Data ===
@@ -132,9 +133,24 @@ const detectors = [
 const beams = [{ id: 'b1', name: 'Cosmic', cost: 0, power: 1 }, { id: 'b2', name: 'RI', cost: 5000, power: 3 }];
 const targets = [{ id: 't1', name: 'Air', cost: 0, power: 1 }, { id: 't2', name: 'Gold', cost: 10000, power: 2 }];
 
-let user = { money: 10000, rp: 0, bp: 0, invMat: {}, invDet: [], invPart: { 1: 1 }, deck: [1, null, null, null, null], equippedSkins: {}, skills: [] };
+let user = { money: 10000, rp: 0, bp: 0, ep: 0, invMat: {}, invDet: [], invPart: { 1: 1 }, deck: [1, null, null, null, null], equippedSkins: {}, skills: [], invDeco: [], equippedDeco: {} };
 let currentMission = null;
 let currentSlotIndex = 0;
+
+// === Decoration Data ===
+const decorations = [
+    { id: 'deco_gold', name: 'Golden Frame', type: 'frame', cost: 500, css: 'deco-gold', desc: '輝く金色のフレーム' },
+    { id: 'deco_neon', name: 'Neon Lights', type: 'frame', cost: 1000, css: 'deco-neon', desc: 'ネオンに輝く近未来フレーム' },
+    { id: 'deco_dark', name: 'Dark Aura', type: 'effect', cost: 2000, css: 'deco-dark', desc: '闇のオーラを纏う' },
+    { id: 'deco_kirakira', name: 'Sparkles', type: 'effect', cost: 800, css: 'deco-sparkle', desc: 'キラキラ輝くエフェクト' },
+    { id: 'deco_burning', name: 'Burning Spirit', type: 'effect', cost: 1500, css: 'deco-burning', desc: '燃え上がる闘志' }
+];
+
+const eventShopItems = [
+    ...decorations.map(d => ({ id: d.id, type: 'deco', cost: d.cost, name: d.name, ref: d })),
+    { id: 'ev_mat10', type: 'mat', itemId: 'm10', cost: 100, name: 'Dark Matter', ref: null },
+    { id: 'ev_ticket', type: 'item', itemId: 'ticket', cost: 300, name: 'Gacha Ticket', ref: null }
+];
 
 window.onload = function () {
     try {
@@ -235,7 +251,9 @@ function refreshUI() {
     if (rpEl) rpEl.innerText = (user.rp || 0).toLocaleString();
     const bpEl = document.getElementById('disp-bp');
     if (bpEl) bpEl.innerText = (user.bp || 0).toLocaleString();
-    renderShop(); renderCraft(); renderOffice(); renderBpShop(); renderDictionary();
+    const epEl = document.getElementById('disp-ep');
+    if (epEl) epEl.innerText = (user.ep || 0).toLocaleString();
+    renderShop(); renderCraft(); renderOffice(); renderBpShop(); renderEventShop(); renderDictionary();
     if (document.getElementById('view-home').classList.contains('active')) renderStats();
 }
 
@@ -249,32 +267,31 @@ function renderDictionary() {
         if (owned) collectedCount++;
 
         const card = document.createElement('div');
-        card.className = `item-card ${owned ? 'card-' + p.rarity : 'dict-locked'}`;
-        card.style.textAlign = 'center';
-        card.style.position = 'relative';
-
-        if (owned) {
-            // Owned state
-            card.innerHTML = `
-                <div style="font-size:0.7rem; color:#aaa; position:absolute; top:2px; left:5px;">No.${p.id}</div>
-                <img src="${getImgSrc(p)}" style="width:60px; height:60px; object-fit:contain; margin-top:15px;">
-                <div class="${'rarity-' + p.rarity}" style="font-size:0.7rem; margin-top:5px;">${p.name}</div>
-            `;
-            card.onclick = () => showCharDetail(p.id);
-        } else {
-            // Unowned state
-            card.innerHTML = `
-                <div style="font-size:0.7rem; color:#444; position:absolute; top:2px; left:5px;">No.${p.id}</div>
-                <div style="width:60px; height:60px; background:#000; border-radius:50%; margin:15px auto 0; display:flex; align-items:center; justify-content:center; color:#333; font-size:1.5rem;">?</div>
-                <div style="font-size:0.7rem; margin-top:5px; color:#555;">???</div>
-            `;
+        // Decoration checking
+        let decoClass = '';
+        if (user.equippedDeco && user.equippedDeco[p.id]) {
+            const deco = decorations.find(d => d.id === user.equippedDeco[p.id]);
+            if (deco) decoClass = deco.css;
         }
-        el.appendChild(card);
-    });
 
+        if (!owned) {
+            // Unowned (Locked)
+            card.className = 'item-card dict-locked';
+            card.innerHTML = `<img src="${getImgSrc(p)}" style="filter:grayscale(100%) brightness(0); width:60px;"><div style="font-size:0.8rem; color:#555;">???</div>`;
+            el.appendChild(card);
+        } else {
+            // Owned
+            card.className = `item-card card-${p.rarity} ${decoClass}`;
+            card.onclick = () => showCharDetail(p.id);
+            card.innerHTML = `<div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div><img src="${getImgSrc(p)}"><div class="rarity-${p.rarity}">${p.name}</div>`;
+            el.appendChild(card);
+        }
+    });
     document.getElementById('dict-count').innerText = collectedCount;
-    document.getElementById('dict-total').innerText = sorted.length;
+    document.getElementById('dict-total').innerText = particles.length;
 }
+
+
 
 function startBattle(missionId) {
     location.href = `battle.html?mission=${missionId}`;
@@ -394,11 +411,16 @@ function renderDeckEdit() {
     for (let i = 0; i < 5; i++) {
         const pid = user.deck[i]; const p = pid ? particles.find(x => x.id === pid) : null;
 
-        // レアリティクラスを付与
-        const rarityClass = p ? `card-${p.rarity}` : '';
+        // Decoration check
+        let decoClass = '';
+        if (p && user.equippedDeco && user.equippedDeco[p.id]) {
+            const deco = decorations.find(d => d.id === user.equippedDeco[p.id]);
+            if (deco) decoClass = deco.css;
+        }
 
+        const rarityClass = p ? `card-${p.rarity}` : '';
         const div = document.createElement('div');
-        div.className = `slot-card ${rarityClass}`;
+        div.className = `slot-card ${rarityClass} ${decoClass}`;
 
         let content = `<div style="font-size:2rem; color:#555;">+</div><div style="color:#aaa;">EMPTY</div>`;
         if (p) {
@@ -433,7 +455,22 @@ function showCharDetail(pid, e) {
         p.skins.forEach(s => { skinBtns += `<div class="skin-btn ${s.id === currentSkin ? 'active' : ''}" onclick="changeSkin(${pid}, '${s.id}')">${s.name}</div>`; });
         skinBtns += `</div></div>`;
     }
-    const html = `<div class="detail-img-box"><img src="${getImgSrc(p)}" id="detail-img-preview"><div style="margin-top:10px; font-weight:bold; font-family:'Orbitron'" class="rarity-${p.rarity}">${p.rarity.toUpperCase()}</div></div><div class="detail-info"><div style="color:#aaa; font-size:0.9rem;">No.${p.id}</div><h1 style="margin:5px 0;">${p.name} <span style="font-size:1.2rem; color:#888;">(${p.symbol})</span></h1>${fameHtml}<div class="detail-type">TYPE: ${p.type.toUpperCase()}</div><div class="detail-skill-box"><div style="color:var(--hc-orange); font-weight:bold; font-family:'Orbitron'">SKILL: ${p.skill}</div></div><div style="margin-top:20px; line-height:1.6; color:#ddd;">${p.desc}</div>${skinBtns}</div>`;
+
+    // Decoration Selection UI
+    let decoBtns = "";
+    if (user.invDeco && user.invDeco.length > 0) {
+        decoBtns = `<div style="margin-top:20px; border-top:1px solid #444; padding-top:10px;"><div style="font-size:0.8rem; color:#aaa; margin-bottom:5px;">DECORATION</div><div class="skin-btn-container">`;
+        decoBtns += `<div class="skin-btn ${(!user.equippedDeco || !user.equippedDeco[pid]) ? 'active' : ''}" onclick="equipDeco(${pid}, null)">NONE</div>`;
+
+        user.invDeco.forEach(did => {
+            const d = decorations.find(x => x.id === did);
+            const isEq = (user.equippedDeco && user.equippedDeco[pid] === did);
+            if (d) decoBtns += `<div class="skin-btn ${isEq ? 'active' : ''}" onclick="equipDeco(${pid}, '${did}')">${d.name}</div>`;
+        });
+        decoBtns += `</div></div>`;
+    }
+
+    const html = `<div class="detail-img-box"><img src="${getImgSrc(p)}" id="detail-img-preview"><div style="margin-top:10px; font-weight:bold; font-family:'Orbitron'" class="rarity-${p.rarity}">${p.rarity.toUpperCase()}</div></div><div class="detail-info"><div style="color:#aaa; font-size:0.9rem;">No.${p.id}</div><h1 style="margin:5px 0;">${p.name} <span style="font-size:1.2rem; color:#888;">(${p.symbol})</span></h1>${fameHtml}<div class="detail-type">TYPE: ${p.type.toUpperCase()}</div><div class="detail-skill-box"><div style="color:var(--hc-orange); font-weight:bold; font-family:'Orbitron'">SKILL: ${p.skill}</div></div><div style="margin-top:20px; line-height:1.6; color:#ddd;">${p.desc}</div>${skinBtns}${decoBtns}</div>`;
     document.getElementById('detail-content').innerHTML = html; document.getElementById('detail-modal').style.display = 'flex';
 }
 
@@ -682,6 +719,9 @@ function loadGame() {
     if (!user.deck) user.deck = [1, null, null, null, null];
     if (!user.equippedSkins) user.equippedSkins = {};
     if (!user.skills) user.skills = [];
+    if (!user.ep) user.ep = 0;
+    if (!user.invDeco) user.invDeco = [];
+    if (!user.equippedDeco) user.equippedDeco = {};
 }
 function saveGame() { localStorage.setItem('hadron_v8', JSON.stringify(user)); }
 
@@ -703,6 +743,12 @@ function winGame() {
     if (currentMission && currentMission.drops.bp) {
         user.bp = (user.bp || 0) + currentMission.drops.bp;
         msg += `<br>⚔️ ${currentMission.drops.bp} BP`;
+    }
+
+    // Event Point (EP) Drop
+    if (currentMission && currentMission.drops.ep) {
+        user.ep = (user.ep || 0) + currentMission.drops.ep;
+        msg += `<br>🎫 ${currentMission.drops.ep} EP`;
     }
 
     // 3. 素材ドロップ
@@ -855,4 +901,62 @@ function buyBpItem(uid) {
     }
     saveGame(); refreshUI();
     alert(`Purchased: ${item.name}`);
+}
+
+// === Event Shop & Decoration Logic ===
+function renderEventShop() {
+    const el = document.getElementById('event-shop-list'); if (!el) return; el.innerHTML = '';
+    eventShopItems.forEach(item => {
+        let owned = false;
+        if (item.type === 'deco') owned = (user.invDeco && user.invDeco.includes(item.id));
+
+        const cardHeader = item.type === 'deco' ? `[DECO]` : `[ITEM]`;
+        const clickAction = owned ? `onclick="alert('Already Owned')"` : `onclick="buyEventItem('${item.id}')"`;
+        const status = owned ? `<div style="color:#aaa;">OWNED</div>` : `<div style="color:var(--hc-red);">${item.cost} EP</div>`;
+
+        el.innerHTML += `
+            <div class="item-card bg-dark" ${clickAction} style="border:1px solid #d35400;">
+                <div style="font-size:0.7rem; color:#e67e22;">${cardHeader}</div>
+                <div style="font-weight:bold; color:#fff; margin:5px 0;">${item.name}</div>
+                ${status}
+                ${item.ref ? `<div style="font-size:0.7rem; color:#aaa; margin-top:5px;">${item.ref.desc}</div>` : ''}
+            </div>`;
+    });
+}
+
+function buyEventItem(uid) {
+    const item = eventShopItems.find(x => x.id === uid); if (!item) return;
+    if ((user.ep || 0) < item.cost) { alert("EP不足です"); return; }
+
+    // Check duplication for one-time items
+    if (item.type === 'deco' && user.invDeco.includes(item.id)) return;
+
+    if (!confirm(`Buy ${item.name} for ${item.cost} EP?`)) return;
+
+    user.ep -= item.cost;
+    if (item.type === 'deco') {
+        user.invDeco.push(item.id);
+        alert(`Purchased Decoration: ${item.name}! Go to Deck > Detail to equip.`);
+    } else if (item.type === 'mat') {
+        user.invMat[item.itemId] = (user.invMat[item.itemId] || 0) + 1;
+        alert(`Purchased: ${item.name}`);
+    } else if (item.type === 'item') {
+        alert("チケット機能は未実装です..."); // Placeholder
+    }
+    saveGame(); refreshUI(); renderEventShop();
+}
+
+function equipDeco(pid, decoId) {
+    if (!user.equippedDeco) user.equippedDeco = {};
+    // Toggle logic: if already equipped, remove it
+    if (user.equippedDeco[pid] === decoId) {
+        delete user.equippedDeco[pid];
+    } else {
+        user.equippedDeco[pid] = decoId;
+    }
+    saveGame();
+    // Re-render detail view to show update
+    showCharDetail(pid, null);
+    renderDeckEdit(); // Update deck views if open
+    renderDictionary();
 }
