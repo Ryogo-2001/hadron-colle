@@ -12,7 +12,8 @@ const missionData = {
     'm4': { name: "Antimatter Zone", enemy: "Anti-H", symbol: "H̄", hpMult: 3, atkMult: 2, color: "#9b59b6", drops: { money: 5000, matChance: 0.8, rareMat: true } },
     'm5': { name: "Event Horizon", enemy: "Singularity", symbol: "⚫", hpMult: 10, atkMult: 5, color: "#fff", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } },
     'm6': { name: "Void Rift", enemy: "Dark Energy", symbol: "DE", hpMult: 4, atkMult: 3, color: "#2c3e50", drops: { money: 3000, bp: 100, matChance: 0.5 } },
-    'm7': { name: "Chaos Dimension", enemy: "Chaos", symbol: "🌀", hpMult: 15, atkMult: 8, color: "#c0392b", drops: { money: 20000, bp: 500, matChance: 1.0, rareMat: true } }
+    'm7': { name: "Chaos Dimension", enemy: "Chaos", symbol: "🌀", hpMult: 15, atkMult: 8, color: "#c0392b", drops: { money: 20000, bp: 500, matChance: 1.0, rareMat: true } },
+    'm8': { name: "The Void Dungeon (Deep Abyss)", enemy: "Void Core", symbol: "🕳️", hpMult: 30, atkMult: 15, color: "#000", drops: { money: 50000, bp: 2000, matChance: 1.0, maxMat: 10, rareMat: true } }
 };
 
 // === Skill Data ===
