@@ -14,7 +14,8 @@ const missionData = {
     'm6': { name: "Void Rift", enemy: "Dark Energy", symbol: "DE", hpMult: 4, atkMult: 3, color: "#2c3e50", drops: { money: 3000, bp: 100, matChance: 0.5 } },
     'm7': { name: "Chaos Dimension", enemy: "Chaos", symbol: "🌀", hpMult: 15, atkMult: 8, color: "#c0392b", drops: { money: 20000, bp: 500, matChance: 1.0, rareMat: true } },
     'm8': { name: "The Void Dungeon (Deep Abyss)", enemy: "Void Core", symbol: "🕳️", hpMult: 30, atkMult: 15, color: "#000", drops: { money: 50000, bp: 2000, matChance: 1.0, maxMat: 10, rareMat: true } },
-    'm_event': { name: "Dark Energy Invasion", enemy: "Dark Energy", symbol: "DE", hpMult: 10, atkMult: 5, color: "#8e44ad", enemyImage: "images/dark_energy.png", drops: { money: 10000, ep: 100, matChance: 0.5 } }
+    'm_event': { name: "Dark Energy Invasion", enemy: "Dark Energy", symbol: "DE", hpMult: 10, atkMult: 5, color: "#8e44ad", enemyImage: "images/dark_energy.png", drops: { money: 10000, ep: 100, matChance: 0.5 } },
+    'm_event_trio': { name: "Quark Trio Assault", enemy: "Quark Sisters", symbol: "Q3", hpMult: 50, atkMult: 20, color: "#e67e22", enemyImages: ["images/up.png", "images/down.png", "images/strange.png"], gimmick: 'debuff_storm', drops: { money: 100000, ep: 500, matChance: 1.0, rareMat: true } }
 };
 
 // === Skill Data ===
