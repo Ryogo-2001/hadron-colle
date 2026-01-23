@@ -1635,44 +1635,92 @@ body {
    Mobile Responsiveness (Smartphone)
    ============================== */
 @media (max-width: 768px) {
+
+    /* Background adjustments */
+    .lab-container {
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    /* Hide distracting background UI elements */
+    #stats-panel,
+    .deck-display-area,
+    .dashboard-title {
+        display: none !important;
+    }
+
+    /* Dashboard Layout */
     .dashboard-container {
-        width: 90%;
+        width: 96%;
+        max-width: none;
         left: 50%;
-        top: 55%;
+        top: 52%;
+        /* Slightly lower */
         transform: translate(-50%, -50%);
+        padding-bottom: 60px;
+        /* Space for bottom nav */
     }
 
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
-        /* 2 columns for mobile */
         grid-template-rows: auto;
-        gap: 10px;
+        gap: 8px;
     }
 
-    /* Adjust Dashboard Cards for mobile */
+    /* Compact Dashboard Cards */
     .dashboard-card {
-        height: 100px !important;
-        /* Force smaller height */
+        height: 85px !important;
         grid-column: span 1 !important;
-        /* Reset spans */
+        padding: 5px;
+        border-radius: 8px;
     }
 
-    /* Top Bar adjustments */
+    .card-icon {
+        font-size: 1.6rem;
+        margin-bottom: 2px;
+    }
+
+    .card-label {
+        font-size: 0.85rem;
+        letter-spacing: 0;
+    }
+
+    .card-sub {
+        display: none;
+    }
+
+    /* Top Bar Optimization */
     .top-bar {
-        padding: 0 10px;
-        height: auto;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-        padding-bottom: 5px;
+        padding: 0 5px;
+        height: 50px;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        gap: 5px;
+        overflow-x: auto;
+        white-space: nowrap;
+        background: rgba(10, 14, 20, 0.95);
     }
 
+    /* Hide scrollbar for top bar */
+    .top-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide Title "HADRON LAB" */
+    .top-bar>div:first-child {
+        display: none;
+    }
+
+    /* Compact Status Boxes */
     .status-box {
-        font-size: 0.8rem;
-        padding: 5px 10px;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-left-width: 3px;
+        height: 32px;
+        box-shadow: none;
     }
 
-    /* Sidebar adjustments (Bottom Navigation for mobile) */
+    /* Sidebar as Bottom Nav */
     .sidebar {
         top: auto;
         bottom: 0;
@@ -1683,9 +1731,11 @@ body {
         flex-direction: row;
         overflow-x: auto;
         padding-top: 0;
-        background: rgba(10, 14, 20, 0.95);
+        background: rgba(10, 14, 20, 0.98);
         border-right: none;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 200;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
     }
 
     .sidebar:hover {
@@ -1693,50 +1743,69 @@ body {
     }
 
     .menu-item {
+        flex: 1;
+        min-width: 60px;
         flex-direction: column;
         justify-content: center;
-        padding: 0 15px;
-        font-size: 0.7rem;
+        padding: 0;
+        font-size: 0.65rem;
         height: 100%;
+        border-left: none;
+        border-top: 3px solid transparent;
+    }
+
+    .menu-item.active {
+        border-left: none;
+        border-top-color: var(--hc-blue);
+        background: linear-gradient(180deg, rgba(52, 152, 219, 0.15), transparent);
     }
 
     .menu-item:hover {
-        padding-left: 15px;
-        /* Disable hover shift */
-        padding-bottom: 5px;
+        padding-left: 0;
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .menu-icon {
         margin-right: 0;
         margin-bottom: 2px;
-        font-size: 1.2rem;
+        font-size: 1.4rem;
     }
 
     .menu-item span {
         display: block;
-        /* Show text on mobile nav */
-    }
-
-    /* Deck Display (Hide deck on mobile dashboard to save space) */
-    .deck-display-area {
-        display: none;
     }
 
     /* Main View adjustments */
     .main-view {
-        padding: 20px 10px;
+        padding: 15px 10px;
         padding-bottom: 80px;
-        /* Space for bottom nav */
-        top: 100px;
-        /* Below wrapped top bar */
+        top: 50px;
         left: 0;
     }
 
-    /* Battle Screen adjustments */
+    /* Modal adjustments */
+    .modal-content {
+        width: 92%;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+
+    /* Shop Grid mobile */
+    .shop-grid,
+    .craft-grid,
+    .particle-list,
+    .buff-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+    }
+
+    /* Battle Screen */
     .battle-field {
         flex-direction: column;
+        justify-content: flex-start;
         height: auto;
-        padding-top: 20px;
+        padding-top: 10px;
+        overflow-y: auto;
     }
 
     .player-side,
@@ -1744,42 +1813,63 @@ body {
         width: 100%;
         height: auto;
         padding: 0;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
+        min-height: auto;
     }
 
     .fleet-container {
         height: auto;
         flex-wrap: wrap;
         justify-content: center;
-        padding-top: 0;
+        gap: 4px;
+        padding-top: 5px;
+    }
+
+    .enemy-core {
+        width: 120px;
+        height: 120px;
+        font-size: 1.8rem;
+        margin: 10px auto;
     }
 
     .battle-unit {
-        width: 80px;
-        height: 120px;
+        width: 75px;
+        height: 110px;
     }
 
     .battle-unit.flagship {
-        width: 90px;
-        height: 130px;
+        width: 85px;
+        height: 120px;
+    }
+
+    .unit-card {
+        border-width: 2px;
     }
 
     .command-panel {
-        position: relative;
         height: auto;
         flex-direction: column;
-        padding: 20px;
+        padding: 10px;
+        padding-bottom: 70px;
+        /* Space for bottom nav */
     }
 
     .log-window {
         width: 100%;
-        height: 100px;
+        height: 80px;
         margin-bottom: 10px;
+        font-size: 0.8rem;
     }
 
     .action-buttons {
         width: 100%;
         justify-content: space-around;
-        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .action-buttons button {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        flex: 1;
     }
 }
