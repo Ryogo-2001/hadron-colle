@@ -123,7 +123,26 @@
             core.innerText = currentMission.symbol;
 
             // Character Boss Image Support
-            if (currentMission.enemyImage) {
+            if (currentMission.enemyImages && Array.isArray(currentMission.enemyImages)) {
+                // Multi-Boss (Trio)
+                core.innerHTML = '';
+                core.style.background = 'transparent';
+                core.style.boxShadow = 'none';
+                core.style.border = 'none';
+                // Adjust container for multiple images
+                core.style.display = 'flex';
+                core.style.justifyContent = 'center';
+                core.style.gap = '10px';
+                core.style.width = '300px'; // Expand width
+
+                currentMission.enemyImages.forEach(src => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.className = 'boss-image';
+                    img.style.cssText = `width:30%; height:auto; object-fit:contain; filter: drop-shadow(0 0 5px ${currentMission.color});`;
+                    core.appendChild(img);
+                });
+            } else if (currentMission.enemyImage) {
                 core.innerHTML = `<img src="${currentMission.enemyImage}" class="boss-image" style="width:100%; height:100%; object-fit:contain; border-radius:50%; box-shadow:0 0 20px ${currentMission.color};">`;
                 core.style.background = 'transparent';
                 core.style.boxShadow = 'none';
@@ -310,6 +329,23 @@
                 let rawDmg = enemy.atk * (0.8 + Math.random() * 0.4);
                 if (stats.dmgRed > 0) { rawDmg *= (1.0 - stats.dmgRed); log(`(Buff protected ${Math.floor(stats.dmgRed * 100)}% damage)`); }
                 log("Enemy counter-attack!"); dealDamageToPlayer(Math.floor(rawDmg));
+
+                // ★ Gimmick: Debuff Storm
+                if (currentMission.gimmick === 'debuff_storm') {
+                    const debuffType = Math.random();
+                    if (debuffType < 0.3) {
+                        stats.atk *= 0.8;
+                        log("<span style='color:purple; font-weight:bold;'>⚠️ WARNING: ATK DOWN (Gravity Wave)</span>");
+                    } else if (debuffType < 0.6) {
+                        stats.ep = Math.max(0, stats.ep - 20);
+                        log("<span style='color:purple; font-weight:bold;'>⚠️ WARNING: ENERGY DRAIN (-20 TP)</span>");
+                    } else {
+                        stats.regen = 0;
+                        log("<span style='color:purple; font-weight:bold;'>⚠️ WARNING: REPAIR SYSTEM HACKED (No Regen)</span>");
+                    }
+                    updateUI(); // Reflected in next update
+                }
+
                 if (stats.hp > 0) { applyRegen(); isPlayerTurn = true; updateUI(); log("Command Phase."); }
             }, 500);
         }
