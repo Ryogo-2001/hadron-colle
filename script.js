@@ -10,7 +10,9 @@ const missionData = {
     'm2': { name: "Gold Rush", enemy: "Gold Chunk", symbol: "Au", hpMult: 2, atkMult: 0.5, color: "#f1c40f", drops: { money: 10000, matChance: 0 } },
     'm3': { name: "Material Depot", enemy: "Carbon", symbol: "C", hpMult: 1.5, atkMult: 1, color: "#2ecc71", drops: { money: 1000, matChance: 1.0, maxMat: 3 } },
     'm4': { name: "Antimatter Zone", enemy: "Anti-H", symbol: "H̄", hpMult: 3, atkMult: 2, color: "#9b59b6", drops: { money: 5000, matChance: 0.8, rareMat: true } },
-    'm5': { name: "Event Horizon", enemy: "Singularity", symbol: "⚫", hpMult: 10, atkMult: 5, color: "#fff", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } }
+    'm5': { name: "Event Horizon", enemy: "Singularity", symbol: "⚫", hpMult: 10, atkMult: 5, color: "#fff", drops: { money: 50000, matChance: 1.0, maxMat: 5, rareMat: true } },
+    'm6': { name: "Void Rift", enemy: "Dark Energy", symbol: "DE", hpMult: 4, atkMult: 3, color: "#2c3e50", drops: { money: 3000, bp: 100, matChance: 0.5 } },
+    'm7': { name: "Chaos Dimension", enemy: "Chaos", symbol: "🌀", hpMult: 15, atkMult: 8, color: "#c0392b", drops: { money: 20000, bp: 500, matChance: 1.0, rareMat: true } }
 };
 
 // === Skill Data ===
@@ -53,6 +55,49 @@ const particles = [
     {
         id: 24, name: "Graviton", symbol: "G", rarity: "genesis", image: "images/Graviton.png", desc: "【創世級】重力子。", skill: "Event Horizon", type: "ult",
         skins: [{ id: 'default', name: 'Default', image: 'images/Graviton.png' }, { id: 'china', name: 'China Dress', image: 'images/Graviton_China.png' }, { id: 'pajama', name: 'Pajama', image: 'images/Graviton_Pajama.png' }]
+    },
+    { id: 25, name: "Bottom Quark", symbol: "b", rarity: "ultra", image: "images/bottom-quark.png", desc: "ボトムクォーク。", skill: "Heavy Impact", type: "atk" },
+    { id: 26, name: "Axion", symbol: "A", rarity: "holo", image: "images/axion.png", desc: "アクシオン。", skill: "Dark Materia", type: "def" },
+    { id: 27, name: "Monopole", symbol: "M", rarity: "genesis", image: "images/monopole.png", desc: "【創世級】モノポール。", skill: "Magnetic Domination", type: "ult" },
+    // New Gacha Characters
+    { id: 30, name: "Deuteron", symbol: "D", rarity: "rare", image: "images/deuteron.png", desc: "重陽子。陽子と中性子の仲良しペア。核融合の鍵。", skill: "Nuclear Fusion", type: "atk" },
+    { id: 31, name: "Alpha", symbol: "α", rarity: "ultra", image: "images/alpha.png", desc: "アルファ粒子。極めて安定した結束力を持つ優等生。", skill: "Helium Barrier", type: "def" },
+
+    {
+        id: 99, name: "Superstring", symbol: "∞", rarity: "limitless", image: "images/superstring.png",
+        desc: "【規格外】超ひも理論。宇宙の全てを記述する究極の存在。ガチャからは排出されず、深淵への到達者のみが手にする。",
+        skill: "Theory of Everything", type: "ult",
+        skins: [{ id: 'default', name: 'Default', image: 'images/superstring.png' }]
+    },
+    {
+        id: 100, name: "Schrödinger", symbol: "🐱", rarity: "limitless", image: "images/schrodinger.png",
+        desc: "【規格外】シュレーディンガーの猫。生存と死が重なり合う観測不能なアイドル。確率を自在に操る。",
+        skill: "Quantum Superposition", type: "spd",
+        skins: [{ id: 'default', name: 'Default', image: 'images/schrodinger.png' }]
+    },
+    {
+        id: 101, name: "Maxwell", symbol: "😈", rarity: "limitless", image: "images/maxwell.png",
+        desc: "【規格外】マクスウェルの悪魔。エントロピーを逆流させる禁忌の存在。秩序を強制する。",
+        skill: "Second Law Breaker", type: "def",
+        skins: [{ id: 'default', name: 'Default', image: 'images/maxwell.png' }]
+    },
+    {
+        id: 102, name: "Dark Energy", symbol: "DE", rarity: "limitless", image: "images/dark_energy.png",
+        desc: "【規格外】ダークエネルギー。宇宙の7割を支配する絶対女王。斥力で全てを彼方へ押しやる。",
+        skill: "Cosmic Expansion", type: "atk",
+        skins: [{ id: 'default', name: 'Default', image: 'images/dark_energy.png' }]
+    },
+    {
+        id: 103, name: "Chrono", symbol: "t'", rarity: "limitless", image: "images/chrono.png",
+        desc: "【規格外】相対性理論の化身。光速に近づき、時間の流れを歪める時計仕掛けの少女。",
+        skill: "Time Dilation", type: "spd",
+        skins: [{ id: 'default', name: 'Default', image: 'images/chrono.png' }]
+    },
+    {
+        id: 104, name: "Big Bang", symbol: "💥", rarity: "limitless", image: "images/bigbang.png",
+        desc: "【規格外】宇宙創成の特異点。全ての始まりにして最強の爆発娘。彼女の一撃が世界を作る。",
+        skill: "Grand Genesis", type: "ult",
+        skins: [{ id: 'default', name: 'Default', image: 'images/bigbang.png' }]
     }
 ];
 
@@ -60,10 +105,11 @@ const materials = [
     { id: 'm1', name: 'Dry Ice', cost: 500 }, { id: 'm2', name: 'Alcohol', cost: 300 },
     { id: 'm3', name: 'PMT', cost: 5000 }, { id: 'm4', name: 'Scintillator', cost: 3000 },
     { id: 'm5', name: 'Fiber', cost: 2000 }, { id: 'm6', name: 'MPPC', cost: 8000 },
-    { id: 'm7', name: 'Gold Wire', cost: 4000 }, { id: 'm8', name: 'PCB', cost: 1500 }, { id: 'm9', name: 'Liq. Helium', cost: 12000 }
+    { id: 'm7', name: 'Gold Wire', cost: 4000 }, { id: 'm8', name: 'PCB', cost: 1500 }, { id: 'm9', name: 'Liq. Helium', cost: 12000 },
+    { id: 'm10', name: 'Dark Matter', cost: 50000 }, { id: 'm11', name: 'Void Crystal', cost: 100000 }
 ];
-const lootTable = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9'];
-const matNames = { m1: "Dry Ice", m2: "Alcohol", m3: "PMT", m4: "Scintillator", m5: "Fiber", m6: "MPPC", m7: "Gold Wire", m8: "PCB", m9: "Liq. Helium" };
+const lootTable = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11'];
+const matNames = { m1: "Dry Ice", m2: "Alcohol", m3: "PMT", m4: "Scintillator", m5: "Fiber", m6: "MPPC", m7: "Gold Wire", m8: "PCB", m9: "Liq. Helium", m10: "Dark Matter", m11: "Void Crystal" };
 
 const detectors = [
     { id: 'd0', name: 'Geiger Counter', power: 1, req: {} },
@@ -78,13 +124,14 @@ const detectors = [
     { id: 'd9', name: 'TPC', power: 60, req: { m7: 5, m8: 2 } },
     { id: 'd10', name: 'Silicon Vertex', power: 80, req: { m6: 10, m8: 1 } },
     { id: 'd11', name: 'Belle II', power: 120, req: { m6: 5, m7: 5, m3: 5 } },
-    { id: 'd12', name: 'Super-K', power: 200, req: { m3: 20 } }
+    { id: 'd12', name: 'Super-K', power: 200, req: { m3: 20 } },
+    { id: 'd13', name: 'LHC', power: 500, req: { m9: 10, m10: 5, m7: 20 } }
 ];
 
 const beams = [{ id: 'b1', name: 'Cosmic', cost: 0, power: 1 }, { id: 'b2', name: 'RI', cost: 5000, power: 3 }];
 const targets = [{ id: 't1', name: 'Air', cost: 0, power: 1 }, { id: 't2', name: 'Gold', cost: 10000, power: 2 }];
 
-let user = { money: 10000, rp: 0, invMat: {}, invDet: [], invPart: { 1: 1 }, deck: [1, null, null, null, null], equippedSkins: {}, skills: [] };
+let user = { money: 10000, rp: 0, bp: 0, invMat: {}, invDet: [], invPart: { 1: 1 }, deck: [1, null, null, null, null], equippedSkins: {}, skills: [] };
 let currentMission = null;
 let currentSlotIndex = 0;
 
@@ -115,6 +162,7 @@ function getSkillBonus(type) {
 
 function getFameParams(rarity) {
     switch (rarity) {
+        case 'limitless': return { req: 1, bonus: 0.50 };
         case 'genesis': return { req: 5, bonus: 0.10 };
         case 'ultra': return { req: 10, bonus: 0.10 };
         case 'holo': return { req: 40, bonus: 0.10 };
@@ -174,16 +222,57 @@ function showView(id) {
     });
 
     if (id === 'view-lab') renderLab();
+    if (id === 'view-dictionary') renderDictionary();
     if (id === 'view-mission') renderMissionList();
     if (id === 'view-buffs') renderBuffList();
+    if (id === 'view-bpshop') renderBpShop();
 }
 
 function refreshUI() {
     document.getElementById('disp-money').innerText = user.money.toLocaleString();
     const rpEl = document.getElementById('disp-rp');
     if (rpEl) rpEl.innerText = (user.rp || 0).toLocaleString();
-    renderShop(); renderCraft(); renderOffice();
+    const bpEl = document.getElementById('disp-bp');
+    if (bpEl) bpEl.innerText = (user.bp || 0).toLocaleString();
+    renderShop(); renderCraft(); renderOffice(); renderBpShop(); renderDictionary();
     if (document.getElementById('view-home').classList.contains('active')) renderStats();
+}
+
+function renderDictionary() {
+    const el = document.getElementById('dictionary-list'); if (!el) return; el.innerHTML = '';
+    const sorted = [...particles].sort((a, b) => a.id - b.id);
+    let collectedCount = 0;
+
+    sorted.forEach(p => {
+        const owned = (user.invPart && user.invPart[p.id] > 0);
+        if (owned) collectedCount++;
+
+        const card = document.createElement('div');
+        card.className = `item-card ${owned ? 'card-' + p.rarity : 'dict-locked'}`;
+        card.style.textAlign = 'center';
+        card.style.position = 'relative';
+
+        if (owned) {
+            // Owned state
+            card.innerHTML = `
+                <div style="font-size:0.7rem; color:#aaa; position:absolute; top:2px; left:5px;">No.${p.id}</div>
+                <img src="${getImgSrc(p)}" style="width:60px; height:60px; object-fit:contain; margin-top:15px;">
+                <div class="${'rarity-' + p.rarity}" style="font-size:0.7rem; margin-top:5px;">${p.name}</div>
+            `;
+            card.onclick = () => showCharDetail(p.id);
+        } else {
+            // Unowned state
+            card.innerHTML = `
+                <div style="font-size:0.7rem; color:#444; position:absolute; top:2px; left:5px;">No.${p.id}</div>
+                <div style="width:60px; height:60px; background:#000; border-radius:50%; margin:15px auto 0; display:flex; align-items:center; justify-content:center; color:#333; font-size:1.5rem;">?</div>
+                <div style="font-size:0.7rem; margin-top:5px; color:#555;">???</div>
+            `;
+        }
+        el.appendChild(card);
+    });
+
+    document.getElementById('dict-count').innerText = collectedCount;
+    document.getElementById('dict-total').innerText = sorted.length;
 }
 
 function startBattle(missionId) {
@@ -492,22 +581,45 @@ function renderOffice() {
         const pid = parseInt(pidStr); if (user.invPart[pid] > 0) {
             const p = particles.find(x => x.id == pid); if (p) {
                 let pr = 1000; if (p.rarity == "rare") pr = 3000; if (p.rarity == "holo") pr = 10000; if (p.rarity == "ultra") pr = 50000; if (p.rarity == "genesis") pr = 1000000;
+                if (p.rarity == "limitless") pr = 99999999;
                 el.innerHTML += `<div class="item-card card-${p.rarity}" onclick="sell(${pid},${pr})"><div class="rarity-label label-${p.rarity}">${p.rarity.toUpperCase()}</div><div class="rarity-${p.rarity}">${p.name}</div><div style="font-size:0.8rem">x${user.invPart[pid]}</div><div style="font-size:0.7rem; color:#aaa; margin-top:5px;">SELL: ¥${pr}</div></div>`;
             }
         }
     });
 }
 function sell(pid, pr) {
-    if (user.invPart[pid] > 0) {
-        user.invPart[pid]--;
-        const bonus = getSkillBonus('sell_bonus');
-        const finalPrice = Math.floor(pr * (1 + bonus));
-        user.money += finalPrice;
-        const rpBonus = getSkillBonus('rp_bonus');
-        const rpGain = Math.floor((pr * 0.05) * (1 + rpBonus));
-        user.rp = (user.rp || 0) + rpGain;
-        saveGame(); refreshUI();
+    const count = user.invPart[pid] || 0;
+    if (count <= 0) return;
+
+    const sellCountStr = prompt(`売却する個数を入力してください (所持: ${count})`, "1");
+    if (sellCountStr === null) return; // Cancelled
+    let sellCount = parseInt(sellCountStr);
+
+    if (isNaN(sellCount) || sellCount <= 0) {
+        alert("無効な数値です");
+        return;
     }
+    if (sellCount > count) {
+        alert("所持数を超えています");
+        sellCount = count;
+    }
+
+    user.invPart[pid] -= sellCount;
+
+    // Calculate total earnings
+    const bonus = getSkillBonus('sell_bonus');
+    const unitPrice = Math.floor(pr * (1 + bonus));
+    const finalPrice = unitPrice * sellCount;
+    user.money += finalPrice;
+
+    // RP Bonus (5% of base price * count)
+    const rpBonus = getSkillBonus('rp_bonus');
+    const unitRp = Math.floor((pr * 0.05) * (1 + rpBonus));
+    const totalRp = unitRp * sellCount;
+    user.rp = (user.rp || 0) + totalRp;
+
+    saveGame(); refreshUI();
+    alert(`売却完了:\n💰 +¥${finalPrice.toLocaleString()}\n🧪 +${totalRp.toLocaleString()} RP`);
 }
 
 function renderMissionList() {
@@ -519,6 +631,7 @@ function renderMissionList() {
         let tagClass = '';
         if (m.drops.money > 5000) tagClass = 'tag-money';
         if (m.drops.rareMat) tagClass = 'tag-boss';
+        if (m.drops.bp) tagClass = 'tag-bp';
 
         el.innerHTML += `
             <div class="mission-card" onclick="startBattle('${key}')">
@@ -561,6 +674,7 @@ function loadGame() {
     const d = localStorage.getItem('hadron_v8'); if (d) { try { user = JSON.parse(d); } catch (e) { user = {}; } }
     if (typeof user.money === 'undefined') user.money = 10000;
     if (typeof user.rp === 'undefined') user.rp = 0;
+    if (typeof user.bp === 'undefined') user.bp = 0;
     if (!user.invMat) user.invMat = {};
     if (!user.invDet || user.invDet.length === 0) user.invDet = ['d0'];
     if (!user.invPart) user.invPart = { 1: 1 };
@@ -583,6 +697,12 @@ function winGame() {
     const rpGain = Math.floor(money * 0.1);
     user.rp = (user.rp || 0) + rpGain;
     msg += `<br>🧪 ${rpGain} RP`;
+
+    // BPの獲得
+    if (currentMission && currentMission.drops.bp) {
+        user.bp = (user.bp || 0) + currentMission.drops.bp;
+        msg += `<br>⚔️ ${currentMission.drops.bp} BP`;
+    }
 
     // 3. 素材ドロップ
     if (currentMission && currentMission.drops.matChance > 0) {
@@ -695,3 +815,43 @@ function renderBuffList() {
     });
 }
 
+
+// === BP Shop Data & Logic ===
+const bpShopItems = [
+    { id: 'bp_m11', type: 'mat', itemId: 'm11', cost: 100, name: 'Void Crystal' },
+    { id: 'bp_m10', type: 'mat', itemId: 'm10', cost: 50, name: 'Dark Matter' },
+    { id: 'bp_p25', type: 'part', itemId: 25, cost: 2000, name: 'Bottom Quark' },
+    { id: 'bp_p27', type: 'part', itemId: 27, cost: 10000, name: 'Monopole' },
+    { id: 'bp_p99', type: 'part', itemId: 99, cost: 50000, name: 'Superstring (∞)' },
+    { id: 'bp_p100', type: 'part', itemId: 100, cost: 40000, name: 'Schrödinger (🐱)' },
+    { id: 'bp_p101', type: 'part', itemId: 101, cost: 40000, name: 'Maxwell (😈)' },
+    { id: 'bp_p102', type: 'part', itemId: 102, cost: 45000, name: 'Dark Energy (DE)' },
+    { id: 'bp_p103', type: 'part', itemId: 103, cost: 45000, name: 'Chrono (t\')' },
+    { id: 'bp_p104', type: 'part', itemId: 104, cost: 60000, name: 'Big Bang (💥)' }
+];
+
+function renderBpShop() {
+    const el = document.getElementById('bp-shop-list'); if (!el) return; el.innerHTML = '';
+    bpShopItems.forEach(item => {
+        el.innerHTML += `
+            <div class="item-card bp-card" onclick="buyBpItem('${item.id}')">
+                <div style="font-weight:bold; color:var(--hc-purple)">${item.name}</div>
+                <div style="color:var(--hc-orange)">${item.cost} BP</div>
+            </div>`;
+    });
+}
+
+function buyBpItem(uid) {
+    const item = bpShopItems.find(x => x.id === uid);
+    if (!item) return;
+    if ((user.bp || 0) < item.cost) { alert("BP不足です"); return; }
+
+    user.bp -= item.cost;
+    if (item.type === 'mat') {
+        user.invMat[item.itemId] = (user.invMat[item.itemId] || 0) + 1;
+    } else if (item.type === 'part') {
+        user.invPart[item.itemId] = (user.invPart[item.itemId] || 0) + 1;
+    }
+    saveGame(); refreshUI();
+    alert(`Purchased: ${item.name}`);
+}
